@@ -46,10 +46,10 @@ function MatchesContent() {
   const [requestSuccess, setRequestSuccess] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!intentId) return;
+    const url = intentId ? `/api/matches?intentId=${intentId}` : "/api/matches";
 
     Promise.all([
-      fetch(`/api/matches?intentId=${intentId}`).then((r) => r.json()),
+      fetch(url).then((r) => r.json()),
       fetch("/api/tokens/balance").then((r) => r.json()),
     ])
       .then(([matchData, tokenData]) => {
@@ -224,30 +224,34 @@ function MatchesContent() {
 
             return (
               <article key={m.alum_id} className="match-card">
-                {/* Score Pill / Orb */}
-                <div className="match-score">
-                  <span className="score-orb">
-                    {m.total_score}
-                    <small>match</small>
-                  </span>
-                </div>
-
-                {/* Person Header */}
-                <div className="person">
-                  <Avatar initials={initials} tone={tone} size="md" />
-                  <div>
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <h3 className="font-bold text-[#15213b]">{m.full_name}</h3>
-                      <span className="badge soft text-[10px] py-0.5 px-1.5 inline-flex items-center gap-1 font-semibold text-[#4d5fd3]">
-                        <Sparkles className="h-2.5 w-2.5" /> Mentor
+                {/* Card Top Row: Person Info on Left, Score Orb on Right */}
+                <div className="card-top">
+                  <div className="person">
+                    <Avatar initials={initials} tone={tone} size="md" />
+                    <div className="person-info">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <h3 className="font-bold text-[#15213b] text-base leading-snug">{m.full_name}</h3>
+                        <span className="badge soft text-[10px] py-0.5 px-1.5 inline-flex items-center gap-1 font-semibold text-[#4d5fd3]">
+                          <Sparkles className="h-2.5 w-2.5" /> Mentor
+                        </span>
+                      </div>
+                      <p className="text-xs text-[#66758e] mt-0.5">
+                        {m.job_title} · {m.company}
+                      </p>
+                      <span className="text-[11px] text-[#8896ab]">
+                        Class of {m.graduation_year || 2023}
                       </span>
                     </div>
-                    <p className="text-xs text-[#66758e]">
-                      {m.job_title} · {m.company}
-                    </p>
-                    <span className="text-[11px] text-[#8896ab]">
-                      Class of {m.graduation_year || 2023}
-                    </span>
+                  </div>
+
+                  <div
+                    className="score-orb"
+                    style={{
+                      background: `conic-gradient(#536df0 ${m.total_score}%, #e4e9f2 0)`,
+                    }}
+                  >
+                    <span>{m.total_score}</span>
+                    <small>match</small>
                   </div>
                 </div>
 
@@ -278,7 +282,7 @@ function MatchesContent() {
                     type="button"
                     variant="secondary"
                     onClick={() => setActiveDrawerMatch(m)}
-                    className="text-xs"
+                    className="text-xs h-9 min-h-0 w-full"
                   >
                     Why this match?
                   </Button>
@@ -287,7 +291,7 @@ function MatchesContent() {
                     variant="primary"
                     onClick={() => handleOpenRequestModal(m)}
                     disabled={m.remaining_capacity <= 0}
-                    className="text-xs"
+                    className="text-xs h-9 min-h-0 w-full"
                   >
                     Request introduction
                   </Button>
