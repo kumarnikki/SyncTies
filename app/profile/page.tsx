@@ -1,14 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { User, ShieldCheck, Save, Sparkles, Building, GraduationCap, Briefcase } from "lucide-react";
+import { User, ShieldCheck, Save, Sparkles, Building, GraduationCap, Briefcase, Shield, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select } from "@/components/ui/select";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert } from "@/components/ui/alert";
+import { Avatar } from "@/components/ui/avatar";
 import { Profile } from "@/types/database";
 
 export default function ProfilePage() {
@@ -81,171 +78,224 @@ export default function ProfilePage() {
 
       const data = await res.json();
       setProfile(data.profile);
-      setMessage("Profile updated successfully!");
+      setMessage("Profile changes saved successfully!");
     } catch (err: any) {
-      setError(err.message || "Failed to update profile");
+      setError(err?.message || "Failed to update profile");
     } finally {
       setSaveLoading(false);
     }
   };
 
   if (loading) {
-    return <div className="p-12 text-center text-sm text-slate-500">Loading profile...</div>;
+    return <div className="p-16 text-center text-sm text-[#66758e]">Loading profile...</div>;
   }
 
   const isStudent = profile?.role === "student";
+  const initials = fullName
+    ? fullName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()
+    : "ST";
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-      <div className="border-b border-slate-200 pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
-            Account Profile & Pilot Verification
-          </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Keep your profile accurate to maintain high matching precision in the algorithm.
-          </p>
-        </div>
+    <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-page-enter">
+      {/* Figma Profile Hero */}
+      <div className="profile-hero rounded-2xl shadow-xs">
+        <div className="profile-main">
+          <Avatar initials={initials} tone={isStudent ? "cyan" : "violet"} size="lg" />
+          <div>
+            <span className="badge soft text-xs mb-1 inline-flex items-center gap-1">
+              <ShieldCheck className="h-3 w-3 text-[#536df0]" />
+              <span className="capitalize">{profile?.role || "student"} Member</span>
+            </span>
+            <h1 className="font-heading text-2xl sm:text-3xl font-bold text-[#15213b]">
+              {fullName || "Your Profile"}
+            </h1>
+            <p className="text-sm font-semibold text-[#66758e]">
+              {isStudent
+                ? `Year ${studyYear} Undergraduate · Class of ${expectedGradYear}`
+                : `${jobTitle || "Professional"} at ${company || "Company"}`}
+            </p>
+            <span className="text-xs text-[#8896ab]">{institution}</span>
+          </div>
 
-        {/* Verification Badge */}
-        <div className="flex items-center gap-2">
-          <Badge
-            variant={
-              profile?.verification_status === "verified"
-                ? "success"
-                : profile?.verification_status === "pending"
-                ? "warning"
-                : "secondary"
-            }
-            className="text-xs px-2.5 py-1"
-          >
-            <ShieldCheck className="h-3.5 w-3.5 mr-1" />
-            <span className="capitalize">{profile?.verification_status || "verified"}</span>
-          </Badge>
+          <div className="profile-cta">
+            <div>
+              <b className="font-heading">100%</b>
+              <span>Identity Active</span>
+            </div>
+          </div>
         </div>
       </div>
 
       {message && <Alert variant="success">{message}</Alert>}
       {error && <Alert variant="error">{error}</Alert>}
 
-      <Card className="shadow-xs">
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-6 pt-6">
-            {/* Identity & Role info banner */}
-            <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
-                  {fullName ? fullName[0] : "U"}
-                </div>
-                <div>
-                  <h4 className="text-sm font-semibold text-slate-900">{fullName}</h4>
-                  <p className="text-xs text-slate-500">
-                    Role: <strong className="capitalize">{profile?.role || "student"}</strong> •{" "}
-                    {profile?.email || "user@example.com"}
-                  </p>
-                </div>
+      {/* Settings & Profile Layout */}
+      <div className="settings-layout">
+        {/* Main Edit Profile Form (Left Column) */}
+        <section className="panel edit-profile">
+          <div className="flex items-center justify-between pb-4 border-b border-[#edf0f5] mb-5">
+            <div>
+              <h2 className="font-heading text-xl text-[#15213b]">Profile Information</h2>
+              <p className="text-xs text-[#66758e]">These details power your matching factors and explainable briefs.</p>
+            </div>
+            <span className="badge demo text-xs">Self-Reported Identity</span>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="form-grid">
+              <div className="field">
+                <label htmlFor="pName">Full name</label>
+                <input
+                  id="pName"
+                  type="text"
+                  required
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                />
               </div>
-              <span className="text-xs bg-slate-200/60 text-slate-600 px-2 py-1 rounded">
-                Role Locked (Server Enforced)
-              </span>
+
+              <div className="field">
+                <label htmlFor="pInst">University / Institution</label>
+                <input
+                  id="pInst"
+                  type="text"
+                  required
+                  value={institution}
+                  onChange={(e) => setInstitution(e.target.value)}
+                />
+              </div>
+
+              {isStudent ? (
+                <>
+                  <div className="field">
+                    <label htmlFor="pStudyYear">Study year</label>
+                    <select
+                      id="pStudyYear"
+                      value={studyYear}
+                      onChange={(e) => setStudyYear(Number(e.target.value))}
+                    >
+                      <option value={3}>3rd Year Undergraduate</option>
+                      <option value={4}>4th Year Undergraduate (Final Year)</option>
+                    </select>
+                  </div>
+
+                  <div className="field">
+                    <label htmlFor="pGradYear">Expected graduation</label>
+                    <select
+                      id="pGradYear"
+                      value={expectedGradYear}
+                      onChange={(e) => setExpectedGradYear(Number(e.target.value))}
+                    >
+                      <option value={2026}>2026</option>
+                      <option value={2027}>2027</option>
+                      <option value={2028}>2028</option>
+                    </select>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="field">
+                    <label htmlFor="pJob">Job title</label>
+                    <input
+                      id="pJob"
+                      type="text"
+                      placeholder="e.g. Senior PM"
+                      value={jobTitle}
+                      onChange={(e) => setJobTitle(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="field">
+                    <label htmlFor="pComp">Company</label>
+                    <input
+                      id="pComp"
+                      type="text"
+                      placeholder="e.g. Stripe, Google"
+                      value={company}
+                      onChange={(e) => setCompany(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="field">
+                    <label htmlFor="pInd">Industry domain</label>
+                    <input
+                      id="pInd"
+                      type="text"
+                      placeholder="e.g. Developer Tools, FinTech"
+                      value={industry}
+                      onChange={(e) => setIndustry(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="field">
+                    <label htmlFor="pAlumYear">Graduation year</label>
+                    <select
+                      id="pAlumYear"
+                      value={graduationYear}
+                      onChange={(e) => setGraduationYear(Number(e.target.value))}
+                    >
+                      <option value={2026}>Class of 2026</option>
+                      <option value={2025}>Class of 2025</option>
+                      <option value={2024}>Class of 2024</option>
+                      <option value={2023}>Class of 2023</option>
+                      <option value={2022}>Class of 2022</option>
+                    </select>
+                  </div>
+                </>
+              )}
+
+              <div className="field full">
+                <label htmlFor="pBio">Public bio &amp; background</label>
+                <textarea
+                  id="pBio"
+                  rows={3}
+                  placeholder="Share a short summary of your background, experience, and mentoring goals..."
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                />
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Input
-                label="Full Name"
-                required
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-              />
-              <Input
-                label="University / Institution"
-                required
-                value={institution}
-                onChange={(e) => setInstitution(e.target.value)}
-              />
-            </div>
-
-            {/* Student specific fields */}
-            {isStudent && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Select
-                  label="Study Year (Pilot Cohort: 3rd & 4th Year)"
-                  value={studyYear.toString()}
-                  onChange={(e) => setStudyYear(Number(e.target.value))}
-                  options={[
-                    { value: "3", label: "3rd Year Undergraduate" },
-                    { value: "4", label: "4th Year Undergraduate (Final Year)" },
-                  ]}
-                />
-                <Select
-                  label="Expected Graduation Year"
-                  value={expectedGradYear.toString()}
-                  onChange={(e) => setExpectedGradYear(Number(e.target.value))}
-                  options={[
-                    { value: "2026", label: "2026" },
-                    { value: "2027", label: "2027" },
-                    { value: "2028", label: "2028" },
-                  ]}
-                />
-              </div>
-            )}
-
-            {/* Alumni specific fields */}
-            {!isStudent && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <Input
-                    label="Current Job Title"
-                    placeholder="e.g. Senior PM"
-                    value={jobTitle}
-                    onChange={(e) => setJobTitle(e.target.value)}
-                  />
-                  <Input
-                    label="Current Company"
-                    placeholder="e.g. Stripe"
-                    value={company}
-                    onChange={(e) => setCompany(e.target.value)}
-                  />
-                  <Input
-                    label="Industry Domain"
-                    placeholder="e.g. FinTech"
-                    value={industry}
-                    onChange={(e) => setIndustry(e.target.value)}
-                  />
-                </div>
-
-                <Select
-                  label="Graduation Year (Pilot Cohort: Recent 3 Batches)"
-                  value={graduationYear.toString()}
-                  onChange={(e) => setGraduationYear(Number(e.target.value))}
-                  options={[
-                    { value: "2026", label: "Class of 2026 (Recent Grad)" },
-                    { value: "2025", label: "Class of 2025" },
-                    { value: "2024", label: "Class of 2024" },
-                    { value: "2023", label: "Class of 2023" },
-                    { value: "2022", label: "Class of 2022" },
-                  ]}
-                />
-              </div>
-            )}
-
-            <Textarea
-              label="Public Bio / Professional Summary"
-              rows={4}
-              placeholder="Tell others about your background, career focus, and mentoring availability."
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-            />
-
-            <div className="flex justify-end pt-2">
-              <Button type="submit" variant="primary" className="gap-2" isLoading={saveLoading}>
+            <div className="flex justify-end pt-3 border-t border-[#edf0f5]">
+              <Button type="submit" variant="primary" isLoading={saveLoading} className="gap-2">
                 <Save className="h-4 w-4" />
-                <span>Save Profile Changes</span>
+                <span>Save profile changes</span>
               </Button>
             </div>
-          </CardContent>
-        </form>
-      </Card>
+          </form>
+        </section>
+
+        {/* Profile Strength & Verification Aside (Right Column) */}
+        <aside className="space-y-5">
+          <section className="panel profile-strength text-center">
+            <h3 className="font-heading text-base text-[#15213b]">Profile Strength</h3>
+            <div className="ring my-4">
+              92<small className="text-xs">%</small>
+            </div>
+            <p className="text-xs text-[#66758e] leading-relaxed">
+              Complete profile bios help alumni understand your context and speed up request review times.
+            </p>
+          </section>
+
+          <section className="panel space-y-3">
+            <h3 className="font-heading text-base text-[#15213b]">Account Governance</h3>
+            <div className="space-y-2 text-xs text-[#66758e]">
+              <div className="flex items-center justify-between py-1.5 border-b border-[#edf0f5]">
+                <span>Registered Email</span>
+                <span className="text-[#15213b] font-medium">{profile?.email || "user@example.com"}</span>
+              </div>
+              <div className="flex items-center justify-between py-1.5 border-b border-[#edf0f5]">
+                <span>Role Allocation</span>
+                <span className="badge soft text-[11px] capitalize">{profile?.role || "student"}</span>
+              </div>
+              <div className="flex items-center justify-between py-1.5 border-b border-[#edf0f5]">
+                <span>Auth Provider</span>
+                <span className="text-[#15213b] font-medium">Supabase Auth</span>
+              </div>
+            </div>
+          </section>
+        </aside>
+      </div>
     </div>
   );
 }

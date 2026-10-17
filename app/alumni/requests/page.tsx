@@ -2,14 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Clock, CheckCircle, AlertTriangle, Users, MessageSquare } from "lucide-react";
+import { Clock, CheckCircle, AlertTriangle, Users, MessageSquare, ArrowLeft, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { RequestStatusBadge } from "@/components/ui/status-badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Alert } from "@/components/ui/alert";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Avatar } from "@/components/ui/avatar";
 import { ConnectionRequest } from "@/types/database";
 
 export default function AlumniRequestsPage() {
@@ -57,27 +55,36 @@ export default function AlumniRequestsPage() {
       setMessage(`Request marked as ${action}ed.`);
       fetchRequests();
     } catch (err: any) {
-      alert(err.message);
+      alert(err?.message || "Action failed");
     } finally {
       setActionLoading(null);
     }
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-      <div className="border-b border-slate-200 pb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
-          Incoming Connection Requests
-        </h1>
-        <p className="text-sm text-slate-500 mt-1">
-          Review student asks within your monthly capacity. Accepted requests transition to active collaborative goals.
-        </p>
+    <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-page-enter">
+      <div>
+        <Link
+          href="/alumni/dashboard"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#66758e] hover:text-[#15213b] mb-3"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          <span>Back to Hub</span>
+        </Link>
+        <div className="page-head">
+          <div>
+            <h1 className="font-heading">Incoming Connection Requests</h1>
+            <p>
+              Review student asks within your monthly capacity. Accepted requests transition to active collaborative goals.
+            </p>
+          </div>
+        </div>
       </div>
 
       {message && <Alert variant="success">{message}</Alert>}
 
       {loading ? (
-        <div className="p-8 text-center text-sm text-slate-500">Loading incoming requests...</div>
+        <div className="p-12 text-center text-sm text-[#66758e]">Loading incoming requests...</div>
       ) : requests.length === 0 ? (
         <EmptyState
           icon={Users}
@@ -87,84 +94,84 @@ export default function AlumniRequestsPage() {
           actionHref="/alumni/dashboard"
         />
       ) : (
-        <div className="space-y-6">
-          {requests.map((req) => (
-            <Card key={req.id} className="shadow-xs border-slate-200">
-              <CardContent className="p-6 space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+        <div className="space-y-4 max-w-4xl">
+          {requests.map((req, idx) => {
+            const initials = req.student?.full_name
+              ? req.student.full_name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()
+              : "ST";
+            const tones = ["cyan", "violet", "coral", "blue"] as const;
+            const tone = tones[idx % tones.length];
+
+            return (
+              <article key={req.id} className="request-card">
+                <div className="person">
+                  <Avatar initials={initials} tone={tone} size="md" />
                   <div>
-                    <div className="flex items-center gap-2.5 flex-wrap">
-                      <h3 className="font-bold text-slate-900 text-lg">
-                        {req.student?.full_name || "Student Requester"}
-                      </h3>
-                      <span className="text-xs bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-medium">
-                        Year {req.student?.study_year || 4} Undergraduate
-                      </span>
-                      <RequestStatusBadge status={req.status} />
-                      {req.repeat_contact_in_month && (
-                        <span className="text-xs bg-amber-100 text-amber-800 border border-amber-200 px-2 py-0.5 rounded font-medium flex items-center gap-1">
-                          <AlertTriangle className="h-3 w-3" /> Repeat Contact in Month
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-slate-500 mt-1">
-                      Target Goal: <strong>{req.intent?.title || "Career Advice"}</strong>
+                    <h3 className="font-bold text-[#15213b] text-base">
+                      {req.student?.full_name || "Student Requester"}
+                    </h3>
+                    <p className="text-xs text-[#66758e]">
+                      Year {req.student?.study_year || 4} Undergraduate · Computer Science
                     </p>
                   </div>
-
-                  <span className="text-xs text-slate-400">
-                    Received {new Date(req.created_at).toLocaleDateString()}
-                  </span>
+                  <RequestStatusBadge status={req.status} />
                 </div>
 
-                {/* Student message */}
-                <div className="p-3 bg-slate-50 rounded-lg border border-slate-200/80 text-xs text-slate-800 space-y-1">
-                  <span className="font-semibold text-slate-700 block">Student Message:</span>
-                  <p className="italic leading-relaxed">&quot;{req.student_message}&quot;</p>
+                <div className="request-goal">
+                  <small className="text-xs font-semibold text-[#8896ab] uppercase tracking-wider">
+                    Target Goal
+                  </small>
+                  <b className="text-sm text-[#15213b] font-bold">
+                    {req.intent?.title || "Career Advice"}
+                  </b>
+                  <p className="text-xs text-[#66758e] italic leading-relaxed mt-1">
+                    &quot;{req.student_message}&quot;
+                  </p>
+                </div>
+
+                <div className="rationale">
+                  <Sparkles className="h-3.5 w-3.5 text-[#536df0] shrink-0" />
+                  <span>High domain overlap &amp; verified help-type compatibility · Est. 20 min review</span>
                 </div>
 
                 {req.repeat_contact_in_month && req.repeat_reason && (
-                  <div className="p-3 bg-amber-50 rounded-lg border border-amber-200 text-xs text-amber-900">
+                  <div className="p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-900 mt-2">
                     <strong>Repeat outreach justification:</strong> &quot;{req.repeat_reason}&quot;
                   </div>
                 )}
 
-                {/* If pending, show review note & action buttons */}
+                {/* If pending, response note & action buttons */}
                 {req.status === "pending" && (
-                  <div className="pt-2 border-t border-slate-100 space-y-3">
-                    <Input
-                      placeholder="Optional response note to the student (e.g. Let's schedule 30 mins this Thursday)"
-                      value={responseNotes[req.id] || ""}
-                      onChange={(e) =>
-                        setResponseNotes({ ...responseNotes, [req.id]: e.target.value })
-                      }
-                      className="text-xs"
-                    />
+                  <div className="pt-3 border-t border-[#edf0f5] mt-3 space-y-3">
+                    <div className="field">
+                      <label htmlFor={`note-${req.id}`} className="text-xs font-semibold text-[#66758e]">
+                        Optional response note to student
+                      </label>
+                      <input
+                        id={`note-${req.id}`}
+                        placeholder="e.g. Happy to help! Let's schedule 30 mins next week..."
+                        value={responseNotes[req.id] || ""}
+                        onChange={(e) =>
+                          setResponseNotes({ ...responseNotes, [req.id]: e.target.value })
+                        }
+                      />
+                    </div>
 
-                    <div className="flex flex-wrap items-center justify-end gap-2">
-                      {req.repeat_contact_in_month && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleAction(req.id, "ignore")}
-                          isLoading={actionLoading === req.id}
-                          className="text-xs text-slate-400 hover:text-slate-700"
-                        >
-                          Ignore Repeat
-                        </Button>
-                      )}
+                    <div className="card-actions">
                       <Button
-                        size="sm"
+                        type="button"
                         variant="ghost"
+                        size="sm"
                         onClick={() => handleAction(req.id, "decline")}
                         isLoading={actionLoading === req.id}
-                        className="text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50"
+                        className="text-xs text-rose-600 hover:text-rose-700"
                       >
                         Decline
                       </Button>
                       <Button
+                        type="button"
+                        variant="secondary"
                         size="sm"
-                        variant="outline"
                         onClick={() => handleAction(req.id, "defer")}
                         isLoading={actionLoading === req.id}
                         className="text-xs"
@@ -172,34 +179,35 @@ export default function AlumniRequestsPage() {
                         Defer (Next Week)
                       </Button>
                       <Button
-                        size="sm"
+                        type="button"
                         variant="primary"
+                        size="sm"
                         onClick={() => handleAction(req.id, "accept")}
                         isLoading={actionLoading === req.id}
                         className="text-xs"
                       >
-                        Accept & Open Goal Room
+                        Accept &amp; Open Workspace
                       </Button>
                     </div>
                   </div>
                 )}
 
                 {req.status === "accepted" && (
-                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
-                    <span className="text-xs text-emerald-800 font-medium">
-                      Accepted. Active collaborative goal established.
+                  <div className="pt-3 border-t border-[#edf0f5] mt-3 flex items-center justify-between">
+                    <span className="text-xs text-emerald-800 font-medium flex items-center gap-1.5">
+                      <CheckCircle className="h-4 w-4 text-emerald-600" />
+                      Accepted · Active collaborative goal established
                     </span>
                     <Link href="/goals/77777777-7777-7777-7777-777777777701">
-                      <Button size="sm" variant="outline" className="text-xs gap-1.5">
-                        <CheckCircle className="h-3.5 w-3.5 text-emerald-600" />
-                        <span>Go to Goal Collaboration Room</span>
+                      <Button size="sm" variant="secondary" className="text-xs">
+                        Open Goal Workspace
                       </Button>
                     </Link>
                   </div>
                 )}
-              </CardContent>
-            </Card>
-          ))}
+              </article>
+            );
+          })}
         </div>
       )}
     </div>

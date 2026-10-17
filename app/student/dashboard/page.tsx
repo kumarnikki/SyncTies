@@ -12,13 +12,14 @@ import {
   Plus,
   Sparkles,
   ExternalLink,
-  ShieldAlert,
+  Shield,
+  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { RequestStatusBadge, GoalStatusBadge } from "@/components/ui/status-badge";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Avatar } from "@/components/ui/avatar";
 import { Intent, ConnectionRequest, Goal, TokenSummary } from "@/types/database";
 
 export default function StudentDashboardPage() {
@@ -39,7 +40,6 @@ export default function StudentDashboardPage() {
         if (intentsData?.intents) setIntents(intentsData.intents);
         if (reqData?.requests) {
           setRequests(reqData.requests);
-          // extract goals
           const acceptedWithGoals = reqData.requests
             .filter((r: any) => r.status === "accepted")
             .map((r: any) => ({
@@ -61,114 +61,84 @@ export default function StudentDashboardPage() {
   const pendingRequests = requests.filter((r) => r.status === "pending");
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Top Banner / Welcome */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-6">
+    <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-page-enter">
+      {/* Page Header */}
+      <div className="page-head">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
-            Student Dashboard
-          </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Track your goals, monthly outreach tokens, and verified alumni matches.
-          </p>
+          <h1 className="font-heading">Student Portal</h1>
+          <p>Track your active career intents, monthly outreach tokens, and explainable alumni recommendations.</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div>
           <Link href="/student/intents/new">
-            <Button variant="primary" className="gap-2 shadow-xs">
+            <Button variant="primary" className="gap-2 shadow-sm">
               <Plus className="h-4 w-4" />
-              <span>New Intent / Goal</span>
+              <span>Set a Goal / Intent</span>
             </Button>
           </Link>
         </div>
       </div>
 
-      {/* Overview Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {/* Monthly Tokens */}
-        <Card className="border-blue-200/80 bg-blue-50/20 shadow-xs">
-          <CardContent className="p-5 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-blue-700">
-                Monthly Tokens Left
-              </p>
-              <div className="text-3xl font-extrabold text-blue-950 mt-1">
-                {tokens?.tokens_remaining ?? 4}{" "}
-                <span className="text-sm font-normal text-slate-500">
-                  / {tokens?.tokens_granted ?? 5}
-                </span>
-              </div>
-              <p className="text-xs text-slate-500 mt-1">1 token per connection request</p>
-            </div>
-            <div className="h-12 w-12 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-xs">
-              <Coins className="h-6 w-6" />
-            </div>
-          </CardContent>
-        </Card>
+      {/* 4 Metric Cards (Figma Style) */}
+      <div className="metrics">
+        <article className="metric">
+          <span className="blue">
+            <Zap className="h-5 w-5" />
+          </span>
+          <div>
+            <small>Tokens remaining</small>
+            <b>
+              {tokens?.tokens_remaining ?? 4}{" "}
+              <em className="text-xs font-normal text-[#8896ab]">/ {tokens?.tokens_granted ?? 5}</em>
+            </b>
+            <em>1 token per new request</em>
+          </div>
+        </article>
 
-        {/* Active Open Intents */}
-        <Card className="shadow-xs">
-          <CardContent className="p-5 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Active Intents
-              </p>
-              <div className="text-3xl font-extrabold text-slate-900 mt-1">
-                {openIntents.length}
-              </div>
-              <p className="text-xs text-slate-500 mt-1">Ready for SQL matching</p>
-            </div>
-            <div className="h-12 w-12 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
-              <Target className="h-6 w-6 text-blue-600" />
-            </div>
-          </CardContent>
-        </Card>
+        <article className="metric">
+          <span className="violet">
+            <Target className="h-5 w-5" />
+          </span>
+          <div>
+            <small>Active intents</small>
+            <b>{openIntents.length}</b>
+            <em>Ready for algorithm matching</em>
+          </div>
+        </article>
 
-        {/* Pending Requests */}
-        <Card className="shadow-xs">
-          <CardContent className="p-5 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Pending Requests
-              </p>
-              <div className="text-3xl font-extrabold text-slate-900 mt-1">
-                {pendingRequests.length}
-              </div>
-              <p className="text-xs text-slate-500 mt-1">Under alumni review</p>
-            </div>
-            <div className="h-12 w-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
-              <Clock className="h-6 w-6" />
-            </div>
-          </CardContent>
-        </Card>
+        <article className="metric">
+          <span className="cyan">
+            <Clock className="h-5 w-5" />
+          </span>
+          <div>
+            <small>Open requests</small>
+            <b>{pendingRequests.length}</b>
+            <em>{pendingRequests.length === 1 ? "1 awaiting review" : `${pendingRequests.length} awaiting review`}</em>
+          </div>
+        </article>
 
-        {/* Goals Progress */}
-        <Card className="shadow-xs">
-          <CardContent className="p-5 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Fulfilled Goals
-              </p>
-              <div className="text-3xl font-extrabold text-emerald-600 mt-1">
-                1
-              </div>
-              <p className="text-xs text-slate-500 mt-1">Dual-confirmed completion</p>
-            </div>
-            <div className="h-12 w-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <CheckCircle className="h-6 w-6" />
-            </div>
-          </CardContent>
-        </Card>
+        <article className="metric">
+          <span className="green">
+            <CheckCircle className="h-5 w-5" />
+          </span>
+          <div>
+            <small>Goals fulfilled</small>
+            <b>1</b>
+            <em>Mutually confirmed outcome</em>
+          </div>
+        </article>
       </div>
 
       {/* Active Intents & Match Finding */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-            <Target className="h-5 w-5 text-blue-600" />
-            <span>Your Goals & Intents</span>
-          </h2>
-          <Link href="/student/intents" className="text-xs font-medium text-blue-600 hover:underline">
-            View All Intents
+        <div className="content-title">
+          <div>
+            <h2 className="font-heading">Your Active Intents &amp; Goals</h2>
+            <p>Every connection starts with a specific, time-bounded outcome.</p>
+          </div>
+          <Link href="/student/intents">
+            <button className="text-sm font-semibold text-[#5369e8] flex items-center gap-1 hover:underline">
+              View all intents <ArrowRight className="h-3.5 w-3.5" />
+            </button>
           </Link>
         </div>
 
@@ -181,168 +151,181 @@ export default function StudentDashboardPage() {
             actionHref="/student/intents/new"
           />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {intents.map((intent) => (
-              <Card key={intent.id} className="shadow-xs hover:border-blue-300 transition-all">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <CardTitle className="text-base text-slate-900 leading-snug">
-                        {intent.title}
-                      </CardTitle>
-                      <p className="text-xs text-blue-600 font-medium mt-1">
-                        Help Type: {intent.help_type?.name || "Mock Interview"}
-                      </p>
-                    </div>
+              <div
+                key={intent.id}
+                className="panel group hover:border-[#cfd8ff] transition-all flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <h3 className="text-base font-bold text-[#15213b] leading-snug group-hover:text-[#3563ff] transition-colors">
+                      {intent.title}
+                    </h3>
                     <Badge variant={intent.status === "open" ? "default" : "secondary"}>
                       {intent.status}
                     </Badge>
                   </div>
-                </CardHeader>
-                <CardContent className="pt-0 space-y-4">
-                  <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                  <p className="text-xs text-[#5369e8] font-semibold mb-2">
+                    Format: {intent.help_type?.name || "Career Guidance"}
+                  </p>
+                  <p className="text-xs text-[#66758e] line-clamp-2 leading-relaxed mb-4">
                     {intent.description}
                   </p>
 
                   {/* Domain Badges */}
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-1.5 mb-4">
                     {intent.domains?.map((d) => (
                       <span
                         key={d.id}
-                        className="text-[11px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md font-medium"
+                        className="text-[11px] bg-[#f0f3ff] text-[#4056c6] px-2.5 py-0.5 rounded-md font-medium"
                       >
                         {d.name}
                       </span>
                     ))}
                   </div>
+                </div>
 
-                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
-                    <span className="text-xs text-slate-400">
-                      Posted {new Date(intent.created_at).toLocaleDateString()}
-                    </span>
-                    <Link href={`/student/matches?intentId=${intent.id}`}>
-                      <Button variant="primary" size="sm" className="gap-1.5 text-xs">
-                        <Sparkles className="h-3.5 w-3.5" />
-                        <span>Find Ranked Matches</span>
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
+                <div className="pt-3 border-t border-[#edf0f5] flex items-center justify-between">
+                  <span className="text-[11px] text-[#8896ab]">
+                    Posted {new Date(intent.created_at).toLocaleDateString()}
+                  </span>
+                  <Link href={`/student/matches?intentId=${intent.id}`}>
+                    <Button variant="primary" size="sm" className="gap-1.5 text-xs shadow-xs">
+                      <Sparkles className="h-3.5 w-3.5" />
+                      <span>Find Ranked Matches</span>
+                    </Button>
+                  </Link>
+                </div>
+              </div>
             ))}
           </div>
         )}
       </div>
 
-      {/* Outgoing Requests & Goals Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Recent Requests */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-              <Clock className="h-5 w-5 text-blue-600" />
-              <span>Recent Outreach Requests</span>
-            </h2>
-            <Link href="/student/requests" className="text-xs font-medium text-blue-600 hover:underline">
-              View All ({requests.length})
+      {/* Bottom Layout: Active Collaboration & Next Step Prompt */}
+      <div className="dashboard-bottom">
+        {/* Active Collaboration Goal */}
+        <section className="panel goals-panel">
+          <div className="panel-head mb-4">
+            <div>
+              <h2 className="font-heading">Active Collaboration Room</h2>
+              <p>Keep each introduction moving toward mutual confirmation</p>
+            </div>
+            <Link href="/goals/77777777-7777-7777-7777-777777777701">
+              <button className="text-xs font-semibold text-[#5369e8] hover:underline">
+                Open Goal Room
+              </button>
             </Link>
           </div>
 
-          <Card className="shadow-xs">
-            <CardContent className="p-0 divide-y divide-slate-100">
-              {requests.length === 0 ? (
-                <div className="p-6 text-center text-sm text-slate-500">
-                  No requests sent yet. Browse matches for your active intents.
-                </div>
-              ) : (
-                requests.slice(0, 4).map((req) => (
-                  <div key={req.id} className="p-4 flex items-center justify-between gap-4">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-slate-900">
-                          {req.alumnus?.full_name || "Priya Sharma"}
-                        </span>
-                        {req.repeat_contact_in_month && (
-                          <span className="text-[10px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-medium">
-                            Repeat Contact
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs text-slate-500">
-                        Goal: {req.intent?.title || "APM Mock Interview"}
-                      </p>
-                      {req.alumni_response_note && (
-                        <p className="text-xs text-emerald-700 bg-emerald-50 p-1.5 rounded mt-1 border border-emerald-100">
-                          &quot;{req.alumni_response_note}&quot;
-                        </p>
-                      )}
-                    </div>
-                    <RequestStatusBadge status={req.status} />
-                  </div>
-                ))
-              )}
-            </CardContent>
-          </Card>
+          <div className="p-4 rounded-xl bg-[#f7f9fc] border border-[#e8ecf4] space-y-3">
+            <div className="flex items-start justify-between">
+              <div>
+                <b className="text-sm text-[#15213b] block">Prepare for Associate Product Manager Case Interviews</b>
+                <p className="text-xs text-[#66758e] mt-0.5">Partner: Priya Sharma (Senior PM @ Stripe)</p>
+              </div>
+              <GoalStatusBadge status="fulfilled" />
+            </div>
+
+            <div className="p-3 bg-white rounded-lg border border-[#e5eaf2] text-xs space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[#66758e]">Student Confirmation:</span>
+                <span className="text-emerald-700 font-semibold flex items-center gap-1">
+                  <CheckCircle className="h-3.5 w-3.5" /> Confirmed Oct 14
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[#66758e]">Alumnus Confirmation:</span>
+                <span className="text-emerald-700 font-semibold flex items-center gap-1">
+                  <CheckCircle className="h-3.5 w-3.5" /> Confirmed Oct 14
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-1">
+              <span className="text-xs text-emerald-800 font-medium flex items-center gap-1">
+                <Shield className="h-3.5 w-3.5 text-emerald-600" /> Mutually confirmed outcome recorded
+              </span>
+              <Link href="/goals/77777777-7777-7777-7777-777777777701">
+                <Button size="sm" variant="secondary" className="text-xs gap-1">
+                  <span>View Room & Feedback</span>
+                  <ExternalLink className="h-3 w-3" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* Suggested Next Step Prompt Card (Figma Style) */}
+        <section className="panel next-card">
+          <span className="badge soft mb-3 inline-flex items-center gap-1.5">
+            <Sparkles className="h-3 w-3 text-[#536df0]" /> Suggested next step
+          </span>
+          <h2 className="font-heading text-xl mt-1">Turn your goal into a focused ask</h2>
+          <p className="text-xs text-[#66758e] mt-1 leading-relaxed">
+            Alumni respond 2.4x more quickly when your outreach message specifies one concrete question or deliverable.
+          </p>
+          <div className="prompt text-xs">
+            &ldquo;Could you review my transition roadmap and point out the 2 biggest gaps before recruiting season begins?&rdquo;
+          </div>
+          <Link href="/student/intents/new">
+            <Button variant="secondary" size="sm" className="w-full text-xs">
+              Refine or create goal
+            </Button>
+          </Link>
+        </section>
+      </div>
+
+      {/* Outgoing Requests Stream */}
+      <div className="space-y-4">
+        <div className="content-title">
+          <div>
+            <h2 className="font-heading">Recent Outreach Requests</h2>
+            <p>Outreach requests use 1 token each and expire automatically if unreviewed after 14 days.</p>
+          </div>
+          <Link href="/student/requests">
+            <button className="text-sm font-semibold text-[#5369e8] flex items-center gap-1 hover:underline">
+              View all requests ({requests.length}) <ArrowRight className="h-3.5 w-3.5" />
+            </button>
+          </Link>
         </div>
 
-        {/* Active Collaboration Goal */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-emerald-600" />
-              <span>Goal Progress & Dual Confirmation</span>
-            </h2>
-            <Link
-              href="/goals/77777777-7777-7777-7777-777777777701"
-              className="text-xs font-medium text-blue-600 hover:underline"
-            >
-              Goal Room
-            </Link>
-          </div>
-
-          <Card className="shadow-xs border-emerald-200/80 bg-emerald-50/10">
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
-                <div>
-                  <CardTitle className="text-base text-slate-900">
-                    Prepare for Associate Product Manager Case Interviews
-                  </CardTitle>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Partner: Priya Sharma (Senior PM @ Stripe)
-                  </p>
+        <div className="panel p-0 divide-y divide-[#edf0f5] overflow-hidden">
+          {requests.length === 0 ? (
+            <div className="p-8 text-center text-xs text-[#66758e]">
+              No connection requests sent yet. Explore ranked alumni matches for your goals above.
+            </div>
+          ) : (
+            requests.slice(0, 4).map((req) => (
+              <div key={req.id} className="p-4 flex items-center justify-between gap-4 hover:bg-[#fafbfe] transition-colors">
+                <div className="flex items-center gap-3">
+                  <Avatar initials={req.alumnus?.full_name ? req.alumnus.full_name.slice(0, 2).toUpperCase() : "AL"} tone="violet" />
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-[#15213b]">
+                        {req.alumnus?.full_name || "Priya Sharma"}
+                      </span>
+                      {req.repeat_contact_in_month && (
+                        <span className="text-[10px] bg-amber-50 text-amber-800 border border-amber-200 px-1.5 py-0.2 rounded font-medium">
+                          Repeat Contact
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-[#66758e]">
+                      Goal: {req.intent?.title || "APM Mock Interview"}
+                    </p>
+                    {req.alumni_response_note && (
+                      <p className="text-xs text-emerald-800 bg-emerald-50 px-2 py-1 rounded border border-emerald-100 mt-1">
+                        &quot;{req.alumni_response_note}&quot;
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <GoalStatusBadge status="fulfilled" />
+                <RequestStatusBadge status={req.status} />
               </div>
-            </CardHeader>
-            <CardContent className="pt-0 space-y-4">
-              <div className="p-3 bg-white rounded-lg border border-slate-200/80 text-xs space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-600">Student Confirmation:</span>
-                  <span className="text-emerald-700 font-semibold flex items-center gap-1">
-                    <CheckCircle className="h-3.5 w-3.5" /> Confirmed Oct 14
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-600">Alumnus Confirmation:</span>
-                  <span className="text-emerald-700 font-semibold flex items-center gap-1">
-                    <CheckCircle className="h-3.5 w-3.5" /> Confirmed Oct 14
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between pt-1">
-                <span className="text-xs text-emerald-800 font-medium">
-                  Mutually confirmed outcome recorded
-                </span>
-                <Link href="/goals/77777777-7777-7777-7777-777777777701">
-                  <Button size="sm" variant="outline" className="text-xs gap-1">
-                    <span>View Goal Room & Feedback</span>
-                    <ExternalLink className="h-3 w-3" />
-                  </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
+            ))
+          )}
         </div>
       </div>
     </div>

@@ -1,26 +1,44 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
+export type BadgeTone =
+  | "default"
+  | "secondary"
+  | "success"
+  | "warning"
+  | "danger"
+  | "soft"
+  | "demo"
+  | "dark"
+  | "outline"
+  | "indigo";
+
 export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
-  variant?: "default" | "secondary" | "success" | "warning" | "danger" | "outline" | "indigo";
+  variant?: BadgeTone;
+  tone?: BadgeTone;
 }
 
-export function Badge({ className, variant = "default", ...props }: BadgeProps) {
-  const variants = {
-    default: "bg-blue-50 text-blue-700 border-blue-200",
-    secondary: "bg-slate-100 text-slate-700 border-slate-200",
-    success: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    warning: "bg-amber-50 text-amber-700 border-amber-200",
-    danger: "bg-rose-50 text-rose-700 border-rose-200",
-    indigo: "bg-indigo-50 text-indigo-700 border-indigo-200",
-    outline: "bg-transparent text-slate-700 border-slate-300",
+export function Badge({ className, variant, tone, ...props }: BadgeProps) {
+  const activeVariant: BadgeTone = tone || variant || "default";
+
+  const variants: Record<BadgeTone, string> = {
+    default: "border-[#dfe6f1] bg-[rgba(247,249,253,0.9)] text-[#56657e]",
+    secondary: "border-[#dfe6f1] bg-[#f5f7fb] text-[#56657e]",
+    soft: "badge soft",
+    demo: "badge demo",
+    success: "badge success",
+    warning: "badge warning",
+    dark: "badge dark",
+    danger: "border-[#f7d4d8] bg-[#fff1f2] text-[#c44f5a]",
+    outline: "border-[#dfe6f1] bg-transparent text-[#66758e]",
+    indigo: "border-[#cbd5fb] bg-[#edf1ff] text-[#4056c6]",
   };
 
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium tracking-wide",
-        variants[variant],
+        "badge inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-full border tracking-normal",
+        variants[activeVariant],
         className
       )}
       {...props}

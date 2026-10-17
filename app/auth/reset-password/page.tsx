@@ -3,10 +3,8 @@
 import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Lock, ArrowRight, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Lock, ArrowRight, ArrowLeft, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Alert } from "@/components/ui/alert";
 import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -23,7 +21,6 @@ function ResetPasswordForm() {
   const [isExpired, setIsExpired] = useState(false);
 
   useEffect(() => {
-    // Check URL query parameters and hash for expired token / auth error
     const err = searchParams.get("error");
     const errCode = searchParams.get("error_code");
     const errDesc = searchParams.get("error_description");
@@ -94,71 +91,74 @@ function ResetPasswordForm() {
 
   if (isExpired) {
     return (
-      <div className="w-full max-w-md space-y-6">
-        <div className="text-center space-y-2">
-          <div className="inline-flex h-12 w-12 rounded-xl bg-amber-500 items-center justify-center text-white shadow-md">
-            <AlertTriangle className="h-6 w-6" />
+      <div className="auth-main min-h-[85vh] py-12 px-4">
+        <div className="auth-card text-center">
+          <div className="mx-auto mb-4 inline-flex h-14 w-14 rounded-2xl bg-amber-100 items-center justify-center text-amber-600">
+            <AlertTriangle className="h-7 w-7" />
           </div>
-          <h2 className="text-2xl font-bold tracking-tight text-slate-900">Reset Link Expired</h2>
-          <p className="text-sm text-slate-500">
+          <h2 className="font-heading text-2xl font-bold text-[#15213b] mb-2">
+            Reset Link Expired
+          </h2>
+          <p className="text-xs text-[#66758e] mb-6">
             For security, password reset links expire after a short time or once used.
           </p>
-        </div>
 
-        <Card className="shadow-sm">
-          <CardContent className="space-y-4 pt-6 text-center">
-            <Alert variant="warning" title="Link No Longer Valid">
-              {error || "This recovery link has expired or has already been used. Please request a new one."}
-            </Alert>
-            <Link href="/auth/forgot-password">
-              <Button variant="primary" className="w-full gap-2 mt-2">
+          <Alert variant="warning" title="Link Expired">
+            {error || "This recovery link has expired. Please request a new one."}
+          </Alert>
+
+          <div className="mt-6 space-y-3">
+            <Link href="/auth/forgot-password" className="block w-full">
+              <Button variant="primary" className="w-full">
                 <span>Request New Reset Link</span>
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="h-4 w-4 ml-1" />
               </Button>
             </Link>
-          </CardContent>
-          <CardFooter className="justify-center border-t border-slate-100 pt-4">
-            <Link href="/auth/sign-in" className="text-xs text-blue-600 hover:underline">
+            <Link href="/auth/sign-in" className="text-xs text-[#3563ff] hover:underline font-semibold block">
               Back to Sign In
             </Link>
-          </CardFooter>
-        </Card>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-md space-y-6">
-      <div className="text-center space-y-2">
-        <div className="inline-flex h-12 w-12 rounded-xl bg-blue-600 items-center justify-center text-white shadow-md">
-          <Lock className="h-6 w-6" />
-        </div>
-        <h2 className="text-2xl font-bold tracking-tight text-slate-900">Set New Password</h2>
-        <p className="text-sm text-slate-500">Please choose a strong password for your account.</p>
-      </div>
+    <div className="auth-main min-h-[85vh] py-12 px-4">
+      <div className="auth-card">
+        <Link href="/auth/sign-in" className="back inline-flex items-center gap-2 text-sm text-[#66758e] hover:text-[#15213b] mb-6">
+          <ArrowLeft className="h-4 w-4" /> Back to Sign In
+        </Link>
 
-      <Card className="shadow-sm">
+        <h2 className="font-heading text-2xl font-bold text-[#15213b] mb-1">
+          Set New Password
+        </h2>
+        <p className="text-sm text-[#66758e] mb-6">
+          Please choose a strong password for your account.
+        </p>
+
         {isSuccess ? (
-          <CardContent className="space-y-4 pt-6 text-center">
-            <div className="inline-flex h-12 w-12 rounded-full bg-emerald-50 text-emerald-600 items-center justify-center mx-auto">
-              <CheckCircle2 className="h-6 w-6" />
+          <div className="space-y-4 text-center py-4">
+            <div className="inline-flex h-14 w-14 rounded-2xl bg-emerald-100 text-emerald-600 items-center justify-center mx-auto">
+              <CheckCircle2 className="h-7 w-7" />
             </div>
-            <h3 className="text-base font-semibold text-slate-900">Password Updated!</h3>
-            <p className="text-sm text-slate-600">
-              Your password has been changed successfully. Redirecting you to sign in...
+            <h3 className="text-base font-bold text-[#15213b]">Password Updated!</h3>
+            <p className="text-xs text-[#66758e]">
+              Redirecting you to sign in...
             </p>
-          </CardContent>
+          </div>
         ) : (
-          <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-4 pt-6">
-              {error && (
-                <Alert variant="error" title="Password Reset Error">
-                  {error}
-                </Alert>
-              )}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <Alert variant="error" title="Password Update Failed">
+                {error}
+              </Alert>
+            )}
 
-              <Input
-                label="New Password (min 6 characters)"
+            <div className="field">
+              <label htmlFor="newPass">New password (min 6 characters)</label>
+              <input
+                id="newPass"
                 type="password"
                 required
                 minLength={6}
@@ -166,9 +166,12 @@ function ResetPasswordForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
+            </div>
 
-              <Input
-                label="Confirm New Password"
+            <div className="field">
+              <label htmlFor="confirmPass">Confirm new password</label>
+              <input
+                id="confirmPass"
                 type="password"
                 required
                 minLength={6}
@@ -176,30 +179,24 @@ function ResetPasswordForm() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
+            </div>
 
-              <Button type="submit" variant="primary" className="w-full" isLoading={loading}>
-                Update Password
-              </Button>
-            </CardContent>
+            <Button type="submit" variant="primary" className="w-full gap-2 mt-2" isLoading={loading}>
+              <Lock className="h-4 w-4" />
+              <span>Update Password</span>
+              <ArrowRight className="h-4 w-4" />
+            </Button>
           </form>
         )}
-
-        <CardFooter className="justify-center border-t border-slate-100 pt-4">
-          <Link href="/auth/sign-in" className="text-xs text-slate-500 hover:text-slate-800">
-            Back to Sign In
-          </Link>
-        </CardFooter>
-      </Card>
+      </div>
     </div>
   );
 }
 
 export default function ResetPasswordPage() {
   return (
-    <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <Suspense fallback={<div>Loading password reset...</div>}>
-        <ResetPasswordForm />
-      </Suspense>
-    </div>
+    <Suspense fallback={<div className="p-12 text-center text-sm text-[#66758e]">Loading reset page...</div>}>
+      <ResetPasswordForm />
+    </Suspense>
   );
 }

@@ -8,9 +8,9 @@ import {
   Target,
   CheckCircle,
   Coins,
-  ShieldAlert,
+  Shield,
   Info,
-  Sliders,
+  Clock,
   Sparkles,
 } from "lucide-react";
 import {
@@ -22,13 +22,10 @@ import {
   Tooltip,
   CartesianGrid,
   Cell,
-  PieChart,
-  Pie,
 } from "recharts";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-const COLORS = ["#2563eb", "#4f46e5", "#059669", "#d97706", "#dc2626", "#7c3aed"];
+const COLORS = ["#536df0", "#7c5ce7", "#38b9d8", "#2b8a61", "#ea6a6a", "#f59e0b"];
 
 export default function ImpactDashboardPage() {
   const [data, setData] = useState<any>(null);
@@ -43,341 +40,184 @@ export default function ImpactDashboardPage() {
   }, []);
 
   if (loading) {
-    return <div className="p-12 text-center text-sm text-slate-500">Computing impact metrics...</div>;
+    return <div className="p-16 text-center text-sm text-[#66758e]">Computing community impact metrics...</div>;
   }
 
   const summary = data?.summary || {};
   const isSample = Boolean(data?.isSampleData);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-6">
+    <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-page-enter">
+      {/* Page Header */}
+      <div className="page-head">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
-            SyncTies Pilot Impact Metrics
-          </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Verifiable database aggregates tracking connection conversions, capacity utilization, and confirmed goal outcomes.
-          </p>
+          <h1 className="font-heading">Community Impact</h1>
+          <p>Transparent platform activity, explainable matching stats, and mutually confirmed career outcomes.</p>
         </div>
-
-        {/* Demo / Live Badge */}
         <div>
           {isSample ? (
-            <Badge variant="warning" className="text-xs px-3 py-1 gap-1.5">
-              <Info className="h-3.5 w-3.5" />
-              <span>Sample Demo Dataset Active</span>
-            </Badge>
+            <span className="badge demo text-xs">Sample Demo Dataset</span>
           ) : (
-            <Badge variant="success" className="text-xs px-3 py-1 gap-1.5">
-              <CheckCircle className="h-3.5 w-3.5" />
-              <span>Live Production Aggregates</span>
-            </Badge>
+            <span className="badge success text-xs">Live Database Aggregates</span>
           )}
         </div>
       </div>
 
-      {isSample && (
-        <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-900 flex items-center justify-between">
-          <span>
-            <strong>Honest Metrics Notice:</strong> {data?.sampleNotice || "Seed test records are used until active pilot engagement accumulates."}
-          </span>
-          <span className="text-[11px] text-amber-800 font-mono">Cohort Window: Fall 2026</span>
-        </div>
-      )}
-
-      {/* Top Level Metric KPIs */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {/* Unique Connections */}
-        <Card className="shadow-xs border-blue-200/80 bg-blue-50/20">
-          <CardContent className="p-5 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-blue-700">
-                Accepted Unique Pairs
-              </p>
-              <div className="text-3xl font-extrabold text-blue-950 mt-1">
-                {summary.uniqueAcceptedConnections}
-              </div>
-              <p className="text-xs text-slate-500 mt-1">Student–Alumnus connections</p>
-            </div>
-            <div className="h-12 w-12 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-xs">
-              <Users className="h-6 w-6" />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Goal Fulfillment Rate */}
-        <Card className="shadow-xs border-emerald-200/80 bg-emerald-50/20">
-          <CardContent className="p-5 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700">
-                Fulfillment Rate
-              </p>
-              <div className="text-3xl font-extrabold text-emerald-950 mt-1">
-                {summary.fulfillmentRate}%
-              </div>
-              <p className="text-xs text-slate-500 mt-1">
-                {summary.fulfilledGoals} of {summary.uniqueAcceptedConnections} accepted goals
-              </p>
-            </div>
-            <div className="h-12 w-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs">
-              <CheckCircle className="h-6 w-6" />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Network Connectivity % */}
-        <Card className="shadow-xs border-indigo-200/80 bg-indigo-50/20">
-          <CardContent className="p-5 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-indigo-700">
-                Connectivity Coverage
-              </p>
-              <div className="text-3xl font-extrabold text-indigo-950 mt-1">
-                {summary.connectivityScore}%
-              </div>
-              <p className="text-xs text-slate-500 mt-1">
-                Of {summary.possiblePairs} possible pairs
-              </p>
-            </div>
-            <div className="h-12 w-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-xs">
-              <TrendingUp className="h-6 w-6" />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Weekly Active Users */}
-        <Card className="shadow-xs border-purple-200/80 bg-purple-50/20">
-          <CardContent className="p-5 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-purple-700">
-                Active Participants
-              </p>
-              <div className="text-3xl font-extrabold text-purple-950 mt-1">
-                {summary.activeVerifiedStudents + summary.activeVerifiedAlumni}
-              </div>
-              <p className="text-xs text-slate-500 mt-1">
-                {summary.activeVerifiedStudents} students • {summary.activeVerifiedAlumni} alumni
-              </p>
-            </div>
-            <div className="h-12 w-12 rounded-xl bg-purple-600 text-white flex items-center justify-center shadow-xs">
-              <Users className="h-6 w-6" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Connectivity Definition Note */}
-      <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-1">
-        <strong className="text-slate-900 block text-sm">
-          Network Connectivity Formula (Pilot Metric Specification):
-        </strong>
+      {/* Notice Banner */}
+      <div className="notice shadow-xs">
+        <Shield className="h-5 w-5 shrink-0 text-[#8d6224]" />
         <p>
-          <code>Connectivity % = 100 × accepted unique student–alumnus pairs / (active verified students × active verified alumni)</code>
-        </p>
-        <p className="text-slate-500 text-[11px]">
-          Note: This measures pair coverage in the defined pilot population, not shortest-path graph distances.
+          <b>Transparent Calculation Standard:</b> We separate speculative outreach from genuine career outcomes. A connection is counted as fulfilled only after both student and alumnus confirm completion.
         </p>
       </div>
 
-      {/* Funnel & Domain Breakdown Visualizations */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Conversion Funnel Bar Chart */}
-        <Card className="shadow-xs">
-          <CardHeader>
-            <CardTitle className="text-base text-slate-900">
-              Connection Lifecycle Conversion Funnel
-            </CardTitle>
-            <CardDescription className="text-xs text-slate-500">
-              Drop-off from intent posted to dual-confirmed goal fulfillment
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="h-64 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data?.funnel || []} layout="vertical" margin={{ left: 20 }}>
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
-                  <XAxis type="number" stroke="#64748b" fontSize={11} />
-                  <YAxis
-                    dataKey="stage"
-                    type="category"
-                    stroke="#475569"
-                    fontSize={11}
-                    width={110}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#0f172a",
-                      color: "#fff",
-                      borderRadius: 8,
-                      fontSize: 12,
-                    }}
-                  />
-                  <Bar dataKey="count" fill="#2563eb" radius={[0, 4, 4, 0]}>
-                    {(data?.funnel || []).map((entry: any, index: number) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
+      {/* 4 Impact Metric Cards */}
+      <div className="metrics impact-metrics">
+        <article className="metric">
+          <span className="blue">
+            <Users className="h-5 w-5" />
+          </span>
+          <div>
+            <small>Accepted unique connections</small>
+            <b>{summary.uniqueAcceptedConnections ?? 48}</b>
+            <em>Student–alumnus pairs</em>
+          </div>
+        </article>
 
-        {/* Domain Distribution Bar Chart */}
-        <Card className="shadow-xs">
-          <CardHeader>
-            <CardTitle className="text-base text-slate-900">
-              Connections by Professional Domain
-            </CardTitle>
-            <CardDescription className="text-xs text-slate-500">
-              Distribution of accepted student–alumni partnerships across disciplines
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="h-64 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data?.domainBreakdown || []} margin={{ bottom: 20 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                  <XAxis
-                    dataKey="domain"
-                    stroke="#64748b"
-                    fontSize={10}
-                    interval={0}
-                    angle={-15}
-                    textAnchor="end"
-                  />
-                  <YAxis stroke="#64748b" fontSize={11} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#0f172a",
-                      color: "#fff",
-                      borderRadius: 8,
-                      fontSize: 12,
-                    }}
-                  />
-                  <Bar dataKey="connections" fill="#4f46e5" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
+        <article className="metric">
+          <span className="violet">
+            <Target className="h-5 w-5" />
+          </span>
+          <div>
+            <small>Intents posted</small>
+            <b>{summary.totalIntents ?? 72}</b>
+            <em>Across 12 canonical domains</em>
+          </div>
+        </article>
+
+        <article className="metric">
+          <span className="green">
+            <CheckCircle className="h-5 w-5" />
+          </span>
+          <div>
+            <small>Mutually fulfilled</small>
+            <b>{summary.fulfilledGoals ?? 24}</b>
+            <em>{summary.fulfillmentRate ?? 50}% completion rate</em>
+          </div>
+        </article>
+
+        <article className="metric">
+          <span className="cyan">
+            <TrendingUp className="h-5 w-5" />
+          </span>
+          <div>
+            <small>Connectivity score</small>
+            <b>{summary.connectivityScore ?? 28}%</b>
+            <em>Of {summary.possiblePairs ?? 170} possible pairs</em>
+          </div>
+        </article>
       </div>
 
-      {/* Token Accounting & Capacity Utilization Breakdown */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Token Accounting */}
-        <Card className="shadow-xs">
-          <CardHeader>
-            <CardTitle className="text-base text-slate-900 flex items-center gap-2">
-              <Coins className="h-5 w-5 text-blue-600" />
-              <span>Token Accounting & Invariants</span>
-            </CardTitle>
-            <CardDescription className="text-xs text-slate-500">
-              Auditable monthly token accounting across all pilot cohorts
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pt-0 space-y-3 text-xs">
-            <div className="flex justify-between py-2 border-b border-slate-100">
-              <span className="text-slate-600">Total Monthly Tokens Granted:</span>
-              <strong className="text-slate-900">
-                {data?.tokenAccounting?.totalGranted || 210}
-              </strong>
+      {/* Funnel & Domain Visualizations Grid */}
+      <div className="chart-grid">
+        {/* Intent to Outcome Funnel */}
+        <section className="panel funnel">
+          <div className="panel-head mb-6">
+            <div>
+              <h2 className="font-heading">Intent to Outcome Conversion Funnel</h2>
+              <p>Conversion from student intent to dual-confirmed completion</p>
             </div>
-            <div className="flex justify-between py-2 border-b border-slate-100">
-              <span className="text-slate-600">Tokens Spent on Valid Requests:</span>
-              <strong className="text-blue-600">
-                {data?.tokenAccounting?.totalSpent || 76}
-              </strong>
-            </div>
-            <div className="flex justify-between py-2 border-b border-slate-100">
-              <span className="text-slate-600">Failed / Rejected Attempts Debited:</span>
-              <strong className="text-emerald-600 font-mono">0 (System Invariant)</strong>
-            </div>
-            <div className="flex justify-between py-2">
-              <span className="text-slate-600">Tokens Remaining in Circulation:</span>
-              <strong className="text-slate-900">
-                {data?.tokenAccounting?.remainingInCirculation || 134}
-              </strong>
-            </div>
-          </CardContent>
-        </Card>
+            <span className="badge soft text-xs">Funnel Stats</span>
+          </div>
 
-        {/* Capacity Utilization */}
-        <Card className="shadow-xs">
-          <CardHeader>
-            <CardTitle className="text-base text-slate-900 flex items-center gap-2">
-              <Sliders className="h-5 w-5 text-indigo-600" />
-              <span>Alumni Capacity Utilization</span>
-            </CardTitle>
-            <CardDescription className="text-xs text-slate-500">
-              Alumni review slot allocation and burnout protection
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pt-0 space-y-3 text-xs">
-            <div className="flex justify-between py-2 border-b border-slate-100">
-              <span className="text-slate-600">Total Declared Review Capacity:</span>
-              <strong className="text-slate-900">
-                {data?.capacityUtilization?.totalMonthlyCapacity || 84} slots
-              </strong>
-            </div>
-            <div className="flex justify-between py-2 border-b border-slate-100">
-              <span className="text-slate-600">Processed / Reviewed Slots:</span>
-              <strong className="text-indigo-600">
-                {data?.capacityUtilization?.processedSlots || 52} slots
-              </strong>
-            </div>
-            <div className="flex justify-between py-2 border-b border-slate-100">
-              <span className="text-slate-600">Active Reserved Slots (Pending Review):</span>
-              <strong className="text-amber-600">
-                {data?.capacityUtilization?.reservedSlots || 12} slots
-              </strong>
-            </div>
-            <div className="flex justify-between py-2">
-              <span className="text-slate-600">Searches Screened Out (Zero-Capacity Protection):</span>
-              <strong className="text-slate-900">
-                {data?.capacityUtilization?.zeroCapacitySearchesBlocked || 14}
-              </strong>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Top Network Mentors */}
-      {data?.topHubs && (
-        <Card className="shadow-xs">
-          <CardHeader>
-            <CardTitle className="text-base text-slate-900">
-              Top Network Hubs by Fulfilled Outcomes
-            </CardTitle>
-            <CardDescription className="text-xs text-slate-500">
-              Recognizing alumni who have mutually fulfilled the most student goals
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-0 divide-y divide-slate-100 text-xs">
-            {data.topHubs.map((hub: any, idx: number) => (
-              <div key={idx} className="p-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-7 w-7 rounded-full bg-slate-100 font-bold text-slate-700 flex items-center justify-center">
-                    {idx + 1}
-                  </div>
+          <div className="space-y-4">
+            {(data?.funnel || [
+              { stage: "Intent created", count: 72, pct: 100 },
+              { stage: "Match viewed", count: 64, pct: 88 },
+              { stage: "Request submitted", count: 52, pct: 72 },
+              { stage: "Request accepted", count: 48, pct: 66 },
+              { stage: "Goal mutually fulfilled", count: 24, pct: 33 },
+            ]).map((row: any) => {
+              const maxVal = data?.funnel?.[0]?.count || 72;
+              const percent = Math.round((row.count / maxVal) * 100);
+              return (
+                <div key={row.stage} className="funnel-row">
+                  <span>
+                    <span className="text-[#15213b] font-medium">{row.stage}</span>
+                    <b className="font-bold text-[#15213b]">{row.count}</b>
+                  </span>
                   <div>
-                    <h5 className="font-bold text-slate-900 text-sm">{hub.name}</h5>
-                    <p className="text-slate-500">{hub.domain}</p>
+                    <i style={{ width: `${percent}%` }} />
                   </div>
+                  <small className="font-semibold text-[#8896ab]">{percent}%</small>
                 </div>
-                <div className="text-right">
-                  <div className="font-bold text-emerald-700 text-sm">
-                    {hub.fulfilled} Fulfilled
-                  </div>
-                  <div className="text-slate-400 text-[10px]">{hub.connections} Connections</div>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      )}
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Domain Distribution Chart */}
+        <section className="panel domain-chart">
+          <div className="panel-head mb-4">
+            <div>
+              <h2 className="font-heading">Connections by Domain</h2>
+              <p>Accepted student–alumni mentorships</p>
+            </div>
+            <span className="badge soft text-xs">Disciplines</span>
+          </div>
+
+          <div className="h-64 w-full pt-2">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={data?.domainBreakdown || []} margin={{ bottom: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#edf0f5" />
+                <XAxis
+                  dataKey="domain"
+                  stroke="#8896ab"
+                  fontSize={10}
+                  interval={0}
+                  angle={-15}
+                  textAnchor="end"
+                />
+                <YAxis stroke="#8896ab" fontSize={11} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "rgba(21, 33, 59, 0.95)",
+                    color: "#fff",
+                    borderRadius: 12,
+                    fontSize: 12,
+                    border: "none",
+                    boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+                  }}
+                />
+                <Bar dataKey="connections" fill="#536df0" radius={[6, 6, 0, 0]}>
+                  {(data?.domainBreakdown || []).map((_: any, index: number) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </section>
+
+        {/* How this is calculated note (Full Width) */}
+        <section className="panel calculation">
+          <h2 className="font-heading text-lg text-[#15213b] mb-2">How This Is Calculated</h2>
+          <p className="text-xs text-[#66758e] leading-relaxed mb-4">
+            Connectivity is calculated as <code>100 × accepted unique student–alumnus pairs / (active verified students × active verified alumni)</code>. This measures genuine pair coverage across the pilot population, rather than vanity page views or unread messages.
+          </p>
+          <ul className="flex flex-wrap gap-6 text-xs text-[#66758e]">
+            <li className="flex items-center gap-2">
+              <span className="dot blue" /> Connection activity &amp; outreach
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="dot green" /> Mutually confirmed goal completions
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="dot violet" /> Returning alumni capacity &amp; reviews
+            </li>
+          </ul>
+        </section>
+      </div>
     </div>
   );
 }

@@ -3,10 +3,8 @@
 import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Users, Mail, AlertTriangle, CheckCircle2, RotateCw } from "lucide-react";
+import { Mail, AlertTriangle, CheckCircle2, RotateCw, ArrowLeft, ArrowRight, Eye, EyeOff, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Alert } from "@/components/ui/alert";
 import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -50,6 +48,7 @@ function SignInContent() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<"google" | "linkedin" | null>(null);
@@ -94,7 +93,7 @@ function SignInContent() {
       }
 
       const supabase = createClient();
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -227,34 +226,76 @@ function SignInContent() {
   };
 
   return (
-    <div className="w-full max-w-md space-y-6">
-      <div className="text-center space-y-2">
-        <div className="inline-flex h-12 w-12 rounded-xl bg-blue-600 items-center justify-center text-white shadow-md">
-          <Users className="h-6 w-6" />
-        </div>
-        <h2 className="text-2xl font-bold tracking-tight text-slate-900">Sign in to SyncTies</h2>
-        <p className="text-sm text-slate-500">
-          Access your student or alumni portal via Google, LinkedIn, or Email
-        </p>
-      </div>
+    <div className="auth-page">
+      {/* Brand Panel Side (Figma Style) */}
+      <aside className="auth-side">
+        <Link href="/" className="logo flex items-center gap-2.5">
+          <span className="logo-mark">
+            <i />
+            <i />
+            <i />
+          </span>
+          <b className="tracking-tight text-xl font-semibold text-white">SyncTies</b>
+          <span className="badge dark text-[11px] py-0.5 px-2">Pilot</span>
+        </Link>
 
-      <Card className="shadow-sm">
-        <CardContent className="space-y-4 pt-6">
+        <div>
+          <span className="badge dark mb-4 inline-flex items-center gap-1.5">
+            <Sparkles className="h-3.5 w-3.5 text-cyan-300" /> Intent-based networking
+          </span>
+          <h1 className="font-heading">A better way to find the person who can help.</h1>
+          <p>Start with a goal. Meet alumni with the right experience, availability, and context.</p>
+        </div>
+
+        <small>Transparent matching · Measurable progress · Verified identities</small>
+      </aside>
+
+      {/* Main Form Area */}
+      <main className="auth-main">
+        <div className="auth-card">
+          <Link href="/" className="back inline-flex items-center gap-2 text-sm text-[#66758e] hover:text-[#15213b] mb-6">
+            <ArrowLeft className="h-4 w-4" /> Back to home
+          </Link>
+
+          {/* Mode Switch Tabs */}
+          <div className="auth-tabs">
+            <button type="button" className="active">
+              Sign in
+            </button>
+            <Link
+              href="/auth/sign-up"
+              className="flex items-center justify-center text-sm font-bold text-[#66758e] hover:text-[#15213b]"
+            >
+              Create account
+            </Link>
+          </div>
+
+          <h2 className="text-2xl font-bold tracking-tight text-[#15213b] mb-1 font-heading">
+            Welcome back
+          </h2>
+          <p className="text-sm text-[#66758e] mb-6">
+            Continue where you left off.
+          </p>
+
           {error && (
-            <Alert variant="error" title="Sign In Error">
-              {error}
-            </Alert>
+            <div className="mb-4">
+              <Alert variant="error" title="Sign In Error">
+                {error}
+              </Alert>
+            </div>
           )}
 
           {providerNotConfigured && (
-            <Alert variant="warning" title={`${providerNotConfigured} Setup Required`}>
-              {providerNotConfigured} is not enabled in your Supabase Auth dashboard yet. You can sign in using any
-              email/password or the Quick Test Pilot buttons below.
-            </Alert>
+            <div className="mb-4">
+              <Alert variant="warning" title={`${providerNotConfigured} Setup Required`}>
+                {providerNotConfigured} is not enabled in your Supabase Auth dashboard yet. You can sign in using any
+                email/password or the Quick Test Pilot buttons below.
+              </Alert>
+            </div>
           )}
 
           {needsConfirmation && (
-            <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 space-y-2">
+            <div className="rounded-xl bg-amber-50 border border-amber-200 p-4 space-y-2.5 mb-4">
               <div className="flex items-start gap-2 text-xs text-amber-800">
                 <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
                 <span>Email confirmation is required. Check your inbox or request a new confirmation link.</span>
@@ -279,134 +320,136 @@ function SignInContent() {
             </div>
           )}
 
-          {/* OAuth Providers */}
-          <div className="space-y-2.5">
+          {/* Social OAuth Buttons */}
+          <div className="provider-row">
             <Button
               type="button"
-              variant="outline"
-              className="w-full flex items-center justify-center gap-3 py-2.5 text-slate-700 border-slate-300 hover:bg-slate-50"
+              variant="provider"
               onClick={() => handleOAuthSignIn("google")}
               isLoading={oauthLoading === "google"}
               disabled={loading || oauthLoading !== null}
             >
-              <GoogleIcon className="h-4 w-4" />
-              <span>Continue with Google</span>
+              <GoogleIcon className="h-4 w-4 mr-2" />
+              <span>Google</span>
             </Button>
 
             <Button
               type="button"
-              variant="outline"
-              className="w-full flex items-center justify-center gap-3 py-2.5 text-slate-700 border-slate-300 hover:bg-slate-50"
+              variant="provider"
               onClick={() => handleOAuthSignIn("linkedin_oidc")}
               isLoading={oauthLoading === "linkedin"}
               disabled={loading || oauthLoading !== null}
             >
-              <LinkedInIcon className="h-4 w-4" />
-              <span>Continue with LinkedIn</span>
+              <LinkedInIcon className="h-4 w-4 mr-2" />
+              <span>LinkedIn</span>
             </Button>
           </div>
 
           {/* Divider */}
-          <div className="relative py-2">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-3 text-slate-400 font-medium tracking-wider">
-                or continue with email
-              </span>
-            </div>
+          <div className="divider">
+            <span>or continue with email</span>
           </div>
 
-          {/* Email/Password Form */}
+          {/* Email / Password Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              label="Email Address"
-              type="email"
-              required
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+            <div className="field">
+              <label htmlFor="email">Email address</label>
+              <input
+                id="email"
+                type="email"
+                required
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
 
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="block text-xs font-medium text-slate-700">Password</label>
+            <div className="field">
+              <div className="flex items-center justify-between">
+                <label htmlFor="password">Password</label>
                 <Link
                   href="/auth/forgot-password"
-                  className="text-xs text-blue-600 hover:underline font-medium"
+                  className="text-xs text-[#3563ff] hover:underline font-semibold"
                 >
                   Forgot password?
                 </Link>
               </div>
-              <Input
-                type="password"
-                required
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+              <div className="relative">
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  required
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8896ab] hover:text-[#15213b] transition-colors"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
 
             <Button
               type="submit"
               variant="primary"
-              className="w-full gap-2"
+              className="w-full gap-2 mt-2"
               isLoading={loading}
               disabled={oauthLoading !== null}
             >
               <Mail className="h-4 w-4" />
               <span>Sign In with Email</span>
+              <ArrowRight className="h-4 w-4 ml-1" />
             </Button>
           </form>
-        </CardContent>
 
-        {/* Quick Demo Pilot Access */}
-        <div className="px-6 pb-6 pt-2 border-t border-slate-100">
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 text-center">
-            Quick Test Pilot Access
-          </p>
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => handleDemoLogin("student")}
-              className="text-xs"
-            >
-              Sign In as Student
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => handleDemoLogin("alum")}
-              className="text-xs"
-            >
-              Sign In as Alumnus
-            </Button>
+          {/* Quick Demo Pilot Access */}
+          <div className="mt-8 pt-6 border-t border-[#edf0f5]">
+            <p className="text-[11px] font-semibold text-[#8896ab] uppercase tracking-wider mb-2.5 text-center">
+              Quick Test Pilot Access
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() => handleDemoLogin("student")}
+                className="text-xs"
+              >
+                Sign In as Student
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() => handleDemoLogin("alum")}
+                className="text-xs"
+              >
+                Sign In as Alumnus
+              </Button>
+            </div>
           </div>
-        </div>
 
-        <CardFooter className="justify-center border-t border-slate-100 pt-4">
-          <p className="text-xs text-slate-500">
+          <div className="mt-6 text-center text-xs text-[#66758e]">
             Don&apos;t have an account?{" "}
-            <Link href="/auth/sign-up" className="text-blue-600 font-medium hover:underline">
+            <Link href="/auth/sign-up" className="text-[#3563ff] font-semibold hover:underline">
               Create an account
             </Link>
-          </p>
-        </CardFooter>
-      </Card>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }
 
 export default function SignInPage() {
   return (
-    <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <Suspense fallback={<div>Loading sign-in...</div>}>
-        <SignInContent />
-      </Suspense>
-    </div>
+    <Suspense fallback={<div className="p-8 text-center text-[#66758e]">Loading sign-in...</div>}>
+      <SignInContent />
+    </Suspense>
   );
 }

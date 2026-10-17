@@ -3,10 +3,8 @@
 import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Users, GraduationCap, Briefcase, ArrowRight, Mail, CheckCircle2 } from "lucide-react";
+import { GraduationCap, Briefcase, ArrowLeft, ArrowRight, CheckCircle2, Eye, EyeOff, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Alert } from "@/components/ui/alert";
 import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -53,6 +51,7 @@ function SignUpForm() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<"google" | "linkedin" | null>(null);
@@ -100,7 +99,7 @@ function SignUpForm() {
         return;
       }
 
-      // If session exists immediately (e.g. email confirmation disabled), proceed to profile onboarding
+      // If session exists immediately, proceed to profile onboarding
       router.push(`/onboarding?role=${role}&name=${encodeURIComponent(fullName)}`);
     } catch {
       router.push(`/onboarding?role=${role}&name=${encodeURIComponent(fullName)}`);
@@ -162,170 +161,241 @@ function SignUpForm() {
 
   if (confirmationSent) {
     return (
-      <div className="w-full max-w-md space-y-6">
-        <div className="text-center space-y-2">
-          <div className="inline-flex h-12 w-12 rounded-xl bg-emerald-600 items-center justify-center text-white shadow-md">
-            <CheckCircle2 className="h-6 w-6" />
+      <div className="auth-page">
+        <aside className="auth-side">
+          <Link href="/" className="logo flex items-center gap-2.5">
+            <span className="logo-mark">
+              <i />
+              <i />
+              <i />
+            </span>
+            <b className="tracking-tight text-xl font-semibold text-white">SyncTies</b>
+          </Link>
+          <div>
+            <span className="badge dark mb-4 inline-flex items-center gap-1.5">
+              <Sparkles className="h-3.5 w-3.5 text-cyan-300" /> Account verification
+            </span>
+            <h1 className="font-heading">One step away from connecting.</h1>
+            <p>We believe in high-signal, authentic relationships between alumni and emerging talent.</p>
           </div>
-          <h2 className="text-2xl font-bold tracking-tight text-slate-900">Check your email</h2>
-          <p className="text-sm text-slate-500">
-            We&apos;ve sent a verification link to <span className="font-semibold text-slate-800">{email}</span>.
-          </p>
-        </div>
+          <small>Open to all students &amp; professionals · Any valid email accepted</small>
+        </aside>
 
-        <Card className="shadow-sm">
-          <CardContent className="space-y-4 pt-6 text-center">
-            <p className="text-sm text-slate-600">
-              Please click the link in the confirmation email to activate your account. You do not need an
+        <main className="auth-main">
+          <div className="auth-card text-center">
+            <div className="mx-auto mb-4 inline-flex h-14 w-14 rounded-2xl bg-emerald-100 items-center justify-center text-emerald-600">
+              <CheckCircle2 className="h-7 w-7" />
+            </div>
+            <h2 className="text-2xl font-bold tracking-tight text-[#15213b] mb-2 font-heading">
+              Check your email
+            </h2>
+            <p className="text-sm text-[#66758e] mb-6">
+              We&apos;ve sent a verification link to{" "}
+              <span className="font-semibold text-[#15213b]">{email}</span>.
+            </p>
+            <p className="text-xs text-[#8896ab] mb-6">
+              Please click the link in your email to activate your account. You do not need an
               institutional or college email address to join.
             </p>
-            <div className="pt-2">
-              <Link href="/auth/sign-in">
-                <Button variant="primary" className="w-full">
-                  Proceed to Sign In
-                </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
+            <Link href="/auth/sign-in" className="w-full">
+              <Button variant="primary" className="w-full">
+                Proceed to Sign In
+              </Button>
+            </Link>
+          </div>
+        </main>
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-md space-y-6">
-      <div className="text-center space-y-2">
-        <div className="inline-flex h-12 w-12 rounded-xl bg-blue-600 items-center justify-center text-white shadow-md">
-          <Users className="h-6 w-6" />
-        </div>
-        <h2 className="text-2xl font-bold tracking-tight text-slate-900">Join SyncTies</h2>
-        <p className="text-sm text-slate-500">
-          The outcome-driven alumni networking network. Open to all students &amp; professionals.
-        </p>
-      </div>
+    <div className="auth-page">
+      {/* Brand Panel Side (Figma Style) */}
+      <aside className="auth-side">
+        <Link href="/" className="logo flex items-center gap-2.5">
+          <span className="logo-mark">
+            <i />
+            <i />
+            <i />
+          </span>
+          <b className="tracking-tight text-xl font-semibold text-white">SyncTies</b>
+          <span className="badge dark text-[11px] py-0.5 px-2">Pilot</span>
+        </Link>
 
-      <Card className="shadow-sm">
-        <CardContent className="space-y-4 pt-6">
+        <div>
+          <span className="badge dark mb-4 inline-flex items-center gap-1.5">
+            <Sparkles className="h-3.5 w-3.5 text-cyan-300" /> Intent-based networking
+          </span>
+          <h1 className="font-heading">A better way to find the person who can help.</h1>
+          <p>Start with a goal. Meet alumni with the right experience, availability, and context.</p>
+        </div>
+
+        <small>Transparent matching · Measurable progress · Verified identities</small>
+      </aside>
+
+      {/* Main Form Area */}
+      <main className="auth-main">
+        <div className="auth-card">
+          <Link href="/" className="back inline-flex items-center gap-2 text-sm text-[#66758e] hover:text-[#15213b] mb-6">
+            <ArrowLeft className="h-4 w-4" /> Back to home
+          </Link>
+
+          {/* Mode Switch Tabs */}
+          <div className="auth-tabs">
+            <Link
+              href="/auth/sign-in"
+              className="flex items-center justify-center text-sm font-bold text-[#66758e] hover:text-[#15213b]"
+            >
+              Sign in
+            </Link>
+            <button type="button" className="active">
+              Create account
+            </button>
+          </div>
+
+          <h2 className="text-2xl font-bold tracking-tight text-[#15213b] mb-1 font-heading">
+            Create your account
+          </h2>
+          <p className="text-sm text-[#66758e] mb-6">
+            Begin with a few details, then personalize your goals.
+          </p>
+
           {error && (
-            <Alert variant="error" title="Sign Up Error">
-              {error}
-            </Alert>
+            <div className="mb-4">
+              <Alert variant="error" title="Sign Up Error">
+                {error}
+              </Alert>
+            </div>
           )}
 
           {providerNotConfigured && (
-            <Alert variant="warning" title={`${providerNotConfigured} Setup Required`}>
-              {providerNotConfigured} is not enabled in your Supabase project yet. You can sign up using email &amp; password
-              below.
-            </Alert>
+            <div className="mb-4">
+              <Alert variant="warning" title={`${providerNotConfigured} Setup Required`}>
+                {providerNotConfigured} is not enabled in your Supabase project yet. You can sign up using email &amp; password
+                below.
+              </Alert>
+            </div>
           )}
 
-          {/* Role Selection */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
-              I am joining as a:
+          {/* Role Selection Toggle */}
+          <div className="mb-5">
+            <label className="block text-xs font-semibold text-[#66758e] uppercase tracking-wider mb-2">
+              I am joining as a
             </label>
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => setRole("student")}
-                className={`flex flex-col items-center justify-center p-3 rounded-lg border text-sm font-medium transition-all ${
+                className={`flex flex-col items-center justify-center p-3.5 rounded-xl border text-sm font-semibold transition-all ${
                   role === "student"
-                    ? "border-blue-600 bg-blue-50 text-blue-700 ring-2 ring-blue-600/20"
-                    : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                    ? "border-[#3563ff] bg-[#edf1ff] text-[#3563ff] shadow-sm"
+                    : "border-[#e5eaf2] text-[#66758e] hover:bg-[#f7f9fc]"
                 }`}
               >
-                <GraduationCap className="h-5 w-5 mb-1 text-blue-600" />
+                <GraduationCap className="h-5 w-5 mb-1.5 text-[#3563ff]" />
                 <span>Student</span>
-                <span className="text-xs text-slate-500 font-normal mt-0.5">3rd or 4th Year</span>
+                <span className="text-[11px] text-[#8896ab] font-normal mt-0.5">3rd or 4th Year</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setRole("alum")}
-                className={`flex flex-col items-center justify-center p-3 rounded-lg border text-sm font-medium transition-all ${
+                className={`flex flex-col items-center justify-center p-3.5 rounded-xl border text-sm font-semibold transition-all ${
                   role === "alum"
-                    ? "border-blue-600 bg-blue-50 text-blue-700 ring-2 ring-blue-600/20"
-                    : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                    ? "border-[#7c5ce7] bg-[#f5f0ff] text-[#7c5ce7] shadow-sm"
+                    : "border-[#e5eaf2] text-[#66758e] hover:bg-[#f7f9fc]"
                 }`}
               >
-                <Briefcase className="h-5 w-5 mb-1 text-indigo-600" />
+                <Briefcase className="h-5 w-5 mb-1.5 text-[#7c5ce7]" />
                 <span>Alumnus</span>
-                <span className="text-xs text-slate-500 font-normal mt-0.5">Working Professional</span>
+                <span className="text-[11px] text-[#8896ab] font-normal mt-0.5">Working Professional</span>
               </button>
             </div>
           </div>
 
-          {/* OAuth Buttons */}
-          <div className="space-y-2.5 pt-1">
+          {/* Social OAuth Buttons */}
+          <div className="provider-row">
             <Button
               type="button"
-              variant="outline"
-              className="w-full flex items-center justify-center gap-3 py-2.5 text-slate-700 border-slate-300 hover:bg-slate-50"
+              variant="provider"
               onClick={() => handleOAuthSignUp("google")}
               isLoading={oauthLoading === "google"}
               disabled={loading || oauthLoading !== null}
             >
-              <GoogleIcon className="h-4 w-4" />
-              <span>Continue with Google</span>
+              <GoogleIcon className="h-4 w-4 mr-2" />
+              <span>Google</span>
             </Button>
 
             <Button
               type="button"
-              variant="outline"
-              className="w-full flex items-center justify-center gap-3 py-2.5 text-slate-700 border-slate-300 hover:bg-slate-50"
+              variant="provider"
               onClick={() => handleOAuthSignUp("linkedin_oidc")}
               isLoading={oauthLoading === "linkedin"}
               disabled={loading || oauthLoading !== null}
             >
-              <LinkedInIcon className="h-4 w-4" />
-              <span>Continue with LinkedIn</span>
+              <LinkedInIcon className="h-4 w-4 mr-2" />
+              <span>LinkedIn</span>
             </Button>
           </div>
 
           {/* Divider */}
-          <div className="relative py-2">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-3 text-slate-400 font-medium tracking-wider">
-                or register with email
-              </span>
-            </div>
+          <div className="divider">
+            <span>or register with email</span>
           </div>
 
+          {/* Registration Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              label="Full Name"
-              required
-              placeholder="e.g. Alex Morgan"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-            />
+            <div className="field">
+              <label htmlFor="fullName">Full name</label>
+              <input
+                id="fullName"
+                type="text"
+                required
+                placeholder="e.g. Alex Morgan"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+              />
+            </div>
 
-            <Input
-              label="Email Address"
-              type="email"
-              required
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+            <div className="field">
+              <label htmlFor="email">Email address</label>
+              <input
+                id="email"
+                type="email"
+                required
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
 
-            <Input
-              label="Password (min 6 characters)"
-              type="password"
-              required
-              minLength={6}
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <div className="field">
+              <label htmlFor="password">Password (min 6 characters)</label>
+              <div className="relative">
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  required
+                  minLength={6}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8896ab] hover:text-[#15213b] transition-colors"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
 
             <Button
               type="submit"
               variant="primary"
-              className="w-full gap-2"
+              className="w-full gap-2 mt-2"
               isLoading={loading}
               disabled={oauthLoading !== null}
             >
@@ -333,27 +403,27 @@ function SignUpForm() {
               <ArrowRight className="h-4 w-4" />
             </Button>
           </form>
-        </CardContent>
 
-        <CardFooter className="justify-center border-t border-slate-100 pt-4">
-          <p className="text-xs text-slate-500">
+          <small className="terms">
+            By creating an account, you agree to our Terms of Service and Privacy Policy.
+          </small>
+
+          <div className="mt-6 text-center text-xs text-[#66758e]">
             Already have an account?{" "}
-            <Link href="/auth/sign-in" className="text-blue-600 font-medium hover:underline">
+            <Link href="/auth/sign-in" className="text-[#3563ff] font-semibold hover:underline">
               Sign in
             </Link>
-          </p>
-        </CardFooter>
-      </Card>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }
 
 export default function SignUpPage() {
   return (
-    <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <Suspense fallback={<div>Loading sign-up...</div>}>
-        <SignUpForm />
-      </Suspense>
-    </div>
+    <Suspense fallback={<div className="p-8 text-center text-[#66758e]">Loading sign-up...</div>}>
+      <SignUpForm />
+    </Suspense>
   );
 }

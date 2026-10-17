@@ -1,405 +1,361 @@
 import Link from "next/link";
 import {
-  Users,
-  Target,
-  Cpu,
-  ShieldCheck,
-  CheckCircle,
-  ArrowRight,
   Sparkles,
-  Clock,
-  Compass,
-  Briefcase,
-  TrendingUp,
+  Target,
+  Shield,
   BarChart3,
-  Calendar,
-  Lock,
+  ArrowRight,
+  Check,
+  Search,
+  Inbox,
+  CheckCircle2,
+  Cpu,
+  Clock,
+  Users,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Avatar } from "@/components/ui/avatar";
 
 export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-white border-b border-slate-200/80 pt-16 pb-20 sm:pt-24 sm:pb-28">
-        <div className="absolute inset-0 bg-radial-[at_top_right] from-blue-50/50 via-transparent to-transparent pointer-events-none" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="text-center max-w-3xl mx-auto space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-semibold tracking-wide">
+      {/* 1. HERO SECTION */}
+      <section className="relative overflow-hidden py-16 lg:py-24 max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-12 lg:gap-16 items-center">
+          {/* Left Copy */}
+          <div className="space-y-6 text-center lg:text-left">
+            <Badge variant="soft" className="gap-1.5 py-1 px-3 text-xs">
               <Sparkles className="h-3.5 w-3.5" />
-              Outcome-Driven Alumni Networking Platform
-            </div>
+              <span>Purposeful connections, built around your goal</span>
+            </Badge>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1]">
-              Right people. Right purpose.{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
-                Real opportunities.
-              </span>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-[#15213b] tracking-tight leading-[1.05]">
+              The right connection changes{" "}
+              <em className="not-italic bg-gradient-to-r from-[#315cf1] to-[#7c5ce7] bg-clip-text text-transparent">
+                what’s possible.
+              </em>
             </h1>
 
-            <p className="text-lg sm:text-xl text-slate-600 leading-relaxed max-w-2xl mx-auto">
-              Replace blind cold emails with purpose-driven connections. Deterministic SQL ranking matches students with alumni based on specific goals, active offers, and real monthly review capacity.
+            <p className="text-lg sm:text-xl text-[#66758e] leading-relaxed max-w-2xl mx-auto lg:mx-0">
+              Connect with alumni who match your goals, not just your search terms. Clear intent in, relevant
+              guidance out—powered by deterministic SQL matching and capacity safeguards.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
-              <Link href="/auth/sign-up?role=student">
-                <Button size="lg" className="w-full sm:w-auto gap-2 shadow-md">
-                  <span>Student Sign Up (3rd/4th Year)</span>
+            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 pt-2">
+              <Link href="/auth/sign-up?role=student" className="w-full sm:w-auto">
+                <span className="btn w-full sm:w-auto gap-2 py-3 px-6 text-base">
+                  <span>Find your mentor</span>
                   <ArrowRight className="h-4 w-4" />
-                </Button>
+                </span>
               </Link>
-              <Link href="/auth/sign-up?role=alum">
-                <Button variant="outline" size="lg" className="w-full sm:w-auto gap-2">
-                  <span>Join as Alumnus</span>
-                </Button>
+              <Link href="/auth/sign-up?role=alum" className="w-full sm:w-auto">
+                <span className="btn secondary w-full sm:w-auto py-3 px-6 text-base">
+                  <span>Become a mentor</span>
+                </span>
               </Link>
             </div>
 
-            <div className="pt-6 flex flex-wrap items-center justify-center gap-6 text-xs text-slate-500">
+            <div className="pt-4 flex flex-wrap items-center justify-center lg:justify-start gap-6 text-xs text-[#66738b] font-medium">
               <span className="flex items-center gap-1.5">
-                <ShieldCheck className="h-4 w-4 text-emerald-600" /> Server-Enforced Limits
+                <Target className="h-4 w-4 text-[#3563ff]" /> Goal-based matching
               </span>
               <span className="flex items-center gap-1.5">
-                <Cpu className="h-4 w-4 text-blue-600" /> Pure SQL Ranking Engine
+                <Shield className="h-4 w-4 text-[#2d9667]" /> Mentor-controlled capacity
               </span>
               <span className="flex items-center gap-1.5">
-                <CheckCircle className="h-4 w-4 text-indigo-600" /> Mutual Goal Confirmation
+                <BarChart3 className="h-4 w-4 text-[#7c5ce7]" /> Progress you can measure
               </span>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* Problem vs SyncTies Contrast */}
-      <section className="py-16 sm:py-20 bg-slate-50 border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-              Why Traditional Alumni Directories Fail
-            </h2>
-            <p className="mt-3 text-slate-600 text-sm sm:text-base">
-              Static directories are repositories of contacts with no intent, no capacity awareness, and no tracked outcomes. SyncTies fixes all three.
-            </p>
-          </div>
+          {/* Right Product Preview Card (Figma Glass Artifact) */}
+          <div className="relative mx-auto lg:mx-0 w-full max-w-[560px]">
+            <div className="relative p-5 sm:p-6 rounded-[28px] border border-white/90 bg-white/60 shadow-[0_35px_85px_rgba(57,79,127,0.18)] backdrop-blur-xl lg:rotate-1 hover:rotate-0 transition-transform duration-300">
+              {/* Ambient Glow behind card */}
+              <div className="absolute -inset-6 -z-10 bg-radial from-[#6687ff]/20 to-transparent blur-2xl pointer-events-none" />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* The Old Way */}
-            <Card className="border-rose-200/80 bg-rose-50/20 shadow-xs">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-rose-900 text-lg">The Old Way: Cold Outreach</CardTitle>
-                  <Badge variant="danger">Unstructured</Badge>
-                </div>
-                <CardDescription className="text-rose-700/80">
-                  Frustrating for students, overwhelming for alumni
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3 text-sm text-slate-700">
-                <div className="flex items-start gap-2.5">
-                  <div className="h-2 w-2 rounded-full bg-rose-500 mt-2 shrink-0" />
-                  <span>
-                    <strong>Blind blast messaging:</strong> Students send generic LinkedIn cold DMs without knowing if the alum is willing or available.
-                  </span>
-                </div>
-                <div className="flex items-start gap-2.5">
-                  <div className="h-2 w-2 rounded-full bg-rose-500 mt-2 shrink-0" />
-                  <span>
-                    <strong>Alumni inbox burnout:</strong> Active professionals receive dozens of unstructured requests with vague asks.
-                  </span>
-                </div>
-                <div className="flex items-start gap-2.5">
-                  <div className="h-2 w-2 rounded-full bg-rose-500 mt-2 shrink-0" />
-                  <span>
-                    <strong>Zero outcome tracking:</strong> Neither students nor universities know if any advice was given, resume reviewed, or opportunity materialized.
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
+              {/* Card Header */}
+              <div className="flex items-center justify-between pb-3.5 border-b border-[var(--line-soft)] text-xs text-[#66758e]">
+                <span className="tracking-widest text-slate-300 font-bold">● ● ●</span>
+                <Badge variant="demo" className="text-[11px]">Interactive preview</Badge>
+              </div>
 
-            {/* The SyncTies Way */}
-            <Card className="border-blue-200 bg-blue-50/20 shadow-xs">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-blue-950 text-lg">The SyncTies Way: Intent & Capacity</CardTitle>
-                  <Badge variant="default">Outcome-Driven</Badge>
-                </div>
-                <CardDescription className="text-blue-700/80">
-                  Targeted, structured, respectful, and verifiable
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3 text-sm text-slate-700">
-                <div className="flex items-start gap-2.5">
-                  <div className="h-2 w-2 rounded-full bg-blue-600 mt-2 shrink-0" />
-                  <span>
-                    <strong>Intent-first matching:</strong> Students declare structured goals (Mock Interview, Resume Review, Referral) and specific domains.
-                  </span>
-                </div>
-                <div className="flex items-start gap-2.5">
-                  <div className="h-2 w-2 rounded-full bg-blue-600 mt-2 shrink-0" />
-                  <span>
-                    <strong>Protected alumni capacity:</strong> Alumni set a monthly review limit (e.g., 3 reviews/month). Over-capacity alumni are never overwhelmed.
-                  </span>
-                </div>
-                <div className="flex items-start gap-2.5">
-                  <div className="h-2 w-2 rounded-full bg-blue-600 mt-2 shrink-0" />
-                  <span>
-                    <strong>Dual-confirmed fulfillment:</strong> Outcomes are marked fulfilled only when both student and alumnus confirm completion.
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works Section */}
-      <section id="how-it-works" className="py-16 sm:py-24 bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <Badge variant="indigo" className="mb-2">
-              Five-Step Cycle
-            </Badge>
-            <h2 className="text-3xl font-bold text-slate-900 tracking-tight">How SyncTies Works</h2>
-            <p className="mt-3 text-slate-600 text-sm sm:text-base">
-              A transparent, financial-like lifecycle from initial student goal to confirmed community impact.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-            {[
-              {
-                step: "01",
-                title: "Student Intent",
-                desc: "Student creates an intent with domain tags and target help type (e.g. Mock Interview in Product Management).",
-                icon: Target,
-              },
-              {
-                step: "02",
-                title: "SQL Match Engine",
-                desc: "Database evaluates domain overlap (40%), help fit (30%), alumni capacity (20%), and recency (10%).",
-                icon: Cpu,
-              },
-              {
-                step: "03",
-                title: "AI Brief & Request",
-                desc: "Grounded 2-sentence brief explains the fit. Student spends 1 monthly token to atomically request review.",
-                icon: Sparkles,
-              },
-              {
-                step: "04",
-                title: "Alumni Review",
-                desc: "Alumnus reviews contextual request. Accepts, defers, or declines within their monthly capacity pool.",
-                icon: Briefcase,
-              },
-              {
-                step: "05",
-                title: "Mutual Confirmation",
-                desc: "Both participants confirm goal completion. Evidence-based impact metric increments in real-time.",
-                icon: CheckCircle,
-              },
-            ].map((item, idx) => (
-              <div
-                key={idx}
-                className="relative rounded-xl border border-slate-200/80 bg-white p-5 flex flex-col justify-between shadow-xs hover:border-blue-300 transition-colors"
-              >
+              {/* Mini Goal Title with Match Orb */}
+              <div className="flex items-center justify-between py-4">
                 <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-2xl font-black text-slate-200">{item.step}</span>
-                    <item.icon className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <h3 className="font-semibold text-slate-900 text-base mb-2">{item.title}</h3>
-                  <p className="text-xs text-slate-600 leading-relaxed">{item.desc}</p>
+                  <small className="text-xs text-[#66758e] block">Recommended for your goal</small>
+                  <strong className="font-heading text-base sm:text-lg text-[#15213b]">Move into AI product management</strong>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* The Deterministic Algorithm Section */}
-      <section id="matching" className="py-16 sm:py-20 bg-slate-900 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            <div className="lg:col-span-6 space-y-5">
-              <Badge variant="outline" className="text-blue-400 border-blue-800">
-                Transparent Matching Formula
-              </Badge>
-              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
-                Deterministic SQL Scoring. <br />
-                <span className="text-blue-400">Zero Black-Box Bias.</span>
-              </h2>
-              <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-                SyncTies does not use an opaque neural net to rank human beings. Candidates are evaluated directly in PostgreSQL using a versioned weighted formula:
-              </p>
-
-              <div className="p-4 rounded-xl bg-slate-800/80 border border-slate-700 font-mono text-xs sm:text-sm text-blue-300 space-y-2">
-                <div className="text-slate-400 text-xs">-- SyncTies Scoring Formula v1</div>
-                <div>
-                  <span className="text-amber-400">TotalScore</span> ={" "}
-                  <span className="text-emerald-400">0.40 * D</span> +{" "}
-                  <span className="text-blue-400">0.30 * H</span> +{" "}
-                  <span className="text-purple-400">0.20 * C</span> +{" "}
-                  <span className="text-rose-400">0.10 * R</span>
+                <div className="score-orb">
+                  <span className="font-heading text-lg">94</span>
+                  <small className="text-[8px] text-[#334fd1] font-semibold">match</small>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 text-xs">
-                <div className="p-3 rounded-lg bg-slate-800/50 border border-slate-700/60">
-                  <div className="font-semibold text-emerald-400 mb-1">D: Domain Overlap (40%)</div>
-                  <div className="text-slate-400">Jaccard similarity on canonical domain tags |S ∩ A| / |S ∪ A|</div>
+              {/* Feature Match Candidate Box */}
+              <div className="bg-white border border-[var(--line)] rounded-[20px] p-4 sm:p-5 shadow-[var(--small-shadow)] space-y-3.5">
+                <div className="flex items-center gap-3">
+                  <Avatar initials="MP" tone="violet" size="md" />
+                  <div className="leading-tight">
+                    <h3 className="font-bold text-sm text-[#15213b]">Maya Patel</h3>
+                    <p className="text-xs text-[#66758e]">Senior Product Manager · Northstar Labs</p>
+                  </div>
+                  <Badge variant="success" className="ml-auto text-[11px]">Available (3 slots)</Badge>
                 </div>
-                <div className="p-3 rounded-lg bg-slate-800/50 border border-slate-700/60">
-                  <div className="font-semibold text-blue-400 mb-1">H: Help Fit (30%)</div>
-                  <div className="text-slate-400">Database compatibility table: 100 exact, 70 strong, 40 partial</div>
+
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  <span className="badge text-[11px]">Product</span>
+                  <span className="badge text-[11px]">AI / ML</span>
+                  <span className="badge text-[11px]">Interview prep</span>
                 </div>
-                <div className="p-3 rounded-lg bg-slate-800/50 border border-slate-700/60">
-                  <div className="font-semibold text-purple-400 mb-1">C: Capacity (20%)</div>
-                  <div className="text-slate-400">Remaining monthly review slots / monthly limit ratio</div>
+
+                {/* Grounded Brief */}
+                <div className="flex gap-2.5 p-3.5 bg-[#f3f5ff] border border-[#e1e6ff] rounded-[13px] text-xs text-[#5363c7]">
+                  <Sparkles className="h-4 w-4 shrink-0 mt-0.5 text-[#536df0]" />
+                  <p className="text-[#657191] leading-relaxed m-0 text-xs">
+                    <strong className="text-[#15213b] block mb-0.5">Why this connection</strong>
+                    Maya’s product leadership and AI platform experience directly align with your transition goal.
+                  </p>
                 </div>
-                <div className="p-3 rounded-lg bg-slate-800/50 border border-slate-700/60">
-                  <div className="font-semibold text-rose-400 mb-1">R: Recency (10%)</div>
-                  <div className="text-slate-400">Smooth 14-day half-life decay from last active timestamp</div>
+
+                {/* Factor Breakdown Bars */}
+                <div className="space-y-2 pt-2 border-t border-[var(--line-soft)] text-[11px] text-[#7b8799]">
+                  <div className="grid grid-cols-[85px_1fr_30px] items-center gap-2">
+                    <span>Domain fit</span>
+                    <div className="h-1.5 rounded-full bg-[#edf0f5] overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-[#536df0] to-[#7d6fe8] rounded-full w-[96%]" />
+                    </div>
+                    <span className="text-right font-semibold text-[#15213b]">96%</span>
+                  </div>
+                  <div className="grid grid-cols-[85px_1fr_30px] items-center gap-2">
+                    <span>Help type</span>
+                    <div className="h-1.5 rounded-full bg-[#edf0f5] overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-[#536df0] to-[#7d6fe8] rounded-full w-[92%]" />
+                    </div>
+                    <span className="text-right font-semibold text-[#15213b]">92%</span>
+                  </div>
+                  <div className="grid grid-cols-[85px_1fr_30px] items-center gap-2">
+                    <span>Capacity</span>
+                    <div className="h-1.5 rounded-full bg-[#edf0f5] overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-[#536df0] to-[#7d6fe8] rounded-full w-[88%]" />
+                    </div>
+                    <span className="text-right font-semibold text-[#15213b]">88%</span>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            {/* Simulated Match Card Preview */}
-            <div className="lg:col-span-6">
-              <Card className="border-slate-700 bg-slate-800 text-white shadow-xl">
-                <CardHeader className="border-b border-slate-700 pb-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-xs text-blue-400 font-semibold uppercase tracking-wider">
-                        Sample Match Result
-                      </span>
-                      <h4 className="text-lg font-bold text-white mt-1">Priya Sharma</h4>
-                      <p className="text-xs text-slate-400">Product Lead @ Stripe • Class of 2023</p>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-black text-emerald-400">79.5%</div>
-                      <div className="text-[10px] text-slate-400 uppercase tracking-wider">Fit Score</div>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-4 space-y-4">
-                  {/* Factor Breakdown Bars */}
-                  <div className="space-y-2 text-xs">
-                    <div className="flex justify-between text-slate-300">
-                      <span>Domain Overlap (PM, Fintech)</span>
-                      <span className="font-mono text-emerald-400">80 / 100</span>
-                    </div>
-                    <div className="w-full h-1.5 bg-slate-700 rounded-full overflow-hidden">
-                      <div className="bg-emerald-500 h-full w-[80%]" />
-                    </div>
-
-                    <div className="flex justify-between text-slate-300">
-                      <span>Help Type (Mock Interview)</span>
-                      <span className="font-mono text-blue-400">100 / 100</span>
-                    </div>
-                    <div className="w-full h-1.5 bg-slate-700 rounded-full overflow-hidden">
-                      <div className="bg-blue-500 h-full w-[100%]" />
-                    </div>
-
-                    <div className="flex justify-between text-slate-300">
-                      <span>Remaining Capacity (2 slots left)</span>
-                      <span className="font-mono text-purple-400">50 / 100</span>
-                    </div>
-                    <div className="w-full h-1.5 bg-slate-700 rounded-full overflow-hidden">
-                      <div className="bg-purple-500 h-full w-[50%]" />
-                    </div>
-                  </div>
-
-                  {/* AI Grounded Brief Preview */}
-                  <div className="p-3 rounded-lg bg-slate-900/80 border border-slate-700/80 text-xs space-y-1.5">
-                    <div className="flex items-center gap-1.5 text-blue-400 font-medium">
-                      <Sparkles className="h-3.5 w-3.5" />
-                      <span>Why You Should Connect</span>
-                    </div>
-                    <p className="text-slate-300 leading-relaxed italic">
-                      &quot;Priya is an alumnus in Product Management offering Mock Interviews, which matches your active intent. She currently has 2 review slots open this month.&quot;
-                    </p>
-                  </div>
-
-                  <div className="flex items-center justify-between pt-2 border-t border-slate-700 text-xs">
-                    <span className="text-slate-400 flex items-center gap-1">
-                      <Lock className="h-3 w-3 text-amber-400" /> Cost: 1 Monthly Token
-                    </span>
-                    <Button size="sm" variant="primary" className="h-8 text-xs">
-                      Send Connection Request
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Pilot Scope & Rules */}
-      <section className="py-16 sm:py-20 bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">Pilot Guidelines & Scope</h2>
-            <p className="mt-3 text-slate-600 text-sm">
-              Engineered specifically for the initial university pilot with strict rules that preserve trust.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-6 rounded-xl border border-slate-200 bg-slate-50/50 space-y-2">
-              <div className="h-10 w-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center mb-3">
-                <Users className="h-5 w-5" />
-              </div>
-              <h3 className="font-semibold text-slate-900">Eligible Cohorts</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Students must be currently in their 3rd or 4th year of study. Alumni focus is on graduates from the most recent 3 graduating classes.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-xl border border-slate-200 bg-slate-50/50 space-y-2">
-              <div className="h-10 w-10 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center mb-3">
-                <Clock className="h-5 w-5" />
-              </div>
-              <h3 className="font-semibold text-slate-900">Anti-Spam Tokens</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Students receive 5 tokens per calendar month. Each request consumes 1 token from an auditable ledger. Repeat requests to the same alumnus are clearly flagged.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-xl border border-slate-200 bg-slate-50/50 space-y-2">
-              <div className="h-10 w-10 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center mb-3">
-                <BarChart3 className="h-5 w-5" />
-              </div>
-              <h3 className="font-semibold text-slate-900">Verifiable Metrics</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Impact metrics come from actual database records. Network connectivity score uses pair coverage: 100 * unique pairs / (eligible students * eligible alumni).
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Call to Action Banner */}
-      <section className="py-16 bg-gradient-to-tr from-blue-600 to-indigo-700 text-white text-center">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-            Ready for Purposeful Alumni Networking?
+      {/* 2. FOUR STEPS SECTION */}
+      <section id="how-it-works" className="py-20 max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-2xl mx-auto mb-14">
+          <span className="uppercase tracking-widest text-xs font-bold text-[#5369e8] block mb-2">
+            A Better Introduction
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-[#15213b] tracking-tight">
+            From intent to impact, in four clear steps
           </h2>
-          <p className="text-blue-100 text-sm sm:text-base max-w-xl mx-auto">
-            Get started today. Whether you are a student preparing for your career or an alumnus ready to make a high-impact contribution.
+          <p className="mt-3 text-base text-[#66758e]">
+            No endless directory browsing. Every connection starts with a specific goal and mutual respect for time.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
-            <Link href="/auth/sign-up">
-              <Button size="lg" className="bg-white text-blue-700 hover:bg-blue-50 shadow-lg">
-                Create Free Account
-              </Button>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[
+            {
+              num: "01",
+              title: "Set your goal",
+              desc: "Tell us the specific outcome or advice you’re working toward.",
+              icon: Target,
+            },
+            {
+              num: "02",
+              title: "Discover relevant alumni",
+              desc: "See transparent, explainable recommendations scored by SQL.",
+              icon: Search,
+            },
+            {
+              num: "03",
+              title: "Send a purposeful request",
+              desc: "Make a focused ask using your monthly tokens that respects their time.",
+              icon: Inbox,
+            },
+            {
+              num: "04",
+              title: "Track progress together",
+              desc: "Confirm dual fulfillment, unlock mutual ratings, and build trust.",
+              icon: CheckCircle2,
+            },
+          ].map((step) => {
+            const Icon = step.icon;
+            return (
+              <div
+                key={step.num}
+                className="relative p-6 rounded-[20px] bg-white/80 border border-white/90 shadow-[var(--small-shadow)] backdrop-blur-md hover:-translate-y-1 transition-all duration-200"
+              >
+                <span className="absolute right-5 top-4 font-heading font-extrabold text-3xl text-slate-200 select-none">
+                  {step.num}
+                </span>
+                <div className="h-10 w-10 rounded-xl bg-[#edf1ff] text-[#5369e8] flex items-center justify-center mb-6">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <h3 className="font-bold text-base text-[#15213b] mb-1.5">{step.title}</h3>
+                <p className="text-sm text-[#66758e] leading-relaxed">{step.desc}</p>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* 3. SPLIT AUDIENCE SECTION (STUDENTS VS ALUMNI) */}
+      <section className="py-12 max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* For Students */}
+          <div className="p-8 sm:p-10 rounded-[28px] border border-white shadow-[var(--small-shadow)] bg-gradient-to-br from-[#eef3ff] via-[#f7f9ff] to-white relative overflow-hidden">
+            <Badge variant="soft" className="mb-4">For Students (3rd/4th Yr)</Badge>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#15213b] tracking-tight leading-snug mb-3">
+              Less cold outreach.<br />More relevant guidance.
+            </h2>
+            <p className="text-sm text-[#66758e] leading-relaxed mb-6 max-w-md">
+              Use a focused goal to find people whose experience, available time, and active offers match what you need now.
+            </p>
+            <ul className="space-y-3 text-sm font-semibold text-[#15213b]">
+              <li className="flex items-center gap-2.5">
+                <Check className="h-4 w-4 text-[#2d9667] shrink-0" />
+                <span>Explainable recommendations with transparent score factors</span>
+              </li>
+              <li className="flex items-center gap-2.5">
+                <Check className="h-4 w-4 text-[#2d9667] shrink-0" />
+                <span>5 monthly request tokens to prevent burnout and spam</span>
+              </li>
+              <li className="flex items-center gap-2.5">
+                <Check className="h-4 w-4 text-[#2d9667] shrink-0" />
+                <span>Private goal rooms with structured progress milestones</span>
+              </li>
+            </ul>
+            <div className="pt-8">
+              <Link href="/auth/sign-up?role=student">
+                <span className="btn text-sm py-2 px-5">Join as a Student</span>
+              </Link>
+            </div>
+          </div>
+
+          {/* For Alumni */}
+          <div className="p-8 sm:p-10 rounded-[28px] border border-white shadow-[var(--small-shadow)] bg-gradient-to-br from-[#eefaf8] via-[#f5fdfb] to-white relative overflow-hidden">
+            <Badge variant="success" className="mb-4">For Alumni &amp; Professionals</Badge>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#15213b] tracking-tight leading-snug mb-3">
+              Share your experience,<br />strictly on your terms.
+            </h2>
+            <p className="text-sm text-[#66758e] leading-relaxed mb-6 max-w-md">
+              Choose what you help with, cap your monthly review capacity, and see the real-world impact of your mentorship time.
+            </p>
+            <ul className="space-y-3 text-sm font-semibold text-[#15213b]">
+              <li className="flex items-center gap-2.5">
+                <Check className="h-4 w-4 text-[#2d9667] shrink-0" />
+                <span>Strict monthly capacity limits (default 3 reviews/mo)</span>
+              </li>
+              <li className="flex items-center gap-2.5">
+                <Check className="h-4 w-4 text-[#2d9667] shrink-0" />
+                <span>Structured incoming asks with expected review duration</span>
+              </li>
+              <li className="flex items-center gap-2.5">
+                <Check className="h-4 w-4 text-[#2d9667] shrink-0" />
+                <span>1-click pause or deferral when your schedule gets busy</span>
+              </li>
+            </ul>
+            <div className="pt-8">
+              <Link href="/auth/sign-up?role=alum">
+                <span className="btn secondary text-sm py-2 px-5">Become an Alumni Mentor</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. EXPLAINABLE MATCHING SECTION */}
+      <section id="matching" className="py-20 max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-2xl mx-auto mb-14">
+          <span className="uppercase tracking-widest text-xs font-bold text-[#5369e8] block mb-2">
+            Matching That Explains Itself
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-[#15213b] tracking-tight">
+            Relevance you can understand
+          </h2>
+          <p className="mt-3 text-base text-[#66758e]">
+            A match score is never a black box. We break down the exact mathematical formula behind each recommendation so you can decide.
+          </p>
+        </div>
+
+        {/* Big Score Card */}
+        <div className="max-w-[850px] mx-auto p-6 sm:p-8 rounded-[24px] bg-white border border-[var(--line)] shadow-[var(--shadow)]">
+          <div className="grid grid-cols-1 sm:grid-cols-[140px_1fr] gap-8 items-center pb-6 border-b border-[var(--line-soft)]">
+            <div className="text-center sm:text-left">
+              <div className="score-big text-5xl font-extrabold text-[#5369e8]">
+                94<span className="text-base font-normal text-[#94a1b5]">/100</span>
+              </div>
+              <span className="text-xs text-[#66758e] block mt-1">Composite Fit Score</span>
+            </div>
+
+            <div className="space-y-3">
+              {[
+                { label: "Domain alignment (D)", weight: "40%", val: 96 },
+                { label: "Help-type fit (H)", weight: "30%", val: 92 },
+                { label: "Review capacity (C)", weight: "20%", val: 88 },
+                { label: "Recent activity (R)", weight: "10%", val: 84 },
+              ].map((factor) => (
+                <div key={factor.label} className="grid grid-cols-[160px_1fr_40px] items-center gap-3 text-xs">
+                  <span className="text-[#15213b] font-medium">{factor.label}</span>
+                  <div className="h-2 rounded-full bg-[#edf0f5] overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-[#536df0] to-[#7c67e4] rounded-full"
+                      style={{ width: `${factor.val}%` }}
+                    />
+                  </div>
+                  <b className="text-right text-[#15213b]">{factor.val}%</b>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-6 flex items-start gap-3 p-4 bg-[#f3f5ff] rounded-[14px] text-xs text-[#5867c6]">
+            <Sparkles className="h-4 w-4 shrink-0 text-[#5369e8] mt-0.5" />
+            <div>
+              <strong className="text-[#15213b] block mb-0.5">Grounded AI Connection Brief</strong>
+              <p className="text-[#69758d] m-0 leading-relaxed">
+                SyncTies uses OpenAI to synthesize connection rationales grounded strictly in visible profile fields. AI explains the match—it never computes scores, filters candidates, or bypasses business rules.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. CALL TO ACTION BAND */}
+      <section className="py-12 max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+        <div className="relative overflow-hidden rounded-[30px] p-10 sm:p-16 text-center text-white bg-gradient-to-r from-[#17254b] via-[#2a3474] to-[#523c91] shadow-[0_24px_60px_rgba(35,48,102,0.25)]">
+          {/* Ambient Glow Orbs */}
+          <div className="absolute -left-16 -top-20 w-64 h-64 rounded-full bg-[#2fc4da]/20 blur-2xl pointer-events-none" />
+          <div className="absolute -right-12 -bottom-20 w-72 h-72 rounded-full bg-[#a96aea]/25 blur-2xl pointer-events-none" />
+
+          <Badge variant="dark" className="mx-auto mb-4">
+            One focused goal. One relevant person.
+          </Badge>
+
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight mb-4">
+            Make one good connection today.
+          </h2>
+
+          <p className="text-base sm:text-lg text-[#ccd5f0] max-w-xl mx-auto mb-8 leading-relaxed">
+            Build career momentum with guidance that fits where you’re going. No spam, no cold pitch guesswork.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5">
+            <Link href="/auth/sign-up?role=student">
+              <span className="btn w-full sm:w-auto py-3 px-6">Join as a student</span>
             </Link>
-            <Link href="/impact">
-              <Button size="lg" variant="outline" className="border-white/40 text-white hover:bg-white/10">
-                View Live Impact Dashboard
-              </Button>
+            <Link href="/auth/sign-up?role=alum">
+              <span className="btn light w-full sm:w-auto py-3 px-6 text-[#283a74]">Join as an alumnus</span>
             </Link>
           </div>
         </div>

@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Clock, CheckCircle, AlertTriangle, ExternalLink, XCircle } from "lucide-react";
+import { Clock, CheckCircle, AlertTriangle, ArrowLeft, XCircle, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { RequestStatusBadge } from "@/components/ui/status-badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Alert } from "@/components/ui/alert";
+import { Avatar } from "@/components/ui/avatar";
 import { ConnectionRequest } from "@/types/database";
 
 export default function StudentRequestsPage() {
@@ -48,27 +48,36 @@ export default function StudentRequestsPage() {
       setMessage("Request successfully withdrawn.");
       fetchRequests();
     } catch (err: any) {
-      alert(err.message);
+      alert(err?.message || "Failed to withdraw request");
     } finally {
       setActionLoading(null);
     }
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-      <div className="border-b border-slate-200 pb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
-          My Connection Requests
-        </h1>
-        <p className="text-sm text-slate-500 mt-1">
-          Monitor your outgoing requests, alumni response notes, and status updates.
-        </p>
+    <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-page-enter">
+      <div>
+        <Link
+          href="/student/dashboard"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#66758e] hover:text-[#15213b] mb-3"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          <span>Back to Dashboard</span>
+        </Link>
+        <div className="page-head">
+          <div>
+            <h1 className="font-heading">My Outgoing Requests</h1>
+            <p>
+              Monitor your active connection requests, alumni responses, and goal room transitions.
+            </p>
+          </div>
+        </div>
       </div>
 
       {message && <Alert variant="success">{message}</Alert>}
 
       {loading ? (
-        <div className="p-8 text-center text-sm text-slate-500">Loading requests...</div>
+        <div className="p-12 text-center text-sm text-[#66758e]">Loading requests...</div>
       ) : requests.length === 0 ? (
         <EmptyState
           icon={Clock}
@@ -78,72 +87,85 @@ export default function StudentRequestsPage() {
           actionHref="/student/dashboard"
         />
       ) : (
-        <div className="space-y-4">
-          {requests.map((req) => (
-            <Card key={req.id} className="shadow-xs border-slate-200">
-              <CardContent className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2.5 flex-wrap">
-                    <h3 className="font-bold text-slate-900 text-base">
+        <div className="space-y-4 max-w-4xl">
+          {requests.map((req, idx) => {
+            const initials = req.alumnus?.full_name
+              ? req.alumnus.full_name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()
+              : "AL";
+            const tones = ["violet", "cyan", "coral", "blue"] as const;
+            const tone = tones[idx % tones.length];
+
+            return (
+              <article key={req.id} className="request-card">
+                <div className="person">
+                  <Avatar initials={initials} tone={tone} size="md" />
+                  <div>
+                    <h3 className="font-bold text-[#15213b] text-base">
                       {req.alumnus?.full_name || "Alumnus Mentor"}
                     </h3>
-                    <span className="text-xs text-slate-500 font-medium">
-                      ({req.alumnus?.job_title} @ {req.alumnus?.company})
+                    <p className="text-xs text-[#66758e]">
+                      {req.alumnus?.job_title} @ {req.alumnus?.company}
+                    </p>
+                  </div>
+                  <RequestStatusBadge status={req.status} />
+                  {req.repeat_contact_in_month && (
+                    <span className="text-[10px] bg-amber-50 text-amber-800 border border-amber-200 px-1.5 py-0.5 rounded font-medium flex items-center gap-1">
+                      <AlertTriangle className="h-3 w-3" /> Repeat Contact
                     </span>
-                    <RequestStatusBadge status={req.status} />
-                    {req.repeat_contact_in_month && (
-                      <span className="text-xs bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded font-medium">
-                        Repeat Contact
-                      </span>
+                  )}
+                </div>
+
+                <div className="request-goal">
+                  <small className="text-xs font-semibold text-[#8896ab] uppercase tracking-wider">
+                    Goal &amp; Intent
+                  </small>
+                  <b className="text-sm text-[#15213b] font-bold">
+                    {req.intent?.title || "Career guidance and mentorship"}
+                  </b>
+                  <p className="text-xs text-[#66758e] italic leading-relaxed mt-1">
+                    &quot;{req.student_message}&quot;
+                  </p>
+                </div>
+
+                {req.alumni_response_note && (
+                  <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 mt-2">
+                    <strong>Alumnus Response:</strong> &quot;{req.alumni_response_note}&quot;
+                  </div>
+                )}
+
+                <div className="pt-3 border-t border-[#edf0f5] mt-3 flex items-center justify-between text-[11px] text-[#8896ab]">
+                  <span>
+                    Sent on {new Date(req.created_at).toLocaleDateString()} · Auto-expires{" "}
+                    {new Date(req.expires_at).toLocaleDateString()}
+                  </span>
+
+                  <div className="flex items-center gap-2">
+                    {req.status === "accepted" && (
+                      <Link href={`/goals/77777777-7777-7777-7777-777777777701`}>
+                        <Button size="sm" variant="primary" className="text-xs gap-1.5">
+                          <CheckCircle className="h-3.5 w-3.5" />
+                          <span>Open Goal Workspace</span>
+                        </Button>
+                      </Link>
+                    )}
+
+                    {req.status === "pending" && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-xs text-rose-600 hover:text-rose-700"
+                        onClick={() => handleWithdraw(req.id)}
+                        isLoading={actionLoading === req.id}
+                      >
+                        <XCircle className="h-3.5 w-3.5 mr-1" />
+                        <span>Withdraw Request</span>
+                      </Button>
                     )}
                   </div>
-
-                  <p className="text-xs text-slate-600">
-                    <strong>Goal:</strong> {req.intent?.title || "Career guidance and mentorship"}
-                  </p>
-
-                  <div className="p-2.5 rounded bg-slate-50 border border-slate-200/80 text-xs text-slate-700 italic">
-                    &quot;{req.student_message}&quot;
-                  </div>
-
-                  {req.alumni_response_note && (
-                    <div className="p-2.5 rounded bg-emerald-50 border border-emerald-200 text-xs text-emerald-900">
-                      <strong>Alumnus Response:</strong> &quot;{req.alumni_response_note}&quot;
-                    </div>
-                  )}
-
-                  <div className="text-[11px] text-slate-400">
-                    Sent on {new Date(req.created_at).toLocaleDateString()} • Expires on{" "}
-                    {new Date(req.expires_at).toLocaleDateString()}
-                  </div>
                 </div>
-
-                <div className="flex items-center gap-2 shrink-0">
-                  {req.status === "accepted" && (
-                    <Link href={`/goals/77777777-7777-7777-7777-777777777701`}>
-                      <Button size="sm" variant="primary" className="text-xs gap-1.5">
-                        <CheckCircle className="h-3.5 w-3.5" />
-                        <span>Open Goal Room</span>
-                      </Button>
-                    </Link>
-                  )}
-
-                  {req.status === "pending" && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50"
-                      onClick={() => handleWithdraw(req.id)}
-                      isLoading={actionLoading === req.id}
-                    >
-                      <XCircle className="h-3.5 w-3.5 mr-1" />
-                      <span>Withdraw Request</span>
-                    </Button>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+              </article>
+            );
+          })}
         </div>
       )}
     </div>

@@ -4,8 +4,6 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { KeyRound, ArrowLeft, Mail, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Alert } from "@/components/ui/alert";
 import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -23,7 +21,6 @@ export default function ForgotPasswordPage() {
 
     try {
       if (!isSupabaseConfigured()) {
-        // Standalone demonstration mode
         setSubmitted(true);
         setLoading(false);
         return;
@@ -50,79 +47,61 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-6">
-        <div className="text-center space-y-2">
-          <div className="inline-flex h-12 w-12 rounded-xl bg-blue-600 items-center justify-center text-white shadow-md">
-            <KeyRound className="h-6 w-6" />
+    <div className="auth-main min-h-[85vh] py-12 px-4">
+      <div className="auth-card">
+        <Link href="/auth/sign-in" className="back inline-flex items-center gap-2 text-sm text-[#66758e] hover:text-[#15213b] mb-6">
+          <ArrowLeft className="h-4 w-4" /> Back to Sign In
+        </Link>
+
+        <h2 className="font-heading text-2xl font-bold text-[#15213b] mb-1">
+          Forgot your password?
+        </h2>
+        <p className="text-sm text-[#66758e] mb-6">
+          Enter your account email and we&apos;ll send you a link to reset your password.
+        </p>
+
+        {submitted ? (
+          <div className="space-y-4 text-center py-4">
+            <div className="inline-flex h-14 w-14 rounded-2xl bg-emerald-100 text-emerald-600 items-center justify-center mx-auto">
+              <CheckCircle2 className="h-7 w-7" />
+            </div>
+            <h3 className="text-base font-bold text-[#15213b]">Check your inbox</h3>
+            <p className="text-xs text-[#66758e] leading-relaxed">
+              If an account exists for <span className="font-semibold text-[#15213b]">{email}</span>, you will receive password reset instructions shortly.
+            </p>
+
+            <div className="pt-3">
+              <Button variant="secondary" size="sm" onClick={() => setSubmitted(false)}>
+                Try another email
+              </Button>
+            </div>
           </div>
-          <h2 className="text-2xl font-bold tracking-tight text-slate-900">Forgot your password?</h2>
-          <p className="text-sm text-slate-500">
-            Enter your account email and we&apos;ll send you a link to reset your password.
-          </p>
-        </div>
+        ) : (
+          <form onSubmit={handleReset} className="space-y-4">
+            {error && (
+              <Alert variant="error" title="Reset Request Failed">
+                {error}
+              </Alert>
+            )}
 
-        <Card className="shadow-sm">
-          {submitted ? (
-            <CardContent className="space-y-4 pt-6 text-center">
-              <div className="inline-flex h-12 w-12 rounded-full bg-emerald-50 text-emerald-600 items-center justify-center mx-auto">
-                <CheckCircle2 className="h-6 w-6" />
-              </div>
-              <h3 className="text-base font-semibold text-slate-900">Check your inbox</h3>
-              <p className="text-sm text-slate-600">
-                If an account exists for <span className="font-medium text-slate-900">{email}</span>, you will receive
-                password reset instructions shortly.
-              </p>
+            <div className="field">
+              <label htmlFor="resetEmail">Email address</label>
+              <input
+                id="resetEmail"
+                type="email"
+                required
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
 
-              {!isSupabaseConfigured() && (
-                <Alert variant="info" title="Local Demo Mode">
-                  Supabase credentials are in placeholder mode. In a connected cloud instance, an email containing an
-                  authenticated recovery link will be dispatched.
-                </Alert>
-              )}
-
-              <div className="pt-2">
-                <Button variant="outline" size="sm" onClick={() => setSubmitted(false)}>
-                  Send again
-                </Button>
-              </div>
-            </CardContent>
-          ) : (
-            <form onSubmit={handleReset}>
-              <CardContent className="space-y-4 pt-6">
-                {error && (
-                  <Alert variant="error" title="Reset Request Failed">
-                    {error}
-                  </Alert>
-                )}
-
-                <Input
-                  label="Email Address"
-                  type="email"
-                  required
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-
-                <Button type="submit" variant="primary" className="w-full gap-2" isLoading={loading}>
-                  <Mail className="h-4 w-4" />
-                  <span>Send Reset Instructions</span>
-                </Button>
-              </CardContent>
-            </form>
-          )}
-
-          <CardFooter className="justify-center border-t border-slate-100 pt-4">
-            <Link
-              href="/auth/sign-in"
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:underline"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" />
-              <span>Back to Sign In</span>
-            </Link>
-          </CardFooter>
-        </Card>
+            <Button type="submit" variant="primary" className="w-full gap-2 mt-2" isLoading={loading}>
+              <Mail className="h-4 w-4" />
+              <span>Send Reset Instructions</span>
+            </Button>
+          </form>
+        )}
       </div>
     </div>
   );

@@ -1,20 +1,44 @@
 "use client";
 
 import React, { useState, useEffect, Suspense } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Users, Check, Sparkles, ArrowRight, GraduationCap, Briefcase } from "lucide-react";
+import { Check, Sparkles, ArrowRight, ArrowLeft, Target, Users, Shield, Zap, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select } from "@/components/ui/select";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Alert } from "@/components/ui/alert";
 import { Domain } from "@/types/database";
 
-function OnboardingForm() {
+const STEPS = ["Role", "Profile", "Expertise", "Intent", "Preferences"] as const;
+
+const CANONICAL_DOMAINS = [
+  "Computer Science",
+  "AI / ML",
+  "Data Science",
+  "Web Development",
+  "Cybersecurity",
+  "Product Management",
+  "Product Design",
+  "Finance & FinTech",
+  "Management Consulting",
+  "Research & Academia",
+  "Entrepreneurship",
+  "HealthTech",
+];
+
+const HELP_FORMATS = [
+  { id: "career_guidance", label: "Career Guidance", desc: "Long-term trajectory, role transitions, and industry insights" },
+  { id: "interview_prep", label: "Interview Preparation", desc: "Mock behavioral/system interviews and question breakdowns" },
+  { id: "resume_review", label: "Resume & Portfolio Review", desc: "Detailed feedback on project stories and presentation" },
+  { id: "project_feedback", label: "Technical Project Feedback", desc: "Architecture reviews and code critique for student builds" },
+  { id: "skill_roadmap", label: "Skill Roadmap Planning", desc: "Curated learning paths for specific tools, models, or stacks" },
+  { id: "networking_advice", label: "Targeted Outreach Advice", desc: "Crafting high-signal cold outreach and company discovery" },
+];
+
+function OnboardingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const [step, setStep] = useState(1);
   const [role, setRole] = useState<"student" | "alum">(
     (searchParams.get("role") as "student" | "alum") || "student"
   );
@@ -27,8 +51,9 @@ function OnboardingForm() {
   const [company, setCompany] = useState("");
   const [industry, setIndustry] = useState("");
   const [bio, setBio] = useState("");
+  const [selectedDomains, setSelectedDomains] = useState<string[]>(["Product Management", "AI / ML"]);
+  const [selectedFormats, setSelectedFormats] = useState<string[]>(["career_guidance", "interview_prep"]);
   const [domains, setDomains] = useState<Domain[]>([]);
-  const [selectedDomains, setSelectedDomains] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,21 +61,30 @@ function OnboardingForm() {
     fetch("/api/domains")
       .then((r) => r.json())
       .then((d) => {
-        if (d?.domains) setDomains(d.domains);
+        if (d?.domains && d.domains.length > 0) {
+          setDomains(d.domains);
+        }
       })
       .catch(() => {});
   }, []);
 
-  const toggleDomain = (id: string) => {
-    if (selectedDomains.includes(id)) {
-      setSelectedDomains(selectedDomains.filter((d) => d !== id));
+  const toggleDomain = (name: string) => {
+    if (selectedDomains.includes(name)) {
+      setSelectedDomains(selectedDomains.filter((d) => d !== name));
     } else {
-      setSelectedDomains([...selectedDomains, id]);
+      setSelectedDomains([...selectedDomains, name]);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const toggleFormat = (id: string) => {
+    if (selectedFormats.includes(id)) {
+      setSelectedFormats(selectedFormats.filter((f) => f !== id));
+    } else {
+      setSelectedFormats([...selectedFormats, id]);
+    }
+  };
+
+  const handleSubmit = async () => {
     setError(null);
     setLoading(true);
 
@@ -85,192 +119,430 @@ function OnboardingForm() {
         router.push("/alumni/dashboard");
       }
     } catch (err: any) {
-      setError(err.message || "Failed to complete onboarding");
-    } finally {
+      setError(err?.message || "Failed to complete onboarding");
       setLoading(false);
     }
   };
 
+  const handleNext = () => {
+    if (step === 2 && !fullName.trim()) {
+      setError("Please provide your full name before continuing.");
+      return;
+    }
+    setError(null);
+    if (step === 5) {
+      handleSubmit();
+    } else {
+      setStep((s) => Math.min(5, s + 1));
+    }
+  };
+
+  const handleBack = () => {
+    setError(null);
+    setStep((s) => Math.max(1, s - 1));
+  };
+
+  const displayDomains = domains.length > 0 ? domains.map((d) => d.name) : CANONICAL_DOMAINS;
+
   return (
-    <div className="max-w-2xl mx-auto py-12 px-4 sm:px-6">
-      <div className="text-center space-y-2 mb-8">
-        <div className="inline-flex h-12 w-12 rounded-xl bg-blue-600 items-center justify-center text-white shadow-md">
-          <Sparkles className="h-6 w-6" />
+    <div className="onboard">
+      {/* Onboarding Header */}
+      <header>
+        <Link href="/" className="logo flex items-center gap-2.5">
+          <span className="logo-mark">
+            <i />
+            <i />
+            <i />
+          </span>
+          <b className="tracking-tight text-xl font-semibold text-[#15213b]">SyncTies</b>
+        </Link>
+        <span className="text-sm">Profile setup</span>
+        <button
+          type="button"
+          onClick={() => router.push(role === "student" ? "/student/dashboard" : "/alumni/dashboard")}
+        >
+          Save &amp; exit
+        </button>
+      </header>
+
+      <main>
+        {/* Progress Header */}
+        <div className="progress-head">
+          <div>
+            <small>Step {step} of 5</small>
+            <h1 className="font-heading">{STEPS[step - 1]}</h1>
+          </div>
+          <span>{step * 20}% complete</span>
         </div>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">
-          Complete Your SyncTies Profile
-        </h1>
-        <p className="text-sm text-slate-500">
-          Help us match you with the right peers and opportunities during the university pilot.
-        </p>
-      </div>
 
-      <Card className="shadow-sm">
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-6 pt-6">
-            {error && <Alert variant="error">{error}</Alert>}
+        {/* Progress Bar */}
+        <div className="progress">
+          <i style={{ width: `${step * 20}%` }} />
+        </div>
 
-            {/* Role indicator */}
-            <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                {role === "student" ? (
-                  <GraduationCap className="h-6 w-6 text-blue-600" />
-                ) : (
-                  <Briefcase className="h-6 w-6 text-indigo-600" />
-                )}
+        {error && (
+          <div className="mb-6">
+            <Alert variant="error" title="Setup Notice">
+              {error}
+            </Alert>
+          </div>
+        )}
+
+        {/* Wizard Container */}
+        <div className="wizard">
+          {/* Step Dots Sidebar */}
+          <div className="step-dots">
+            {STEPS.map((label, idx) => {
+              const stepNum = idx + 1;
+              const isActive = stepNum <= step;
+              const isPast = stepNum < step;
+              return (
+                <span key={label} className={isActive ? "active" : ""}>
+                  <i>{isPast ? <Check className="h-3.5 w-3.5" /> : stepNum}</i>
+                  <span>{label}</span>
+                </span>
+              );
+            })}
+          </div>
+
+          {/* Step Section Content */}
+          <section>
+            {/* Step 1: Role Selection */}
+            {step === 1 && (
+              <div className="space-y-6">
                 <div>
-                  <h4 className="text-sm font-semibold text-slate-900">
-                    {role === "student" ? "Student Pilot Member" : "Alumnus / Working Professional"}
-                  </h4>
-                  <p className="text-xs text-slate-500">
-                    {role === "student"
-                      ? "Eligible 3rd/4th year undergraduate student"
-                      : "Recent graduating batches (2022-2026)"}
+                  <span className="badge soft mb-3 inline-flex items-center gap-1.5">
+                    <Sparkles className="h-3 w-3 text-[#536df0]" /> Choose your path
+                  </span>
+                  <h2 className="font-heading">How will you use SyncTies?</h2>
+                  <p>This shapes your matching profile and the experience we build for you.</p>
+                </div>
+
+                <div className="role-grid">
+                  <button
+                    type="button"
+                    className={role === "student" ? "selected" : ""}
+                    onClick={() => setRole("student")}
+                  >
+                    <Target className="h-6 w-6 text-[#536df0]" />
+                    <div>
+                      <b className="text-base text-[#15213b] block mb-1">I&apos;m a student</b>
+                      <span>I&apos;m looking for focused guidance toward a specific career goal or transition.</span>
+                    </div>
+                    {role === "student" && (
+                      <i>
+                        <Check className="h-3.5 w-3.5" />
+                      </i>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    className={role === "alum" ? "selected" : ""}
+                    onClick={() => setRole("alum")}
+                  >
+                    <Users className="h-6 w-6 text-[#7c5ce7]" />
+                    <div>
+                      <b className="text-base text-[#15213b] block mb-1">I&apos;m an alumnus or professional</b>
+                      <span>I want to share experience, review requests on my schedule, and help students progress.</span>
+                    </div>
+                    {role === "alum" && (
+                      <i>
+                        <Check className="h-3.5 w-3.5" />
+                      </i>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 2: Profile Details */}
+            {step === 2 && (
+              <div className="space-y-6">
+                <div>
+                  <h2 className="font-heading">Tell us a little about you</h2>
+                  <p>You can update these details at any time from your settings.</p>
+                </div>
+
+                <div className="form-grid">
+                  <div className="field">
+                    <label htmlFor="name">Full name</label>
+                    <input
+                      id="name"
+                      type="text"
+                      required
+                      placeholder="e.g. Jordan Lee"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="field">
+                    <label htmlFor="inst">Institution / University</label>
+                    <input
+                      id="inst"
+                      type="text"
+                      required
+                      placeholder="e.g. University of Manchester"
+                      value={institution}
+                      onChange={(e) => setInstitution(e.target.value)}
+                    />
+                  </div>
+
+                  {role === "student" ? (
+                    <>
+                      <div className="field">
+                        <label htmlFor="year">Current Year of Study</label>
+                        <select
+                          id="year"
+                          value={studyYear}
+                          onChange={(e) => setStudyYear(Number(e.target.value))}
+                        >
+                          <option value={3}>3rd Year Undergraduate</option>
+                          <option value={4}>4th Year Undergraduate (Final Year)</option>
+                        </select>
+                      </div>
+
+                      <div className="field">
+                        <label htmlFor="gradYear">Expected Graduation</label>
+                        <select
+                          id="gradYear"
+                          value={expectedGradYear}
+                          onChange={(e) => setExpectedGradYear(Number(e.target.value))}
+                        >
+                          <option value={2026}>2026</option>
+                          <option value={2027}>2027</option>
+                          <option value={2028}>2028</option>
+                        </select>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="field">
+                        <label htmlFor="alumGradYear">Graduation Year</label>
+                        <select
+                          id="alumGradYear"
+                          value={graduationYear}
+                          onChange={(e) => setGraduationYear(Number(e.target.value))}
+                        >
+                          <option value={2026}>2026 (Recent Grad)</option>
+                          <option value={2025}>2025</option>
+                          <option value={2024}>2024</option>
+                          <option value={2023}>2023</option>
+                          <option value={2022}>2022</option>
+                        </select>
+                      </div>
+
+                      <div className="field">
+                        <label htmlFor="job">Current Job Title</label>
+                        <input
+                          id="job"
+                          type="text"
+                          placeholder="e.g. Senior Product Manager"
+                          value={jobTitle}
+                          onChange={(e) => setJobTitle(e.target.value)}
+                        />
+                      </div>
+
+                      <div className="field">
+                        <label htmlFor="comp">Current Company</label>
+                        <input
+                          id="comp"
+                          type="text"
+                          placeholder="e.g. Northstar Labs, Stripe"
+                          value={company}
+                          onChange={(e) => setCompany(e.target.value)}
+                        />
+                      </div>
+
+                      <div className="field">
+                        <label htmlFor="ind">Industry / Specialization</label>
+                        <input
+                          id="ind"
+                          type="text"
+                          placeholder="e.g. Enterprise SaaS, Developer Tools"
+                          value={industry}
+                          onChange={(e) => setIndustry(e.target.value)}
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  <div className="field full">
+                    <label htmlFor="bio">Short bio</label>
+                    <textarea
+                      id="bio"
+                      placeholder={
+                        role === "student"
+                          ? "What are you exploring, building, or working toward? (e.g. Final-year CS student exploring the transition into AI product management)"
+                          : "What areas of your professional experience are you most excited to share with students?"
+                      }
+                      value={bio}
+                      onChange={(e) => setBio(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Domain Chip Picker */}
+            {step === 3 && (
+              <div className="space-y-6">
+                <div>
+                  <h2 className="font-heading">Choose your domains</h2>
+                  <p>
+                    Select the areas most relevant to your{" "}
+                    {role === "student" ? "career interests and goals" : "professional expertise"}.
                   </p>
                 </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setRole(role === "student" ? "alum" : "student")}
-                className="text-xs text-blue-600 font-medium hover:underline"
-              >
-                Switch Role
-              </button>
-            </div>
 
-            <Input
-              label="Full Name"
-              required
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              placeholder="e.g. Priya Sharma"
-            />
-
-            <Input
-              label="University / Institution"
-              required
-              value={institution}
-              onChange={(e) => setInstitution(e.target.value)}
-            />
-
-            {/* Student-specific fields */}
-            {role === "student" && (
-              <div className="grid grid-cols-2 gap-4">
-                <Select
-                  label="Current Year of Study"
-                  value={studyYear.toString()}
-                  onChange={(e) => setStudyYear(Number(e.target.value))}
-                  options={[
-                    { value: "3", label: "3rd Year Undergraduate" },
-                    { value: "4", label: "4th Year Undergraduate (Final Year)" },
-                  ]}
-                />
-                <Select
-                  label="Expected Graduation Year"
-                  value={expectedGradYear.toString()}
-                  onChange={(e) => setExpectedGradYear(Number(e.target.value))}
-                  options={[
-                    { value: "2026", label: "2026" },
-                    { value: "2027", label: "2027" },
-                    { value: "2028", label: "2028" },
-                  ]}
-                />
-              </div>
-            )}
-
-            {/* Alumni-specific fields */}
-            {role === "alum" && (
-              <div className="space-y-4">
-                <Select
-                  label="Graduation Year"
-                  value={graduationYear.toString()}
-                  onChange={(e) => setGraduationYear(Number(e.target.value))}
-                  options={[
-                    { value: "2026", label: "Class of 2026 (Recent Grad)" },
-                    { value: "2025", label: "Class of 2025" },
-                    { value: "2024", label: "Class of 2024" },
-                    { value: "2023", label: "Class of 2023" },
-                    { value: "2022", label: "Class of 2022" },
-                  ]}
-                />
-                <div className="grid grid-cols-2 gap-4">
-                  <Input
-                    label="Current Job Title"
-                    required
-                    placeholder="e.g. Product Manager, ML Engineer"
-                    value={jobTitle}
-                    onChange={(e) => setJobTitle(e.target.value)}
-                  />
-                  <Input
-                    label="Current Company"
-                    required
-                    placeholder="e.g. Stripe, Google, Startup"
-                    value={company}
-                    onChange={(e) => setCompany(e.target.value)}
-                  />
+                <div className="chip-picker">
+                  {displayDomains.map((dom) => {
+                    const isSelected = selectedDomains.includes(dom);
+                    return (
+                      <button
+                        key={dom}
+                        type="button"
+                        className={isSelected ? "selected" : ""}
+                        onClick={() => toggleDomain(dom)}
+                      >
+                        <span>{dom}</span>
+                        {isSelected && <Check className="h-3 w-3" />}
+                      </button>
+                    );
+                  })}
                 </div>
-                <Input
-                  label="Industry / Domain"
-                  placeholder="e.g. FinTech, Developer Tools, HealthTech"
-                  value={industry}
-                  onChange={(e) => setIndustry(e.target.value)}
-                />
+                <p className="text-xs text-[#8896ab]">
+                  Tip: Selecting 2 to 4 focused domains yields the highest quality recommendation scores.
+                </p>
               </div>
             )}
 
-            {/* Domain Tags */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-700">
-                {role === "student" ? "Domains of Career Interest" : "Professional Expertise Domains"}
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {domains.map((dom) => {
-                  const isSelected = selectedDomains.includes(dom.id);
-                  return (
-                    <button
-                      key={dom.id}
-                      type="button"
-                      onClick={() => toggleDomain(dom.id)}
-                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                        isSelected
-                          ? "bg-blue-600 text-white shadow-xs"
-                          : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                      }`}
-                    >
-                      {isSelected && <Check className="h-3 w-3" />}
-                      <span>{dom.name}</span>
-                    </button>
-                  );
-                })}
+            {/* Step 4: Help Types / Formats */}
+            {step === 4 && (
+              <div className="space-y-6">
+                <div>
+                  <h2 className="font-heading">
+                    {role === "student" ? "What do you need help with?" : "What can you help with?"}
+                  </h2>
+                  <p>Choose the interaction formats most valuable for your upcoming goals.</p>
+                </div>
+
+                <div className="choice-list">
+                  {HELP_FORMATS.map((f) => {
+                    const isChecked = selectedFormats.includes(f.id);
+                    return (
+                      <label key={f.id} className={isChecked ? "border-[#8799f4] bg-[#f9faff]" : ""}>
+                        <div>
+                          <b className="text-sm text-[#15213b] block mb-0.5">{f.label}</b>
+                          <p className="text-xs text-[#66758e] leading-snug">{f.desc}</p>
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => toggleFormat(f.id)}
+                          className="h-4 w-4 rounded border-[#cbd5fb] text-[#536df0] focus:ring-[#536df0]"
+                        />
+                      </label>
+                    );
+                  })}
+                </div>
               </div>
+            )}
+
+            {/* Step 5: Summary & Token Preference */}
+            {step === 5 && (
+              <div className="space-y-6">
+                <div>
+                  <h2 className="font-heading">Your starting setup</h2>
+                  <p>
+                    {role === "student"
+                      ? "Students receive 5 connection tokens each month. Use them for focused, purposeful introductions."
+                      : "Alumni maintain complete control over review volume and can pause requests at any time."}
+                  </p>
+                </div>
+
+                {role === "student" ? (
+                  <div className="token-panel">
+                    <Zap className="h-6 w-6 text-[#536df0] shrink-0" />
+                    <div>
+                      <b className="text-base text-[#15213b]">5 connection tokens granted</b>
+                      <span>Refreshes monthly · 1 token per new request · Protected against race conditions</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="token-panel">
+                    <Shield className="h-6 w-6 text-[#536df0] shrink-0" />
+                    <div>
+                      <b className="text-base text-[#15213b]">Capacity control enabled</b>
+                      <span>Default cap of 3 reviews per month · 1-click accept, defer, or polite decline</span>
+                    </div>
+                  </div>
+                )}
+
+                <div className="summary-list">
+                  <span>
+                    <b>Role</b>
+                    <span className="text-[#15213b] font-medium">
+                      {role === "student" ? "Student Pilot Member" : "Alumni Mentor / Professional"}
+                    </span>
+                  </span>
+                  <span>
+                    <b>Name</b>
+                    <span className="text-[#15213b] font-medium">{fullName || "Not specified"}</span>
+                  </span>
+                  <span>
+                    <b>Institution</b>
+                    <span className="text-[#15213b] font-medium">{institution}</span>
+                  </span>
+                  <span>
+                    <b>Domains ({selectedDomains.length})</b>
+                    <span className="text-[#15213b] font-medium text-right max-w-xs truncate">
+                      {selectedDomains.join(", ") || "General"}
+                    </span>
+                  </span>
+                  <span>
+                    <b>Preferred formats</b>
+                    <span className="text-[#15213b] font-medium">
+                      {selectedFormats.length} selected
+                    </span>
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Wizard Actions */}
+            <div className="wizard-actions">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={handleBack}
+                disabled={step === 1 || loading}
+              >
+                <ArrowLeft className="h-4 w-4 mr-1" /> Back
+              </Button>
+
+              <Button
+                type="button"
+                variant="primary"
+                onClick={handleNext}
+                isLoading={loading}
+              >
+                <span>{step === 5 ? "Complete profile" : "Continue"}</span>
+                <ArrowRight className="h-4 w-4 ml-1" />
+              </Button>
             </div>
-
-            <Textarea
-              label="Short Bio / Professional Summary"
-              placeholder={
-                role === "student"
-                  ? "Briefly describe your career goals, what roles you are preparing for, and what help you seek."
-                  : "Tell students about your experience, past internships, and what areas you are most happy to mentor on."
-              }
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-            />
-
-            <Button type="submit" variant="primary" className="w-full gap-2" isLoading={loading}>
-              <span>Complete Onboarding & Enter Dashboard</span>
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-          </CardContent>
-        </form>
-      </Card>
+          </section>
+        </div>
+      </main>
     </div>
   );
 }
 
 export default function OnboardingPage() {
   return (
-    <Suspense fallback={<div>Loading onboarding...</div>}>
-      <OnboardingForm />
+    <Suspense fallback={<div className="p-8 text-center text-[#66758e]">Loading onboarding...</div>}>
+      <OnboardingContent />
     </Suspense>
   );
 }
