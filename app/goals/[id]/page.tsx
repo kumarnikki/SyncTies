@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert } from "@/components/ui/alert";
 import { Avatar } from "@/components/ui/avatar";
+import { PortalShell } from "@/components/layout/portal-shell";
 import { Goal, Feedback } from "@/types/database";
 
 export default function GoalDetailPage({
@@ -167,8 +168,7 @@ export default function GoalDetailPage({
     : "AL";
 
   return (
-    <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-page-enter">
-      {/* Back button */}
+    <PortalShell>
       <div>
         <Link
           href="/student/dashboard"
@@ -400,6 +400,6 @@ export default function GoalDetailPage({
           )}
         </aside>
       </div>
-    </div>
+    </PortalShell>
   );
 }

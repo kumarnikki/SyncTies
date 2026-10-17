@@ -8,6 +8,7 @@ import { RequestStatusBadge } from "@/components/ui/status-badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Alert } from "@/components/ui/alert";
 import { Avatar } from "@/components/ui/avatar";
+import { PortalShell } from "@/components/layout/portal-shell";
 import { ConnectionRequest } from "@/types/database";
 
 export default function AlumniRequestsPage() {
@@ -62,7 +63,7 @@ export default function AlumniRequestsPage() {
   };
 
   return (
-    <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-page-enter">
+    <PortalShell>
       <div>
         <Link
           href="/alumni/dashboard"
@@ -210,6 +211,6 @@ export default function AlumniRequestsPage() {
           })}
         </div>
       )}
-    </div>
+    </PortalShell>
   );
 }

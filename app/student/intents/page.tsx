@@ -6,6 +6,7 @@ import { Target, Plus, Sparkles, ArrowRight, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
+import { PortalShell } from "@/components/layout/portal-shell";
 import { Intent } from "@/types/database";
 
 export default function StudentIntentsPage() {
@@ -25,7 +26,7 @@ export default function StudentIntentsPage() {
   const filtered = filter === "all" ? intents : intents.filter((i) => i.status === filter);
 
   return (
-    <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-page-enter">
+    <PortalShell>
       <div>
         <Link
           href="/student/dashboard"
@@ -133,6 +134,6 @@ export default function StudentIntentsPage() {
           ))}
         </div>
       )}
-    </div>
+    </PortalShell>
   );
 }

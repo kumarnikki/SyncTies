@@ -59,7 +59,14 @@ export function Header() {
     pathname.startsWith("/student") ||
     pathname.startsWith("/alumni") ||
     pathname.startsWith("/goals") ||
-    pathname.startsWith("/profile");
+    pathname.startsWith("/profile") ||
+    pathname.startsWith("/opportunities") ||
+    pathname.startsWith("/settings") ||
+    pathname.startsWith("/impact");
+
+  if (isPortalRoute) {
+    return null;
+  }
 
   const isStudentPortal = pathname.startsWith("/student") || profile?.role === "student";
   const isAlumPortal = pathname.startsWith("/alumni") || profile?.role === "alum";

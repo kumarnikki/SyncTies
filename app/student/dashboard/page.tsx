@@ -20,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { RequestStatusBadge, GoalStatusBadge } from "@/components/ui/status-badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Avatar } from "@/components/ui/avatar";
+import { PortalShell } from "@/components/layout/portal-shell";
 import { Intent, ConnectionRequest, Goal, TokenSummary } from "@/types/database";
 
 export default function StudentDashboardPage() {
@@ -61,7 +62,7 @@ export default function StudentDashboardPage() {
   const pendingRequests = requests.filter((r) => r.status === "pending");
 
   return (
-    <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-page-enter">
+    <PortalShell>
       {/* Page Header */}
       <div className="page-head">
         <div>
@@ -328,6 +329,6 @@ export default function StudentDashboardPage() {
           )}
         </div>
       </div>
-    </div>
+    </PortalShell>
   );
 }

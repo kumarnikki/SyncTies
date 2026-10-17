@@ -15,7 +15,10 @@ export function Footer() {
     pathname.startsWith("/student") ||
     pathname.startsWith("/alumni") ||
     pathname.startsWith("/goals") ||
-    pathname.startsWith("/profile")
+    pathname.startsWith("/profile") ||
+    pathname.startsWith("/opportunities") ||
+    pathname.startsWith("/settings") ||
+    pathname.startsWith("/impact")
   ) {
     return null;
   }

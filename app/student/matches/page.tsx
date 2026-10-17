@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert } from "@/components/ui/alert";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Avatar } from "@/components/ui/avatar";
+import { PortalShell } from "@/components/layout/portal-shell";
 import { MatchResult, TokenSummary } from "@/types/database";
 
 function MatchesContent() {
@@ -551,8 +552,10 @@ function MatchesContent() {
 
 export default function MatchesPage() {
   return (
-    <Suspense fallback={<div className="p-12 text-center text-sm text-[#66758e]">Loading matches...</div>}>
-      <MatchesContent />
-    </Suspense>
+    <PortalShell>
+      <Suspense fallback={<div className="p-12 text-center text-sm text-[#66758e]">Loading matches...</div>}>
+        <MatchesContent />
+      </Suspense>
+    </PortalShell>
   );
 }
