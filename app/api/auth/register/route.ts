@@ -130,7 +130,6 @@ export async function POST(request: NextRequest) {
           institution: "University Pilot",
           study_year: computedStudyYear,
           expected_graduation_year: gradYearNum,
-          expected_graduation_month: gradMonthNum,
           graduation_year: assignedRole === "alum" && graduationYear ? Number(graduationYear) : null,
           verification_status: "unverified",
           is_active: true,

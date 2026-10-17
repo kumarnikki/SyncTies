@@ -75,6 +75,10 @@ export async function GET() {
         return NextResponse.json({ error: error.message }, { status: 500 });
       }
 
+      if (profile && user) {
+        profile.expected_graduation_month = user.user_metadata?.expected_graduation_month || null;
+      }
+
       return NextResponse.json({ profile, user });
     } catch (err) {
       console.warn("Supabase profile get failed, using fallback:", err);
@@ -111,15 +115,21 @@ export async function PATCH(req: NextRequest) {
         ).studyYear;
       }
 
+      // Destructure expected_graduation_month out of DB fields to prevent PostgREST schema cache errors
+      // if the PostgreSQL column has not been added via DDL yet.
+      const { expected_graduation_month, ...profileDbFields } = validated;
+
+      const updatePayload: Record<string, any> = {
+        ...profileDbFields,
+        ...(computedStudyYear ? { study_year: computedStudyYear } : {}),
+        updated_at: new Date().toISOString(),
+        last_active_at: new Date().toISOString(),
+      };
+
       // Security: Only update user's own profile and allowed fields
       const { data: updated, error } = await supabase
         .from("profiles")
-        .update({
-          ...validated,
-          ...(computedStudyYear ? { study_year: computedStudyYear } : {}),
-          updated_at: new Date().toISOString(),
-          last_active_at: new Date().toISOString(),
-        })
+        .update(updatePayload)
         .eq("id", user.id)
         .select()
         .single();
@@ -128,7 +138,19 @@ export async function PATCH(req: NextRequest) {
         return NextResponse.json({ error: error.message }, { status: 500 });
       }
 
-      return NextResponse.json({ profile: updated });
+      // Persist expected_graduation_month into auth metadata defensively
+      if (expected_graduation_month) {
+        await supabase.auth.updateUser({
+          data: { expected_graduation_month },
+        }).catch(() => {});
+      }
+
+      return NextResponse.json({
+        profile: {
+          ...updated,
+          expected_graduation_month: expected_graduation_month ?? user.user_metadata?.expected_graduation_month ?? null,
+        },
+      });
     }
 
     // Standalone fallback: update local store profile

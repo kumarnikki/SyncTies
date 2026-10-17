@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   institution TEXT NOT NULL DEFAULT 'University Pilot',
   study_year INTEGER CHECK (study_year IS NULL OR (study_year >= 1 AND study_year <= 6)),
   expected_graduation_year INTEGER,
+  expected_graduation_month INTEGER CHECK (expected_graduation_month IS NULL OR (expected_graduation_month >= 1 AND expected_graduation_month <= 12)),
   graduation_year INTEGER,
   job_title TEXT,
   company TEXT,
