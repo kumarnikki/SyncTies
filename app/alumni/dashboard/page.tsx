@@ -11,11 +11,15 @@ import {
   ArrowRight,
   Sliders,
   Shield,
+  ShieldCheck,
+  Star,
+  Clock,
 } from "lucide-react";
 import { PortalShell } from "@/components/layout/portal-shell";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ConnectionRequest, CapacitySummary } from "@/types/database";
+import { getMentorTier, getMentorBadges } from "@/lib/mentors/tiers";
 
 export default function AlumniDashboardPage() {
   const [profile, setProfile] = useState<{ full_name?: string } | null>(null);
@@ -76,13 +80,33 @@ export default function AlumniDashboardPage() {
   const activeGoalsCount = acceptedCount;
   const fulfilledCount = 1;
 
+  const distinctMentees = Math.max(1, new Set(requests.filter((r) => r.status === "accepted").map((r) => r.student_id)).size);
+  const tier = getMentorTier(distinctMentees);
+  const badges = getMentorBadges({
+    distinctMentees,
+    completedGoals: fulfilledCount,
+    avgRating: 5.0,
+    reviewCount: 1,
+    confirmedHours: 4,
+  });
+
   return (
     <PortalShell>
       {/* Page Header */}
       <div className="page-head">
         <div>
           <h1>Welcome, {firstName}</h1>
-          <p>Here’s what’s moving across your goals and connections.</p>
+          <div className="flex flex-wrap items-center gap-2 mt-1 mb-1">
+            <span className="badge soft text-xs font-semibold inline-flex items-center gap-1.5 py-0.5 px-2.5">
+              <Sparkles className="h-3 w-3 text-[#3563ff]" />
+              <span>{tier.label} · Tier {tier.tierNumber}</span>
+            </span>
+            <span className="badge success text-xs font-semibold inline-flex items-center gap-1 py-0.5 px-2.5 text-emerald-700 bg-emerald-50 border-emerald-200">
+              <ShieldCheck className="h-3 w-3 text-emerald-600" />
+              <span>Verified Alum</span>
+            </span>
+          </div>
+          <p>Here’s what’s moving across your goals, capacity, and student impact.</p>
         </div>
         <div>
           <Link href="/alumni/requests">
@@ -156,23 +180,85 @@ export default function AlumniDashboardPage() {
 
       {/* Bottom Dashboard Grid: Impact CTA on Left, Goals Funnel on Right */}
       <div className="dashboard-bottom mt-6">
-        {/* Left Panel: Help a student move forward */}
-        <section className="panel flex flex-col justify-between" style={{ minHeight: 280 }}>
+        {/* Left Panel: Help a student move forward + Tier Progress */}
+        <section className="panel flex flex-col justify-between" style={{ minHeight: 340 }}>
           <div>
-            <span className="badge soft text-xs mb-4 inline-flex items-center gap-1.5 font-semibold text-[#4d5fd3]">
-              <Sparkles className="h-3 w-3" />
-              <span>Your impact</span>
-            </span>
+            <div className="flex items-center justify-between mb-3">
+              <span className="badge soft text-xs inline-flex items-center gap-1.5 font-semibold text-[#4d5fd3]">
+                <Sparkles className="h-3 w-3" />
+                <span>Your impact &amp; tier</span>
+              </span>
+              <span className="text-xs text-[#66758e]">
+                Tier {tier.tierNumber} of 6+
+              </span>
+            </div>
 
-            <h2 className="text-2xl font-semibold text-[#15213b] mb-2 font-heading">
+            <h2 className="text-2xl font-semibold text-[#15213b] mb-1 font-heading">
               Help a student move forward
             </h2>
             <p className="text-sm text-[#66758e] max-w-lg leading-relaxed">
-              Review incoming requests that match what you offer and your capacity.
+              Review incoming requests that match your domains, offer types, and monthly capacity.
             </p>
+
+            {/* Mentor Tier Progression Bar */}
+            <div className="mt-4 p-3.5 rounded-xl bg-gray-50 border border-gray-100">
+              <div className="flex items-center justify-between text-xs mb-1.5">
+                <span className="font-semibold text-[#15213b] flex items-center gap-1.5">
+                  <Sparkles className="h-3.5 w-3.5 text-[#3563ff]" />
+                  <span>Current Tier: <b>{tier.label}</b></span>
+                </span>
+                <span className="text-[11px] text-[#66758e]">
+                  <b>{tier.currentMentees}</b> / {tier.nextThreshold || 100} distinct mentees
+                </span>
+              </div>
+              <div className="w-full bg-[#edf1f7] h-2 rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-700"
+                  style={{
+                    width: `${Math.max(5, tier.progressPercent)}%`,
+                    backgroundColor: tier.accentColor,
+                  }}
+                />
+              </div>
+              <div className="flex justify-between items-center text-[10px] text-[#66758e] mt-1.5">
+                <span>{tier.label}</span>
+                <span>{tier.menteesNeeded} more distinct mentees to {tier.nextTierLabel}</span>
+              </div>
+            </div>
+
+            {/* Verified Mentor Badges */}
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {badges.map((b) => (
+                <span
+                  key={b.id}
+                  className={`text-[11px] font-medium px-2 py-1 rounded-lg border flex items-center gap-1.5 ${
+                    b.earned
+                      ? "bg-white border-[#d8e2f0] text-[#15213b] shadow-2xs"
+                      : "bg-gray-50/50 border-gray-100 text-gray-400 opacity-60"
+                  }`}
+                  title={b.description}
+                >
+                  {b.icon === "shield" ? (
+                    <ShieldCheck className="h-3 w-3 text-[#3563ff]" />
+                  ) : b.icon === "star" ? (
+                    <Star className="h-3 w-3 text-amber-500" />
+                  ) : b.icon === "clock" ? (
+                    <Clock className="h-3 w-3 text-sky-500" />
+                  ) : (
+                    <Check className="h-3 w-3 text-emerald-600" />
+                  )}
+                  <span>{b.name}</span>
+                  {b.earned && (
+                    <small className="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1 rounded">
+                      {b.earnedDate || "Active"}
+                    </small>
+                  )}
+                </span>
+              ))}
+            </div>
           </div>
 
-          <div className="mt-8 flex items-center gap-4">
+          <div className="mt-6 flex items-center gap-4 pt-3 border-t border-[var(--line)]">
             <Link href="/alumni/requests">
               <Button variant="primary" className="gap-2">
                 <span>Open requests</span>

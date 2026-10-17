@@ -117,19 +117,33 @@ export default function SettingsPage() {
             />
           </div>
 
-          {/* Token Ledger */}
-          <h2>Token ledger</h2>
-          <div className="ledger">
-            <span>
-              Monthly allocation <b>+{allocation}</b>
-            </span>
-            <span>
-              Outreach requests used <b>−{spentCount}</b>
-            </span>
-            <span>
-              Current balance <b>{currentBalance}</b>
-            </span>
-          </div>
+          {/* Ledger based on role */}
+          <h2>{isStudent ? "Token ledger" : "Mentorship capacity"}</h2>
+          {isStudent ? (
+            <div className="ledger">
+              <span>
+                Monthly allocation <b>+{allocation}</b>
+              </span>
+              <span>
+                Outreach requests used <b>−{spentCount}</b>
+              </span>
+              <span>
+                Current balance <b>{currentBalance}</b>
+              </span>
+            </div>
+          ) : (
+            <div className="ledger">
+              <span>
+                Monthly review limit <b>5</b>
+              </span>
+              <span>
+                Active mentee slots <b>3</b>
+              </span>
+              <span>
+                Available reviews <b>2</b>
+              </span>
+            </div>
+          )}
 
           <Button variant="primary" onClick={handleSave}>
             Save preferences

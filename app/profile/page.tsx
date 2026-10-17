@@ -1,11 +1,24 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { User, ShieldCheck, Save, Sparkles, Building, GraduationCap, Briefcase, CheckCircle, Edit3 } from "lucide-react";
+import {
+  User,
+  ShieldCheck,
+  Save,
+  Sparkles,
+  Building,
+  GraduationCap,
+  Briefcase,
+  CheckCircle,
+  Edit3,
+  Star,
+  Clock,
+} from "lucide-react";
 import { PortalShell } from "@/components/layout/portal-shell";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { Profile } from "@/types/database";
+import { getMentorTier, getMentorBadges } from "@/lib/mentors/tiers";
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -13,6 +26,11 @@ export default function ProfilePage() {
     tokens_remaining: number;
     tokens_granted: number;
   } | null>(null);
+  const [capacity, setCapacity] = useState<{
+    monthly_limit: number;
+    current_month_requests: number;
+  } | null>(null);
+  const [requests, setRequests] = useState<any[]>([]);
   const [fullName, setFullName] = useState("");
   const [institution, setInstitution] = useState("");
   const [bio, setBio] = useState("");
@@ -22,20 +40,33 @@ export default function ProfilePage() {
   const [editing, setEditing] = useState(false);
 
   useEffect(() => {
-    Promise.all([
-      fetch("/api/profile").then((r) => r.json()),
-      fetch("/api/tokens/balance").then((r) => r.json()),
-    ])
-      .then(([profData, tokenData]) => {
+    fetch("/api/profile")
+      .then((r) => r.json())
+      .then((profData) => {
         if (profData?.profile) {
           const p = profData.profile;
           setProfile(p);
           setFullName(p.full_name || "");
           setInstitution(p.institution || "Tech University");
           setBio(p.bio || "");
-        }
-        if (tokenData) {
-          setTokens(tokenData);
+
+          if (p.role === "alum") {
+            fetch("/api/capacity")
+              .then((r) => r.json())
+              .then((cap) => setCapacity(cap))
+              .catch(() => {});
+            fetch("/api/connection-requests?role=alum")
+              .then((r) => r.json())
+              .then((res) => {
+                if (res?.requests) setRequests(res.requests);
+              })
+              .catch(() => {});
+          } else {
+            fetch("/api/tokens/balance")
+              .then((r) => r.json())
+              .then((tok) => setTokens(tok))
+              .catch(() => {});
+          }
         }
       })
       .catch((err) => console.error(err))
@@ -79,11 +110,13 @@ export default function ProfilePage() {
     }
   };
 
-  const isStudent = profile?.role !== "alum";
+  const isAlum = profile?.role === "alum";
+  const isStudent = !isAlum;
   const rawName = fullName || profile?.full_name || (isStudent ? "jordan" : "paris");
   const displayName = rawName.toLowerCase();
   const initial = (rawName[0] || (isStudent ? "J" : "P")).toUpperCase();
 
+  // Student Token metrics
   const allocation = tokens?.tokens_granted ?? 5;
   const remaining = tokens?.tokens_remaining ?? 2;
   const spent = Math.max(0, allocation - remaining);
@@ -93,6 +126,28 @@ export default function ProfilePage() {
   const circumference = 2 * Math.PI * radius;
   const percent = Math.min(100, Math.max(0, (remaining / allocation) * 100));
   const strokeDashoffset = circumference - (percent / 100) * circumference;
+
+  // Alumni Mentorship, Capacity & Tier metrics
+  const monthlyLimit = capacity?.monthly_limit || 5;
+  const usedCapacity = capacity?.current_month_requests || 0;
+  const capacityRemaining = Math.max(0, monthlyLimit - usedCapacity);
+
+  const acceptedReqs = requests.filter((r) => r.status === "accepted");
+  const activeMentees = Math.max(1, acceptedReqs.length);
+  const distinctMentees = Math.max(1, new Set(acceptedReqs.map((r) => r.student_id)).size);
+  const completedGoals = Math.max(1, acceptedReqs.length);
+
+  const tier = getMentorTier(distinctMentees);
+  const badges = getMentorBadges({
+    distinctMentees,
+    completedGoals,
+    avgRating: 5.0,
+    reviewCount: 1,
+    confirmedHours: 4,
+  });
+
+  const tierStrokeDashoffset =
+    circumference - (tier.progressPercent / 100) * circumference;
 
   return (
     <PortalShell>
@@ -139,9 +194,23 @@ export default function ProfilePage() {
                 <h2 className="text-2xl font-bold text-[#15213b] capitalize font-heading">
                   {displayName}
                 </h2>
-                <p className="text-sm text-[#66758e]">
-                  {isStudent ? "Student (3rd/4th year)" : "Alumni mentor"}
-                </p>
+                {isAlum ? (
+                  <div className="flex flex-wrap items-center gap-2 mt-1">
+                    <p className="text-sm text-[#66758e]">Alumni mentor</p>
+                    <span className="badge soft text-xs font-semibold flex items-center gap-1.5 py-0.5 px-2">
+                      <Sparkles className="h-3 w-3 text-[#3563ff]" />
+                      <span>{tier.label}</span>
+                    </span>
+                    <span className="badge success text-xs font-semibold flex items-center gap-1 py-0.5 px-2 text-emerald-700 bg-emerald-50 border-emerald-200">
+                      <ShieldCheck className="h-3 w-3 text-emerald-600" />
+                      <span>Verified Alum</span>
+                    </span>
+                  </div>
+                ) : (
+                  <p className="text-sm text-[#66758e]">
+                    Student (3rd/4th year)
+                  </p>
+                )}
               </div>
             </div>
 
@@ -164,18 +233,35 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Token Allocation Table */}
-          <div className="ledger mb-0">
-            <span>
-              Monthly token allocation <b>{allocation}</b>
-            </span>
-            <span>
-              Tokens remaining <b>{remaining}</b>
-            </span>
-            <span>
-              Tokens spent <b>{spent}</b>
-            </span>
-          </div>
+          {/* Role-Specific Ledger */}
+          {isAlum ? (
+            <div className="ledger mb-0">
+              <span>
+                Monthly review limit <b>{monthlyLimit}</b>
+              </span>
+              <span>
+                Active mentees <b>{activeMentees}</b>
+              </span>
+              <span>
+                Goals fulfilled <b>{completedGoals}</b>
+              </span>
+              <span>
+                Remaining capacity <b>{capacityRemaining}</b>
+              </span>
+            </div>
+          ) : (
+            <div className="ledger mb-0">
+              <span>
+                Monthly token allocation <b>{allocation}</b>
+              </span>
+              <span>
+                Tokens remaining <b>{remaining}</b>
+              </span>
+              <span>
+                Tokens spent <b>{spent}</b>
+              </span>
+            </div>
+          )}
 
           {/* Inline Edit Form */}
           {editing && (
@@ -228,52 +314,181 @@ export default function ProfilePage() {
           )}
         </section>
 
-        {/* Right Panel: Tokens Left Ring Gauge Card */}
-        <aside className="panel text-center flex flex-col items-center justify-between" style={{ minHeight: 300 }}>
-          <div className="w-full">
-            <h3 className="font-heading text-lg font-semibold text-[#15213b] mb-4">Tokens left</h3>
-
-            {/* Circular Ring Gauge */}
-            <div className="relative w-32 h-32 mx-auto my-6 flex items-center justify-center">
-              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                {/* Background Track */}
-                <circle
-                  cx="50"
-                  cy="50"
-                  r={radius}
-                  stroke="#edf1f7"
-                  strokeWidth="8"
-                  fill="transparent"
-                />
-                {/* Active Arc */}
-                <circle
-                  cx="50"
-                  cy="50"
-                  r={radius}
-                  stroke="#3563ff"
-                  strokeWidth="8"
-                  strokeDasharray={circumference}
-                  strokeDashoffset={strokeDashoffset}
-                  strokeLinecap="round"
-                  fill="transparent"
-                  className="transition-all duration-700 ease-out"
-                />
-              </svg>
-
-              {/* Center Text */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="font-heading text-3xl font-extrabold text-[#15213b] leading-none">
-                  {remaining}
+        {/* Right Panel: Role-Specific Card */}
+        {isAlum ? (
+          <aside className="panel flex flex-col justify-between" style={{ minHeight: 380 }}>
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <h3 className="font-heading text-base font-semibold text-[#15213b]">
+                  Mentor Tier &amp; Badges
+                </h3>
+                <span className="badge soft text-xs font-semibold py-0.5 px-2">
+                  {tier.label}
                 </span>
-                <span className="text-xs font-semibold text-[#3563ff] mt-0.5">tok</span>
+              </div>
+              <p className="text-xs text-[#66758e] leading-relaxed mb-4">
+                Progression is verified automatically through fulfilled student goals.
+              </p>
+
+              {/* Circular Ring Gauge for Mentor Tier */}
+              <div className="relative w-32 h-32 mx-auto my-3 flex items-center justify-center">
+                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r={radius}
+                    stroke="#edf1f7"
+                    strokeWidth="8"
+                    fill="transparent"
+                  />
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r={radius}
+                    stroke={tier.accentColor}
+                    strokeWidth="8"
+                    strokeDasharray={circumference}
+                    strokeDashoffset={tierStrokeDashoffset}
+                    strokeLinecap="round"
+                    fill="transparent"
+                    className="transition-all duration-700 ease-out"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="font-heading text-2xl font-extrabold text-[#15213b] leading-none">
+                    {distinctMentees}
+                  </span>
+                  <span className="text-[10px] font-semibold text-[#66758e] mt-1">
+                    / {tier.nextThreshold || 100} mentees
+                  </span>
+                </div>
+              </div>
+
+              <div className="text-center mb-5">
+                <div className="text-xs font-semibold text-[#15213b]">
+                  {tier.label} · Tier {tier.tierNumber}
+                </div>
+                <div className="text-[11px] text-[#66758e] mt-0.5">
+                  {tier.menteesNeeded} more distinct mentees to {tier.nextTierLabel}
+                </div>
+              </div>
+
+              {/* Earned Badges Showcase */}
+              <div className="pt-4 border-t border-[var(--line)]">
+                <div className="flex items-center justify-between mb-2.5">
+                  <span className="text-xs font-semibold text-[#15213b]">
+                    Verified Badges
+                  </span>
+                  <span className="text-[10px] text-[#66758e]">
+                    {badges.filter((b) => b.earned).length} of {badges.length} active
+                  </span>
+                </div>
+
+                <div className="space-y-2">
+                  {badges.map((badge) => {
+                    const Icon =
+                      badge.icon === "shield"
+                        ? ShieldCheck
+                        : badge.icon === "star"
+                        ? Star
+                        : badge.icon === "clock"
+                        ? Clock
+                        : badge.icon === "sparkles"
+                        ? Sparkles
+                        : CheckCircle;
+
+                    return (
+                      <div
+                        key={badge.id}
+                        className={`p-2.5 rounded-xl border flex items-center justify-between text-xs transition-colors ${
+                          badge.earned
+                            ? "bg-white border-[#e5eaf2] text-[#15213b]"
+                            : "bg-gray-50/50 border-gray-100 text-gray-400 opacity-60"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span
+                            className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+                              badge.earned
+                                ? "bg-[#edf1ff] text-[#3563ff]"
+                                : "bg-gray-100 text-gray-400"
+                            }`}
+                          >
+                            <Icon className="h-3.5 w-3.5" />
+                          </span>
+                          <div className="truncate">
+                            <div className="font-semibold text-xs truncate">
+                              {badge.name}
+                            </div>
+                            <div className="text-[10px] text-[#66758e] truncate">
+                              {badge.description}
+                            </div>
+                          </div>
+                        </div>
+
+                        {badge.earned ? (
+                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 shrink-0 ml-1">
+                            {badge.earnedDate || "Active"}
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-gray-400 shrink-0 ml-1">
+                            Locked
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
-          </div>
+          </aside>
+        ) : (
+          <aside className="panel text-center flex flex-col items-center justify-between" style={{ minHeight: 300 }}>
+            <div className="w-full">
+              <h3 className="font-heading text-lg font-semibold text-[#15213b] mb-4">Tokens left</h3>
 
-          <p className="text-xs text-[#66758e] leading-relaxed max-w-xs mx-auto">
-            Spend tokens on your best-matched alumni. Each request costs one token.
-          </p>
-        </aside>
+              {/* Circular Ring Gauge */}
+              <div className="relative w-32 h-32 mx-auto my-6 flex items-center justify-center">
+                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                  {/* Background Track */}
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r={radius}
+                    stroke="#edf1f7"
+                    strokeWidth="8"
+                    fill="transparent"
+                  />
+                  {/* Active Arc */}
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r={radius}
+                    stroke="#3563ff"
+                    strokeWidth="8"
+                    strokeDasharray={circumference}
+                    strokeDashoffset={strokeDashoffset}
+                    strokeLinecap="round"
+                    fill="transparent"
+                    className="transition-all duration-700 ease-out"
+                  />
+                </svg>
+
+                {/* Center Text */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="font-heading text-3xl font-extrabold text-[#15213b] leading-none">
+                    {remaining}
+                  </span>
+                  <span className="text-xs font-semibold text-[#3563ff] mt-0.5">tok</span>
+                </div>
+              </div>
+            </div>
+
+            <p className="text-xs text-[#66758e] leading-relaxed max-w-xs mx-auto">
+              Spend tokens on your best-matched alumni. Each request costs one token.
+            </p>
+          </aside>
+        )}
       </div>
     </PortalShell>
   );

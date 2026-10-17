@@ -236,7 +236,12 @@ function MatchesContent() {
                 <div className="person">
                   <Avatar initials={initials} tone={tone} size="md" />
                   <div>
-                    <h3 className="font-bold text-[#15213b]">{m.full_name}</h3>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <h3 className="font-bold text-[#15213b]">{m.full_name}</h3>
+                      <span className="badge soft text-[10px] py-0.5 px-1.5 inline-flex items-center gap-1 font-semibold text-[#4d5fd3]">
+                        <Sparkles className="h-2.5 w-2.5" /> Mentor
+                      </span>
+                    </div>
                     <p className="text-xs text-[#66758e]">
                       {m.job_title} · {m.company}
                     </p>

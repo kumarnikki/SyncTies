@@ -18,8 +18,10 @@ import {
   X,
   ArrowRight,
   Info,
+  Sparkles,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { getMentorTier } from "@/lib/mentors/tiers";
 
 interface PortalShellProps {
   children: ReactNode;
@@ -95,6 +97,7 @@ export function PortalShell({ children }: PortalShellProps) {
   };
 
   const isAlum = profile?.role === "alum" || pathname.startsWith("/alumni");
+  const tier = getMentorTier(1);
   const rawName =
     profile?.full_name?.trim() ||
     user?.email?.split("@")[0] ||
@@ -194,7 +197,9 @@ export function PortalShell({ children }: PortalShellProps) {
             </span>
             <span>
               <b>{displayName}</b>
-              <small>{isAlum ? "Alumni account" : "Student account"}</small>
+              <small className={isAlum ? "text-[#3563ff] font-medium" : ""}>
+                {isAlum ? `${tier.label} · Alumni` : "Student account"}
+              </small>
             </span>
           </div>
           <button
@@ -287,7 +292,13 @@ export function PortalShell({ children }: PortalShellProps) {
 
           <div className="top-actions">
             {isAlum ? (
-              <span className="badge success text-xs font-semibold">Alumni</span>
+              <div className="flex items-center gap-1.5">
+                <span className="badge soft text-xs font-semibold flex items-center gap-1">
+                  <Sparkles className="h-3 w-3 text-[#3563ff]" />
+                  <span>{tier.label}</span>
+                </span>
+                <span className="badge success text-xs font-semibold">Alumni</span>
+              </div>
             ) : (
               <span className="badge soft text-xs font-semibold">Student</span>
             )}
