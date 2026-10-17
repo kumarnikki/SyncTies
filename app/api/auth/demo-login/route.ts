@@ -27,10 +27,9 @@ const DEMO_ACCOUNTS = {
     graduationYear: 2023,
     provider: "linkedin_oidc",
     avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150",
-  },
   student: {
     email: "nikki.artistics@gmail.com",
-    fullName: "Nikki Kumar (Student)",
+    fullName: "Nikki Kumar",
     role: "student" as const,
     institution: "Delhi Technological University",
     studyYear: 3,
