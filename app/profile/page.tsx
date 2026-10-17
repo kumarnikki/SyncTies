@@ -19,6 +19,12 @@ import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { Profile } from "@/types/database";
 import { getMentorTier, getMentorBadges } from "@/lib/mentors/tiers";
+import {
+  getGraduationYearOptions,
+  GRADUATION_MONTHS,
+  calculateStudyYear,
+  getStudyYearLabel,
+} from "@/lib/students/study-year";
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -34,6 +40,9 @@ export default function ProfilePage() {
   const [fullName, setFullName] = useState("");
   const [institution, setInstitution] = useState("");
   const [bio, setBio] = useState("");
+  const [gradMonth, setGradMonth] = useState<number>(5);
+  const [gradYear, setGradYear] = useState<number>(2028);
+  const [alumGradYear, setAlumGradYear] = useState<number>(2024);
   const [loading, setLoading] = useState(true);
   const [saveLoading, setSaveLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -49,6 +58,9 @@ export default function ProfilePage() {
           setFullName(p.full_name || "");
           setInstitution(p.institution || "Tech University");
           setBio(p.bio || "");
+          if (p.expected_graduation_year) setGradYear(p.expected_graduation_year);
+          if (p.expected_graduation_month) setGradMonth(p.expected_graduation_month);
+          if (p.graduation_year) setAlumGradYear(p.graduation_year);
 
           if (p.role === "alum") {
             fetch("/api/capacity")
@@ -92,6 +104,14 @@ export default function ProfilePage() {
           full_name: fullName,
           institution,
           bio,
+          ...(isStudent
+            ? {
+                expected_graduation_year: Number(gradYear),
+                expected_graduation_month: Number(gradMonth),
+              }
+            : {
+                graduation_year: Number(alumGradYear),
+              }),
         }),
       });
 
@@ -101,7 +121,7 @@ export default function ProfilePage() {
 
       const data = await res.json();
       setProfile(data.profile);
-      setMessage("Profile saved successfully.");
+      setMessage("Profile and academic year saved successfully.");
       setEditing(false);
     } catch (err: any) {
       alert(err.message || "Failed to update profile");
@@ -112,9 +132,11 @@ export default function ProfilePage() {
 
   const isAlum = profile?.role === "alum";
   const isStudent = !isAlum;
-  const rawName = fullName || profile?.full_name || (isStudent ? "jordan" : "paris");
-  const displayName = rawName.toLowerCase();
-  const initial = (rawName[0] || (isStudent ? "J" : "P")).toUpperCase();
+  const rawName = fullName || profile?.full_name || (isStudent ? "Jordan" : "Paris");
+  const cleanName = rawName.replace(/\s*\((student|alum|alumni|mentor|google|linkedin)\)/gi, "").trim();
+  const displayName = cleanName || rawName;
+  const initial = (displayName[0] || (isStudent ? "J" : "P")).toUpperCase();
+  const computedStudyYear = calculateStudyYear(gradMonth, gradYear);
 
   // Student Token metrics
   const allocation = tokens?.tokens_granted ?? 5;
@@ -208,7 +230,7 @@ export default function ProfilePage() {
                   </div>
                 ) : (
                   <p className="text-sm text-[#66758e]">
-                    Student (3rd/4th year)
+                    {profile?.study_year ? `${getStudyYearLabel(profile.study_year)} Student` : "Student"}
                   </p>
                 )}
               </div>
@@ -263,6 +285,43 @@ export default function ProfilePage() {
             </div>
           )}
 
+          {/* Read-Only Details when not editing */}
+          {!editing && (
+            <div className="pt-4 border-t border-[var(--line)] space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-xs text-[#66758e] block font-medium">Institution</span>
+                  <span className="font-semibold text-[#15213b]">{institution || "Tech University"}</span>
+                </div>
+                {isStudent ? (
+                  <div>
+                    <span className="text-xs text-[#66758e] block font-medium">Academic Standing</span>
+                    <span className="inline-flex items-center gap-1.5 font-semibold text-[#2b44b8]">
+                      <Sparkles className="h-3.5 w-3.5 text-[#3563ff]" />
+                      {profile?.study_year ? getStudyYearLabel(profile.study_year) : computedStudyYear.label}
+                      <span className="text-xs text-[#66758e] font-normal">
+                        ({profile?.expected_graduation_month ? GRADUATION_MONTHS.find(m => m.value === profile.expected_graduation_month)?.label : GRADUATION_MONTHS.find(m => m.value === gradMonth)?.label} {profile?.expected_graduation_year || gradYear})
+                      </span>
+                    </span>
+                  </div>
+                ) : (
+                  <div>
+                    <span className="text-xs text-[#66758e] block font-medium">Graduation Year</span>
+                    <span className="font-semibold text-[#15213b]">{profile?.graduation_year || alumGradYear}</span>
+                  </div>
+                )}
+              </div>
+              {bio && (
+                <div className="pt-1">
+                  <span className="text-xs text-[#66758e] block font-medium mb-1.5">Bio &amp; Goals</span>
+                  <p className="text-sm text-[#15213b] whitespace-pre-line bg-[#f8fafc] p-3.5 rounded-xl border border-[#e5eaf2] leading-relaxed">
+                    {bio}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Inline Edit Form */}
           {editing && (
             <form onSubmit={handleSaveProfile} className="pt-4 border-t border-[var(--line)] space-y-4">
@@ -289,12 +348,74 @@ export default function ProfilePage() {
                   />
                 </label>
               </div>
+
+              {isStudent ? (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <label className="field">
+                      <span>Expected Graduation Month</span>
+                      <select
+                        value={gradMonth}
+                        onChange={(e) => setGradMonth(Number(e.target.value))}
+                      >
+                        {GRADUATION_MONTHS.map((m) => (
+                          <option key={m.value} value={m.value}>
+                            {m.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <label className="field">
+                      <span>Expected Graduation Year</span>
+                      <select
+                        value={gradYear}
+                        onChange={(e) => setGradYear(Number(e.target.value))}
+                      >
+                        {getGraduationYearOptions().map((y) => (
+                          <option key={y} value={y}>
+                            {y}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-[#f0f4ff] border border-[#d6e2ff] flex items-center justify-between flex-wrap gap-2">
+                    <div className="flex items-center gap-2 text-xs text-[#2b44b8]">
+                      <Sparkles className="h-4 w-4 text-[#3563ff] shrink-0" />
+                      <span>
+                        Auto-determined Classification: <b>{computedStudyYear.label}</b> ({computedStudyYear.description})
+                      </span>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <label className="field">
+                  <span>Graduation Year</span>
+                  <select
+                    value={alumGradYear}
+                    onChange={(e) => setAlumGradYear(Number(e.target.value))}
+                  >
+                    {[2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013, 2012, 2011, 2010].map((y) => (
+                      <option key={y} value={y}>
+                        {y}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
+
               <label className="field">
                 <span>Bio &amp; Goals</span>
                 <textarea
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
-                  placeholder="Tell alumni what career goals you are working toward..."
+                  placeholder={
+                    isStudent
+                      ? "Tell alumni what career goals you are working toward..."
+                      : "Briefly share your industry background and what you can mentor on..."
+                  }
                   rows={3}
                 />
               </label>
