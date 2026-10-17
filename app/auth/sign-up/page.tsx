@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, Suspense } from "react";
+import React, { useState, useMemo, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { GraduationCap, Briefcase, ArrowLeft, ArrowRight, CheckCircle2, Eye, EyeOff, Sparkles } from "lucide-react";
@@ -10,6 +10,11 @@ import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { OAuthSetupModal } from "@/components/auth/oauth-setup-modal";
 import { BrandLogo } from "@/components/ui/brand-logo";
+import {
+  calculateStudyYear,
+  GRADUATION_MONTHS,
+  getGraduationYearOptions,
+} from "@/lib/students/study-year";
 
 // Official Google "G" SVG Icon
 function GoogleIcon({ className = "h-4 w-4" }: { className?: string }) {
@@ -35,15 +40,6 @@ function GoogleIcon({ className = "h-4 w-4" }: { className?: string }) {
   );
 }
 
-// Official LinkedIn SVG Icon
-function LinkedInIcon({ className = "h-4 w-4" }: { className?: string }) {
-  return (
-    <svg className={className} fill="#0A66C2" viewBox="0 0 24 24">
-      <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
-    </svg>
-  );
-}
-
 function SignUpForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -54,13 +50,20 @@ function SignUpForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [gradMonth, setGradMonth] = useState<number>(5); // Default May
+  const [gradYear, setGradYear] = useState<number>(2028); // Default 3rd Year
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [oauthLoading, setOauthLoading] = useState<"google" | "linkedin" | null>(null);
+  const [oauthLoading, setOauthLoading] = useState(false);
   const [providerNotConfigured, setProviderNotConfigured] = useState<string | null>(null);
-  const [showSetupGuide, setShowSetupGuide] = useState<"google" | "linkedin" | null>(null);
+  const [showSetupGuide, setShowSetupGuide] = useState<"google" | null>(null);
   const [demoLoginLoading, setDemoLoginLoading] = useState<string | null>(null);
   const [confirmationSent, setConfirmationSent] = useState(false);
+
+  // Dynamically compute student study year based on expected graduation date
+  const computedStudyYear = useMemo(() => {
+    return calculateStudyYear(gradMonth, gradYear);
+  }, [gradMonth, gradYear]);
 
   // Handle standard email/password registration
   const handleSubmit = async (e: React.FormEvent) => {
@@ -83,7 +86,14 @@ function SignUpForm() {
         const res = await fetch("/api/auth/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password, fullName, role }),
+          body: JSON.stringify({
+            email,
+            password,
+            fullName,
+            role,
+            expectedGraduationYear: role === "student" ? gradYear : null,
+            expectedGraduationMonth: role === "student" ? gradMonth : null,
+          }),
         });
 
         const regData = await res.json();
@@ -96,7 +106,9 @@ function SignUpForm() {
           });
 
           if (!signInErr) {
-            router.push(`/onboarding?role=${role}&name=${encodeURIComponent(fullName)}`);
+            router.push(
+              `/onboarding?role=${role}&name=${encodeURIComponent(fullName)}&gradYear=${gradYear}&gradMonth=${gradMonth}&studyYear=${computedStudyYear.studyYear}`
+            );
             return;
           } else {
             // Account created, redirect to sign-in
@@ -125,6 +137,9 @@ function SignUpForm() {
           data: {
             full_name: fullName,
             role,
+            study_year: role === "student" ? computedStudyYear.studyYear : null,
+            expected_graduation_year: role === "student" ? gradYear : null,
+            expected_graduation_month: role === "student" ? gradMonth : null,
           },
           emailRedirectTo: `${origin}/auth/callback`,
         },
@@ -148,24 +163,28 @@ function SignUpForm() {
       }
 
       // If session exists immediately, proceed to profile onboarding
-      router.push(`/onboarding?role=${role}&name=${encodeURIComponent(fullName)}`);
+      router.push(
+        `/onboarding?role=${role}&name=${encodeURIComponent(fullName)}&gradYear=${gradYear}&gradMonth=${gradMonth}&studyYear=${computedStudyYear.studyYear}`
+      );
     } catch {
-      router.push(`/onboarding?role=${role}&name=${encodeURIComponent(fullName)}`);
+      router.push(
+        `/onboarding?role=${role}&name=${encodeURIComponent(fullName)}&gradYear=${gradYear}&gradMonth=${gradMonth}&studyYear=${computedStudyYear.studyYear}`
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle OAuth Registration / Sign-In
-  const handleOAuthSignUp = async (provider: "google" | "linkedin_oidc") => {
+  // Handle OAuth Registration / Sign-In (Google only)
+  const handleOAuthSignUp = async () => {
     setError(null);
     setProviderNotConfigured(null);
-    setOauthLoading(provider === "google" ? "google" : "linkedin");
+    setOauthLoading(true);
 
     try {
       if (!isSupabaseConfigured()) {
-        setProviderNotConfigured(provider === "google" ? "Google OAuth" : "LinkedIn (OIDC)");
-        setOauthLoading(null);
+        setProviderNotConfigured("Google OAuth");
+        setOauthLoading(false);
         return;
       }
 
@@ -174,7 +193,7 @@ function SignUpForm() {
       const redirectTo = `${origin}/auth/callback?next=${role === "alum" ? "/alumni/dashboard" : "/student/dashboard"}`;
 
       const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
-        provider,
+        provider: "google",
         options: {
           redirectTo,
           skipBrowserRedirect: true,
@@ -191,11 +210,11 @@ function SignUpForm() {
           oauthError.message.toLowerCase().includes("provider is not configured") ||
           oauthError.message.toLowerCase().includes("unsupported provider")
         ) {
-          setProviderNotConfigured(provider === "google" ? "Google OAuth" : "LinkedIn (OIDC)");
+          setProviderNotConfigured("Google OAuth");
         } else {
           setError(oauthError.message);
         }
-        setOauthLoading(null);
+        setOauthLoading(false);
         return;
       }
 
@@ -209,8 +228,8 @@ function SignUpForm() {
               errJson?.error_code === "validation_failed" ||
               errJson?.msg?.toLowerCase().includes("provider is not enabled")
             ) {
-              setProviderNotConfigured(provider === "google" ? "Google OAuth" : "LinkedIn (OIDC)");
-              setOauthLoading(null);
+              setProviderNotConfigured("Google OAuth");
+              setOauthLoading(false);
               return;
             }
           }
@@ -222,19 +241,19 @@ function SignUpForm() {
       }
     } catch (err: any) {
       setError(err?.message || "Failed to initiate registration.");
-      setOauthLoading(null);
+      setOauthLoading(false);
     }
   };
 
   // One-click pilot session authentication for demo social profiles
-  const handleDemoSocialLogin = async (type: "google" | "linkedin") => {
+  const handleDemoSocialLogin = async () => {
     setError(null);
-    setDemoLoginLoading(type);
+    setDemoLoginLoading("google");
     try {
       const res = await fetch("/api/auth/demo-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type, role }),
+        body: JSON.stringify({ type: "google", role }),
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
@@ -359,31 +378,27 @@ function SignUpForm() {
             <div className="mb-4">
               <Alert variant="warning" title={`${providerNotConfigured} Setup Required`}>
                 <p className="mb-3 text-xs leading-relaxed text-amber-900">
-                  {providerNotConfigured} credentials are not configured in your Supabase project yet. You can register immediately using a pilot test profile or view the setup steps to connect your real Google/LinkedIn app.
+                  {providerNotConfigured} credentials are not configured in your Supabase project yet. You can register immediately using a pilot test profile or view the setup steps to connect your Google Cloud app.
                 </p>
                 <div className="flex flex-wrap gap-2 pt-1">
                   <Button
                     size="sm"
                     variant="primary"
                     type="button"
-                    isLoading={demoLoginLoading === (providerNotConfigured === "Google OAuth" ? "google" : "linkedin")}
-                    onClick={() =>
-                      handleDemoSocialLogin(providerNotConfigured === "Google OAuth" ? "google" : "linkedin")
-                    }
+                    isLoading={demoLoginLoading === "google"}
+                    onClick={handleDemoSocialLogin}
                   >
                     <Sparkles className="h-3.5 w-3.5 mr-1" />
-                    <span>Instant Join as {providerNotConfigured === "Google OAuth" ? "Google" : "LinkedIn"} User</span>
+                    <span>Instant Join as Google User</span>
                   </Button>
                   <Button
                     size="sm"
                     variant="outline"
                     type="button"
                     className="text-xs border-amber-300 text-amber-900 hover:bg-amber-100"
-                    onClick={() =>
-                      setShowSetupGuide(providerNotConfigured === "Google OAuth" ? "google" : "linkedin")
-                    }
+                    onClick={() => setShowSetupGuide("google")}
                   >
-                    <span>OAuth Setup Steps</span>
+                    <span>Google OAuth Setup Steps</span>
                   </Button>
                 </div>
               </Alert>
@@ -407,7 +422,7 @@ function SignUpForm() {
               >
                 <GraduationCap className="h-5 w-5 mb-1.5 text-[#3563ff]" />
                 <span>Student</span>
-                <span className="text-[11px] text-[#8896ab] font-normal mt-0.5">3rd or 4th Year</span>
+                <span className="text-[11px] text-[#8896ab] font-normal mt-0.5">1st, 2nd, 3rd, or 4th Year</span>
               </button>
 
               <button
@@ -426,28 +441,18 @@ function SignUpForm() {
             </div>
           </div>
 
-          {/* Social OAuth Buttons */}
+          {/* Social OAuth Button (Google Only) */}
           <div className="provider-row">
             <Button
               type="button"
               variant="provider"
-              onClick={() => handleOAuthSignUp("google")}
-              isLoading={oauthLoading === "google"}
-              disabled={loading || oauthLoading !== null}
+              className="w-full justify-center gap-2.5 h-11"
+              onClick={handleOAuthSignUp}
+              isLoading={oauthLoading}
+              disabled={loading || oauthLoading}
             >
-              <GoogleIcon className="h-4 w-4 mr-2" />
-              <span>Google</span>
-            </Button>
-
-            <Button
-              type="button"
-              variant="provider"
-              onClick={() => handleOAuthSignUp("linkedin_oidc")}
-              isLoading={oauthLoading === "linkedin"}
-              disabled={loading || oauthLoading !== null}
-            >
-              <LinkedInIcon className="h-4 w-4 mr-2" />
-              <span>LinkedIn</span>
+              <GoogleIcon className="h-4 w-4" />
+              <span>Continue with Google</span>
             </Button>
           </div>
 
@@ -505,12 +510,66 @@ function SignUpForm() {
               </div>
             </div>
 
+            {/* Student Expected Graduation Month & Year (Auto-determines Study Year) */}
+            {role === "student" && (
+              <div className="p-3.5 rounded-xl bg-[#f5f8ff] border border-[#d8e2fd] space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-[#15213b] flex items-center gap-1.5">
+                    <GraduationCap className="h-4 w-4 text-[#3563ff]" />
+                    <span>Expected Graduation Date</span>
+                  </label>
+                  <span className="badge soft text-[11px] font-bold text-[#3563ff] bg-white border-[#d8e2fd]">
+                    {computedStudyYear.badgeLabel}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2.5">
+                  <div>
+                    <label className="text-[11px] font-medium text-[#66758e] block mb-1">Month</label>
+                    <select
+                      value={gradMonth}
+                      onChange={(e) => setGradMonth(Number(e.target.value))}
+                      className="w-full text-xs rounded-lg border border-[#cfd8ea] bg-white py-2 px-2.5 text-[#15213b] focus:outline-none focus:border-[#3563ff]"
+                    >
+                      {GRADUATION_MONTHS.map((m) => (
+                        <option key={m.value} value={m.value}>
+                          {m.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-medium text-[#66758e] block mb-1">Year</label>
+                    <select
+                      value={gradYear}
+                      onChange={(e) => setGradYear(Number(e.target.value))}
+                      className="w-full text-xs rounded-lg border border-[#cfd8ea] bg-white py-2 px-2.5 text-[#15213b] focus:outline-none focus:border-[#3563ff]"
+                    >
+                      {getGraduationYearOptions().map((y) => (
+                        <option key={y} value={y}>
+                          {y}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="text-[11.5px] text-[#4d5fd3] bg-white/90 p-2.5 rounded-lg border border-[#e1e9ff] flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 shrink-0 text-[#3563ff]" />
+                  <span>
+                    Your account will be designated as <b>{computedStudyYear.label}</b> ({computedStudyYear.description})
+                  </span>
+                </div>
+              </div>
+            )}
+
             <Button
               type="submit"
               variant="primary"
               className="w-full gap-2 mt-2"
               isLoading={loading}
-              disabled={oauthLoading !== null}
+              disabled={oauthLoading}
             >
               <span>Continue to Profile Setup</span>
               <ArrowRight className="h-4 w-4" />
@@ -536,9 +595,8 @@ function SignUpForm() {
           provider={showSetupGuide}
           onClose={() => setShowSetupGuide(null)}
           onInstantLogin={() => {
-            const p = showSetupGuide;
             setShowSetupGuide(null);
-            handleDemoSocialLogin(p);
+            handleDemoSocialLogin();
           }}
         />
       )}

@@ -1,13 +1,18 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, useMemo, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Check, Sparkles, ArrowRight, ArrowLeft, Target, Users, Shield, Zap, CheckCircle2 } from "lucide-react";
+import { Check, Sparkles, ArrowRight, ArrowLeft, Target, Users, Shield, Zap, CheckCircle2, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
 import { Domain } from "@/types/database";
 import { BrandLogo } from "@/components/ui/brand-logo";
+import {
+  calculateStudyYear,
+  GRADUATION_MONTHS,
+  getGraduationYearOptions,
+} from "@/lib/students/study-year";
 
 const STEPS = ["Role", "Profile", "Expertise", "Intent", "Preferences"] as const;
 
@@ -45,8 +50,12 @@ function OnboardingContent() {
   );
   const [fullName, setFullName] = useState(searchParams.get("name") || "");
   const [institution, setInstitution] = useState("Tech University");
-  const [studyYear, setStudyYear] = useState<number>(4);
-  const [expectedGradYear, setExpectedGradYear] = useState<number>(2027);
+  const [gradMonth, setGradMonth] = useState<number>(
+    Number(searchParams.get("gradMonth")) || 5
+  );
+  const [expectedGradYear, setExpectedGradYear] = useState<number>(
+    Number(searchParams.get("gradYear")) || 2028
+  );
   const [graduationYear, setGraduationYear] = useState<number>(2023);
   const [jobTitle, setJobTitle] = useState("");
   const [company, setCompany] = useState("");
@@ -57,6 +66,11 @@ function OnboardingContent() {
   const [domains, setDomains] = useState<Domain[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Dynamically compute student study year based on expected graduation date
+  const computedStudyYear = useMemo(() => {
+    return calculateStudyYear(gradMonth, expectedGradYear);
+  }, [gradMonth, expectedGradYear]);
 
   useEffect(() => {
     fetch("/api/domains")
@@ -94,8 +108,9 @@ function OnboardingContent() {
         full_name: fullName,
         role,
         institution,
-        study_year: role === "student" ? Number(studyYear) : null,
+        study_year: role === "student" ? computedStudyYear.studyYear : null,
         expected_graduation_year: role === "student" ? Number(expectedGradYear) : null,
+        expected_graduation_month: role === "student" ? Number(gradMonth) : null,
         graduation_year: role === "alum" ? Number(graduationYear) : null,
         job_title: role === "alum" ? jobTitle : null,
         company: role === "alum" ? company : null,
@@ -288,28 +303,45 @@ function OnboardingContent() {
                   {role === "student" ? (
                     <>
                       <div className="field">
-                        <label htmlFor="year">Current Year of Study</label>
+                        <label htmlFor="gradMonth">Expected Graduation Month</label>
                         <select
-                          id="year"
-                          value={studyYear}
-                          onChange={(e) => setStudyYear(Number(e.target.value))}
+                          id="gradMonth"
+                          value={gradMonth}
+                          onChange={(e) => setGradMonth(Number(e.target.value))}
                         >
-                          <option value={3}>3rd Year Undergraduate</option>
-                          <option value={4}>4th Year Undergraduate (Final Year)</option>
+                          {GRADUATION_MONTHS.map((m) => (
+                            <option key={m.value} value={m.value}>
+                              {m.label}
+                            </option>
+                          ))}
                         </select>
                       </div>
 
                       <div className="field">
-                        <label htmlFor="gradYear">Expected Graduation</label>
+                        <label htmlFor="gradYear">Expected Graduation Year</label>
                         <select
                           id="gradYear"
                           value={expectedGradYear}
                           onChange={(e) => setExpectedGradYear(Number(e.target.value))}
                         >
-                          <option value={2026}>2026</option>
-                          <option value={2027}>2027</option>
-                          <option value={2028}>2028</option>
+                          {getGraduationYearOptions().map((y) => (
+                            <option key={y} value={y}>
+                              {y}
+                            </option>
+                          ))}
                         </select>
+                      </div>
+
+                      <div className="col-span-full p-3.5 rounded-xl bg-[#f0f4ff] border border-[#d6e2ff] flex items-center justify-between flex-wrap gap-2">
+                        <div className="flex items-center gap-2 text-xs text-[#2b44b8]">
+                          <Sparkles className="h-4 w-4 text-[#3563ff] shrink-0" />
+                          <span>
+                            Auto-determined Classification: <b>{computedStudyYear.label}</b> ({computedStudyYear.description})
+                          </span>
+                        </div>
+                        <span className="badge soft text-xs font-bold text-[#3563ff] bg-white border-[#d6e2ff]">
+                          {computedStudyYear.badgeLabel}
+                        </span>
                       </div>
                     </>
                   ) : (

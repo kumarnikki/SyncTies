@@ -5,18 +5,16 @@ import { X, Copy, Check, ExternalLink, Sparkles, ShieldCheck } from "lucide-reac
 import { Button } from "@/components/ui/button";
 
 interface OAuthSetupModalProps {
-  provider: "google" | "linkedin";
+  provider?: "google";
   onClose: () => void;
   onInstantLogin: () => void;
 }
 
 export function OAuthSetupModal({
-  provider,
   onClose,
   onInstantLogin,
 }: OAuthSetupModalProps) {
   const [copied, setCopied] = useState(false);
-  const isGoogle = provider === "google";
   const callbackUrl = "https://dvlmiwonanctdbvjgjto.supabase.co/auth/v1/callback";
   const supabaseDashboardUrl = "https://supabase.com/dashboard/project/dvlmiwonanctdbvjgjto/auth/providers";
 
@@ -51,17 +49,17 @@ export function OAuthSetupModal({
         </div>
 
         <h2 className="font-heading text-xl text-[#15213b] mb-1.5">
-          {isGoogle ? "Enable Google OAuth" : "Enable LinkedIn (OIDC)"}
+          Enable Google OAuth
         </h2>
         <p className="text-xs text-[#66758e] mb-4 leading-relaxed">
-          Follow these 3 quick steps to connect real {isGoogle ? "Google" : "LinkedIn"} sign-in to your Supabase project.
+          Follow these 3 quick steps to connect real Google sign-in to your Supabase project.
         </p>
 
         {/* Step 1: Callback URL */}
         <div className="space-y-3 mb-5">
           <div className="p-3 bg-[#f7f9fc] border border-[#e5eaf2] rounded-xl text-xs space-y-1.5">
             <span className="font-semibold text-[#15213b] block">
-              1. Authorized Redirect URI (for {isGoogle ? "Google Cloud Console" : "LinkedIn Developers"}):
+              1. Authorized Redirect URI (for Google Cloud Console):
             </span>
             <div className="flex items-center justify-between gap-2 bg-white px-2.5 py-1.5 rounded-lg border border-[#dde3ee] font-mono text-[11px] text-[#2d3c62]">
               <span className="truncate">{callbackUrl}</span>
@@ -79,35 +77,20 @@ export function OAuthSetupModal({
           {/* Step 2: Developer Console */}
           <div className="p-3 bg-[#f7f9fc] border border-[#e5eaf2] rounded-xl text-xs space-y-1 text-[#455470]">
             <span className="font-semibold text-[#15213b] block">
-              2. Create Credentials in {isGoogle ? "Google Cloud" : "LinkedIn"}:
+              2. Create Credentials in Google Cloud:
             </span>
-            {isGoogle ? (
-              <p className="leading-relaxed">
-                Visit{" "}
-                <a
-                  href="https://console.cloud.google.com/apis/credentials"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-[#3563ff] font-semibold underline inline-flex items-center gap-0.5"
-                >
-                  Google Cloud Console <ExternalLink className="h-3 w-3" />
-                </a>
-                , create an <b>OAuth 2.0 Client ID (Web Application)</b>, add the Redirect URI above, and copy your Client ID &amp; Secret.
-              </p>
-            ) : (
-              <p className="leading-relaxed">
-                Visit{" "}
-                <a
-                  href="https://www.linkedin.com/developers/apps"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-[#3563ff] font-semibold underline inline-flex items-center gap-0.5"
-                >
-                  LinkedIn Developer Portal <ExternalLink className="h-3 w-3" />
-                </a>
-                , create an app, add <b>Sign In with LinkedIn using OpenID Connect</b>, add the Redirect URL above, and copy your Client ID &amp; Secret.
-              </p>
-            )}
+            <p className="leading-relaxed">
+              Visit{" "}
+              <a
+                href="https://console.cloud.google.com/apis/credentials"
+                target="_blank"
+                rel="noreferrer"
+                className="text-[#3563ff] font-semibold underline inline-flex items-center gap-0.5"
+              >
+                Google Cloud Console <ExternalLink className="h-3 w-3" />
+              </a>
+              , create an <b>OAuth 2.0 Client ID (Web Application)</b>, add the Redirect URI above, and copy your Client ID &amp; Secret.
+            </p>
           </div>
 
           {/* Step 3: Supabase Dashboard */}
@@ -125,7 +108,7 @@ export function OAuthSetupModal({
               >
                 Supabase Auth Providers <ExternalLink className="h-3 w-3" />
               </a>
-              , enable <b>{isGoogle ? "Google" : "LinkedIn (OIDC)"}</b>, paste your Client ID &amp; Secret, and click <b>Save</b>.
+              , enable <b>Google</b>, paste your Client ID &amp; Secret, and click <b>Save</b>.
             </p>
           </div>
         </div>
@@ -140,7 +123,7 @@ export function OAuthSetupModal({
             onClick={onInstantLogin}
           >
             <Sparkles className="h-3.5 w-3.5" />
-            <span>1-Click Test as {isGoogle ? "Google" : "LinkedIn"} User</span>
+            <span>1-Click Test as Google User</span>
           </Button>
 
           <Button

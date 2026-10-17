@@ -35,14 +35,7 @@ function GoogleIcon({ className = "h-4 w-4" }: { className?: string }) {
   );
 }
 
-// Official LinkedIn SVG Icon
-function LinkedInIcon({ className = "h-4 w-4" }: { className?: string }) {
-  return (
-    <svg className={className} fill="#0A66C2" viewBox="0 0 24 24">
-      <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
-    </svg>
-  );
-}
+
 
 function SignInContent() {
   const router = useRouter();
@@ -53,9 +46,9 @@ function SignInContent() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [oauthLoading, setOauthLoading] = useState<"google" | "linkedin" | null>(null);
+  const [oauthLoading, setOauthLoading] = useState(false);
   const [providerNotConfigured, setProviderNotConfigured] = useState<string | null>(null);
-  const [showSetupGuide, setShowSetupGuide] = useState<"google" | "linkedin" | null>(null);
+  const [showSetupGuide, setShowSetupGuide] = useState<"google" | null>(null);
   const [demoLoginLoading, setDemoLoginLoading] = useState<string | null>(null);
   const [needsConfirmation, setNeedsConfirmation] = useState(false);
   const [resendingConfirmation, setResendingConfirmation] = useState(false);
@@ -138,18 +131,16 @@ function SignInContent() {
     }
   };
 
-  // Handle OAuth Sign-In (Google or LinkedIn OIDC)
-  const handleOAuthSignIn = async (provider: "google" | "linkedin_oidc") => {
+  // Handle OAuth Sign-In (Google)
+  const handleOAuthSignIn = async () => {
     setError(null);
     setProviderNotConfigured(null);
-    setOauthLoading(provider === "google" ? "google" : "linkedin");
+    setOauthLoading(true);
 
     try {
       if (!isSupabaseConfigured()) {
-        setProviderNotConfigured(
-          provider === "google" ? "Google OAuth" : "LinkedIn (OIDC)"
-        );
-        setOauthLoading(null);
+        setProviderNotConfigured("Google OAuth");
+        setOauthLoading(false);
         return;
       }
 
@@ -158,7 +149,7 @@ function SignInContent() {
       const redirectTo = `${origin}/auth/callback`;
 
       const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
-        provider,
+        provider: "google",
         options: {
           redirectTo,
           skipBrowserRedirect: true,
@@ -175,13 +166,11 @@ function SignInContent() {
           oauthError.message.toLowerCase().includes("provider is not configured") ||
           oauthError.message.toLowerCase().includes("unsupported provider")
         ) {
-          setProviderNotConfigured(
-            provider === "google" ? "Google OAuth" : "LinkedIn (OIDC)"
-          );
+          setProviderNotConfigured("Google OAuth");
         } else {
           setError(oauthError.message);
         }
-        setOauthLoading(null);
+        setOauthLoading(false);
         return;
       }
 
@@ -195,10 +184,8 @@ function SignInContent() {
               errJson?.error_code === "validation_failed" ||
               errJson?.msg?.toLowerCase().includes("provider is not enabled")
             ) {
-              setProviderNotConfigured(
-                provider === "google" ? "Google OAuth" : "LinkedIn (OIDC)"
-              );
-              setOauthLoading(null);
+              setProviderNotConfigured("Google OAuth");
+              setOauthLoading(false);
               return;
             }
           }
@@ -209,8 +196,8 @@ function SignInContent() {
         window.location.href = data.url;
       }
     } catch (err: any) {
-      setError(err?.message || "Failed to initiate social login.");
-      setOauthLoading(null);
+      setError(err?.message || "Failed to initiate Google sign-in.");
+      setOauthLoading(false);
     }
   };
 
@@ -243,7 +230,7 @@ function SignInContent() {
   };
 
   // One-click pilot session authentication for demo social profiles and quick test roles
-  const handleDemoSocialLogin = async (type: "google" | "linkedin" | "student" | "alum") => {
+  const handleDemoSocialLogin = async (type: "google" | "student" | "alum") => {
     setError(null);
     setDemoLoginLoading(type);
     try {
@@ -339,31 +326,27 @@ function SignInContent() {
             <div className="mb-4">
               <Alert variant="warning" title={`${providerNotConfigured} Setup Required`}>
                 <p className="mb-3 text-xs leading-relaxed text-amber-900">
-                  {providerNotConfigured} credentials are not configured in your Supabase Auth dashboard yet. You can sign in immediately using a pilot test profile or view the setup steps to connect your real Google/LinkedIn app.
+                  {providerNotConfigured} credentials are not configured in your Supabase Auth dashboard yet. You can sign in immediately using a pilot test profile or view the setup steps to connect your Google Cloud app.
                 </p>
                 <div className="flex flex-wrap gap-2 pt-1">
                   <Button
                     size="sm"
                     variant="primary"
                     type="button"
-                    isLoading={demoLoginLoading === (providerNotConfigured === "Google OAuth" ? "google" : "linkedin")}
-                    onClick={() =>
-                      handleDemoSocialLogin(providerNotConfigured === "Google OAuth" ? "google" : "linkedin")
-                    }
+                    isLoading={demoLoginLoading === "google"}
+                    onClick={() => handleDemoSocialLogin("google")}
                   >
                     <Sparkles className="h-3.5 w-3.5 mr-1" />
-                    <span>Instant Login as {providerNotConfigured === "Google OAuth" ? "Google" : "LinkedIn"} User</span>
+                    <span>Instant Login as Google User</span>
                   </Button>
                   <Button
                     size="sm"
                     variant="outline"
                     type="button"
                     className="text-xs border-amber-300 text-amber-900 hover:bg-amber-100"
-                    onClick={() =>
-                      setShowSetupGuide(providerNotConfigured === "Google OAuth" ? "google" : "linkedin")
-                    }
+                    onClick={() => setShowSetupGuide("google")}
                   >
-                    <span>OAuth Setup Steps</span>
+                    <span>Google OAuth Setup Steps</span>
                   </Button>
                 </div>
               </Alert>
@@ -396,28 +379,18 @@ function SignInContent() {
             </div>
           )}
 
-          {/* Social OAuth Buttons */}
+          {/* Social OAuth Button */}
           <div className="provider-row">
             <Button
               type="button"
               variant="provider"
-              onClick={() => handleOAuthSignIn("google")}
-              isLoading={oauthLoading === "google"}
-              disabled={loading || oauthLoading !== null}
+              className="w-full justify-center gap-2.5 h-11"
+              onClick={handleOAuthSignIn}
+              isLoading={oauthLoading}
+              disabled={loading || oauthLoading}
             >
-              <GoogleIcon className="h-4 w-4 mr-2" />
-              <span>Google</span>
-            </Button>
-
-            <Button
-              type="button"
-              variant="provider"
-              onClick={() => handleOAuthSignIn("linkedin_oidc")}
-              isLoading={oauthLoading === "linkedin"}
-              disabled={loading || oauthLoading !== null}
-            >
-              <LinkedInIcon className="h-4 w-4 mr-2" />
-              <span>LinkedIn</span>
+              <GoogleIcon className="h-4 w-4" />
+              <span>Continue with Google</span>
             </Button>
           </div>
 

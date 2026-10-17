@@ -28,6 +28,7 @@ export interface Profile {
   institution: string;
   study_year?: number | null;
   expected_graduation_year?: number | null;
+  expected_graduation_month?: number | null;
   graduation_year?: number | null;
   job_title?: string | null;
   company?: string | null;

@@ -23,6 +23,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { getMentorTier } from "@/lib/mentors/tiers";
 import { BrandLogo } from "@/components/ui/brand-logo";
+import { getStudyYearLabel } from "@/lib/students/study-year";
 
 interface PortalShellProps {
   children: ReactNode;
@@ -37,6 +38,7 @@ export function PortalShell({ children }: PortalShellProps) {
     role?: string;
     full_name?: string;
     institution?: string;
+    study_year?: number | null;
   } | null>(null);
   const [tokens, setTokens] = useState<{
     tokens_remaining: number;
@@ -102,9 +104,10 @@ export function PortalShell({ children }: PortalShellProps) {
   const rawName =
     profile?.full_name?.trim() ||
     user?.email?.split("@")[0] ||
-    (isAlum ? "paris" : "jordan");
-  const displayName = rawName.toLowerCase();
-  const initial = (rawName[0] || (isAlum ? "P" : "J")).toUpperCase();
+    (isAlum ? "Paris" : "Jordan");
+  const cleanName = rawName.replace(/\s*\((student|alum|alumni|mentor)\)/gi, "").trim();
+  const displayName = cleanName || rawName;
+  const initial = (displayName[0] || (isAlum ? "P" : "J")).toUpperCase();
 
   // Navigation config based on role
   const navItems = [
@@ -211,8 +214,12 @@ export function PortalShell({ children }: PortalShellProps) {
             </span>
             <span>
               <b>{displayName}</b>
-              <small className={isAlum ? "text-[#3563ff] font-medium" : ""}>
-                {isAlum ? `${tier.label} · Alumni` : "Student account"}
+              <small className={isAlum ? "text-[#3563ff] font-medium" : "text-[#66758e] font-medium"}>
+                {isAlum
+                  ? `${tier.label} · Alumni`
+                  : profile?.study_year
+                  ? `${getStudyYearLabel(profile.study_year)} Student`
+                  : "Student account"}
               </small>
             </span>
           </div>
@@ -307,7 +314,14 @@ export function PortalShell({ children }: PortalShellProps) {
                 <span className="badge success text-xs font-semibold">Alumni</span>
               </div>
             ) : (
-              <span className="badge soft text-xs font-semibold">Student</span>
+              <div className="flex items-center gap-1.5">
+                {profile?.study_year ? (
+                  <span className="badge soft text-xs font-semibold text-[#3563ff]">
+                    {getStudyYearLabel(profile.study_year)}
+                  </span>
+                ) : null}
+                <span className="badge soft text-xs font-semibold">Student</span>
+              </div>
             )}
 
             <button
@@ -323,7 +337,7 @@ export function PortalShell({ children }: PortalShellProps) {
               <span className="avatar" style={{ width: 34, height: 34, fontSize: 13 }}>
                 {initial}
               </span>
-              <span className="capitalize">{displayName}</span>
+              <span>{displayName}</span>
             </Link>
           </div>
         </header>

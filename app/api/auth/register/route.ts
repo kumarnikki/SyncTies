@@ -1,18 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
+import { calculateStudyYear } from "@/lib/students/study-year";
+
 export const dynamic = "force-dynamic";
 
 /**
  * Registration API Route
  * Provisions new users directly with confirmed email via Supabase Admin SDK,
  * completely bypassing external SMTP provider rate limits on the free tier.
- * Ensures the profile trigger runs and initializes the user's role and profile.
+ * Ensures the profile trigger runs and initializes the user's role, study_year, and profile.
  */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, password, fullName, role = "student" } = body;
+    const {
+      email,
+      password,
+      fullName,
+      role = "student",
+      expectedGraduationYear,
+      expectedGraduationMonth,
+      graduationYear,
+    } = body;
 
     if (!email || typeof email !== "string" || !email.includes("@")) {
       return NextResponse.json({ error: "A valid email address is required." }, { status: 400 });
@@ -25,6 +35,14 @@ export async function POST(request: NextRequest) {
     const assignedRole = role === "alum" ? "alum" : "student";
     const cleanName = fullName?.trim() || email.split("@")[0] || "SyncTies Member";
 
+    // Auto-calculate study_year (1st, 2nd, 3rd, 4th year) for students
+    let computedStudyYear: number | null = null;
+    const gradYearNum = expectedGraduationYear ? Number(expectedGraduationYear) : null;
+    const gradMonthNum = expectedGraduationMonth ? Number(expectedGraduationMonth) : 5; // Default May
+    if (assignedRole === "student" && gradYearNum) {
+      computedStudyYear = calculateStudyYear(gradMonthNum, gradYearNum).studyYear;
+    }
+
     const admin = createAdminClient();
 
     // 1. Attempt to create the user with pre-confirmed email
@@ -35,6 +53,9 @@ export async function POST(request: NextRequest) {
       user_metadata: {
         full_name: cleanName,
         role: assignedRole,
+        study_year: computedStudyYear,
+        expected_graduation_year: gradYearNum,
+        expected_graduation_month: gradMonthNum,
       },
     });
 
@@ -107,6 +128,10 @@ export async function POST(request: NextRequest) {
           full_name: cleanName,
           role: assignedRole,
           institution: "University Pilot",
+          study_year: computedStudyYear,
+          expected_graduation_year: gradYearNum,
+          expected_graduation_month: gradMonthNum,
+          graduation_year: assignedRole === "alum" && graduationYear ? Number(graduationYear) : null,
           verification_status: "unverified",
           is_active: true,
           updated_at: new Date().toISOString(),

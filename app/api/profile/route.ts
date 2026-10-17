@@ -6,6 +6,8 @@ import { localStore } from "@/lib/data/store";
 
 export const dynamic = "force-dynamic";
 
+import { calculateStudyYear } from "@/lib/students/study-year";
+
 const profileUpdateSchema = z.object({
   full_name: z.string().min(2, "Full name must be at least 2 characters").optional(),
   role: z.enum(["student", "alum"]).optional(),
@@ -13,6 +15,7 @@ const profileUpdateSchema = z.object({
   institution: z.string().min(2, "Institution must be specified").optional(),
   study_year: z.number().int().min(1).max(6).optional().nullable(),
   expected_graduation_year: z.number().int().min(2024).max(2035).optional().nullable(),
+  expected_graduation_month: z.number().int().min(1).max(12).optional().nullable(),
   graduation_year: z.number().int().min(1980).max(2026).optional().nullable(),
   job_title: z.string().max(100).optional().nullable(),
   company: z.string().max(100).optional().nullable(),
@@ -99,11 +102,21 @@ export async function PATCH(req: NextRequest) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       }
 
+      // Compute study_year dynamically if grad month & year are provided
+      let computedStudyYear = validated.study_year;
+      if (validated.expected_graduation_year && validated.expected_graduation_month) {
+        computedStudyYear = calculateStudyYear(
+          validated.expected_graduation_month,
+          validated.expected_graduation_year
+        ).studyYear;
+      }
+
       // Security: Only update user's own profile and allowed fields
       const { data: updated, error } = await supabase
         .from("profiles")
         .update({
           ...validated,
+          ...(computedStudyYear ? { study_year: computedStudyYear } : {}),
           updated_at: new Date().toISOString(),
           last_active_at: new Date().toISOString(),
         })

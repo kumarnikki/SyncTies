@@ -1505,6 +1505,69 @@ h1, h2, h3 {
   gap: 10px;
 }
 
+/* Dashboard Bottom Layout (Collaboration Room & Next Step Prompt) */
+.dashboard-bottom {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 22px;
+  align-items: stretch;
+  margin-top: 24px;
+  margin-bottom: 28px;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-bottom {
+    grid-template-columns: 1fr;
+  }
+}
+
+.goals-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: var(--glass-strong);
+  border: 1px solid var(--line-glass);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: var(--small-shadow);
+}
+
+.next-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: linear-gradient(145deg, #ffffff, #f7f9fe);
+  border: 1px solid rgba(83, 109, 240, 0.16);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: var(--small-shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.next-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle, rgba(83, 109, 240, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.next-card .prompt {
+  margin: 16px 0 18px;
+  padding: 14px 16px;
+  background: #f4f7fe;
+  border-left: 3px solid #3563ff;
+  border-radius: 10px;
+  color: #15213b;
+  font-size: 13px;
+  line-height: 1.55;
+  font-style: italic;
+}
+
 /* Opportunities Grid & Banners */
 .op-grid {
   display: grid;

@@ -14,6 +14,7 @@ import {
   ExternalLink,
   Shield,
   Zap,
+  Inbox,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,12 +23,14 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Avatar } from "@/components/ui/avatar";
 import { PortalShell } from "@/components/layout/portal-shell";
 import { Intent, ConnectionRequest, Goal, TokenSummary } from "@/types/database";
+import { getStudyYearLabel } from "@/lib/students/study-year";
 
 export default function StudentDashboardPage() {
   const [tokens, setTokens] = useState<TokenSummary | null>(null);
   const [intents, setIntents] = useState<Intent[]>([]);
   const [requests, setRequests] = useState<ConnectionRequest[]>([]);
   const [goals, setGoals] = useState<Goal[]>([]);
+  const [profile, setProfile] = useState<{ study_year?: number | null; full_name?: string } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -35,10 +38,12 @@ export default function StudentDashboardPage() {
       fetch("/api/tokens/balance").then((r) => r.json()),
       fetch("/api/intents").then((r) => r.json()),
       fetch("/api/connection-requests?role=student").then((r) => r.json()),
+      fetch("/api/profile").then((r) => r.json()),
     ])
-      .then(([tokensData, intentsData, reqData]) => {
+      .then(([tokensData, intentsData, reqData, profileData]) => {
         if (tokensData) setTokens(tokensData);
         if (intentsData?.intents) setIntents(intentsData.intents);
+        if (profileData?.profile) setProfile(profileData.profile);
         if (reqData?.requests) {
           setRequests(reqData.requests);
           const acceptedWithGoals = reqData.requests
@@ -66,7 +71,14 @@ export default function StudentDashboardPage() {
       {/* Page Header */}
       <div className="page-head">
         <div>
-          <h1 className="font-heading">Student Portal</h1>
+          <div className="flex items-center gap-2.5 mb-1 flex-wrap">
+            <h1 className="font-heading">Student Portal</h1>
+            {profile?.study_year ? (
+              <span className="badge soft text-xs font-semibold text-[#3563ff]">
+                {getStudyYearLabel(profile.study_year)}
+              </span>
+            ) : null}
+          </div>
           <p>Track your active career intents, monthly outreach tokens, and explainable alumni recommendations.</p>
         </div>
         <div>
@@ -200,6 +212,26 @@ export default function StudentDashboardPage() {
                 </div>
               </div>
             ))}
+
+            {intents.length === 1 && (
+              <div className="panel border-dashed border-2 border-[#dbe3ef] hover:border-[#3563ff] bg-[#fafbfe] transition-all flex flex-col justify-center items-center text-center p-6 min-h-[220px]">
+                <div className="w-10 h-10 rounded-full bg-[#f0f3ff] text-[#3563ff] flex items-center justify-center mb-3">
+                  <Target className="h-5 w-5" />
+                </div>
+                <h3 className="text-sm font-bold text-[#15213b] mb-1">
+                  Have another career milestone?
+                </h3>
+                <p className="text-xs text-[#66758e] max-w-[280px] mb-4">
+                  Add another goal (e.g. resume review, technical mock interview, or higher-ed guidance).
+                </p>
+                <Link href="/student/intents/new">
+                  <Button variant="secondary" size="sm" className="gap-1.5 text-xs">
+                    <Plus className="h-3.5 w-3.5" />
+                    <span>Post New Intent</span>
+                  </Button>
+                </Link>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -294,8 +326,22 @@ export default function StudentDashboardPage() {
 
         <div className="panel p-0 divide-y divide-[#edf0f5] overflow-hidden">
           {requests.length === 0 ? (
-            <div className="p-8 text-center text-xs text-[#66758e]">
-              No connection requests sent yet. Explore ranked alumni matches for your goals above.
+            <div className="p-10 flex flex-col items-center justify-center text-center bg-white">
+              <div className="w-12 h-12 rounded-full bg-[#f0f4ff] text-[#3563ff] flex items-center justify-center mb-3">
+                <Inbox className="h-6 w-6" />
+              </div>
+              <h3 className="text-sm font-bold text-[#15213b] mb-1">
+                No outreach requests sent yet
+              </h3>
+              <p className="text-xs text-[#66758e] max-w-sm mb-4 leading-relaxed">
+                Once you send an outreach request to an alumnus, its review status, token reservation, and response notes will appear here.
+              </p>
+              <Link href="/student/matches">
+                <Button variant="primary" size="sm" className="gap-2 text-xs shadow-xs">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  <span>Discover Ranked Mentors</span>
+                </Button>
+              </Link>
             </div>
           ) : (
             requests.slice(0, 4).map((req) => (
