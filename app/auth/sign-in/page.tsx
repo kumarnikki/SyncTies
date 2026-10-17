@@ -9,6 +9,7 @@ import { Alert } from "@/components/ui/alert";
 import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { OAuthSetupModal } from "@/components/auth/oauth-setup-modal";
+import { BrandLogo } from "@/components/ui/brand-logo";
 
 // Official Google "G" SVG Icon
 function GoogleIcon({ className = "h-4 w-4" }: { className?: string }) {
@@ -284,14 +285,8 @@ function SignInContent() {
     <div className="auth-page">
       {/* Brand Panel Side (Figma Style) */}
       <aside className="auth-side">
-        <Link href="/" className="logo flex items-center gap-2.5">
-          <span className="logo-mark">
-            <i />
-            <i />
-            <i />
-          </span>
-          <b className="tracking-tight text-xl font-semibold text-white">SyncTies</b>
-          <span className="badge dark text-[11px] py-0.5 px-2">Pilot</span>
+        <Link href="/" className="inline-flex items-center">
+          <BrandLogo size="md" withText textColor="text-white" badge="Pilot" />
         </Link>
 
         <div>

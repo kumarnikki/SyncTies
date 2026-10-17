@@ -7,6 +7,7 @@ import { Check, Sparkles, ArrowRight, ArrowLeft, Target, Users, Shield, Zap, Che
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
 import { Domain } from "@/types/database";
+import { BrandLogo } from "@/components/ui/brand-logo";
 
 const STEPS = ["Role", "Profile", "Expertise", "Intent", "Preferences"] as const;
 
@@ -148,13 +149,8 @@ function OnboardingContent() {
     <div className="onboard">
       {/* Onboarding Header */}
       <header>
-        <Link href="/" className="logo flex items-center gap-2.5">
-          <span className="logo-mark">
-            <i />
-            <i />
-            <i />
-          </span>
-          <b className="tracking-tight text-xl font-semibold text-[#15213b]">SyncTies</b>
+        <Link href="/" className="inline-flex items-center">
+          <BrandLogo size="md" withText />
         </Link>
         <span className="text-sm">Profile setup</span>
         <button

@@ -21,6 +21,14 @@ export const metadata: Metadata = {
   title: "SyncTies — Purposeful Alumni Networking",
   description:
     "Right people. Right purpose. Real opportunities. Connect students and alumni with deterministic SQL matching, monthly capacity safeguards, and mutual goal fulfillment.",
+  icons: {
+    icon: [
+      { url: "/icon.png", type: "image/png" },
+      { url: "/favicon.ico" },
+    ],
+    shortcut: "/icon.png",
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({

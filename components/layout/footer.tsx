@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Shield, Cpu, Sparkles } from "lucide-react";
+import { BrandLogo } from "@/components/ui/brand-logo";
 
 export function Footer() {
   const pathname = usePathname();
@@ -28,13 +29,8 @@ export function Footer() {
       <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-2 space-y-3.5">
-            <Link href="/" className="logo inline-flex items-center gap-2.5">
-              <span className="logo-mark">
-                <i />
-                <i />
-                <i />
-              </span>
-              <b className="tracking-tight text-xl text-[#15213b]">SyncTies</b>
+            <Link href="/" className="inline-flex items-center">
+              <BrandLogo size="md" withText />
             </Link>
             <p className="text-[#66758e] max-w-md text-sm leading-relaxed">
               Purposeful alumni connections for career momentum. Built with explainable matching, mentor-controlled

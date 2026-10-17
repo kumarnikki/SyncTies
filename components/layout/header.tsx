@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Users, Compass, Award, User, LogOut, ArrowRight, Menu, X, Sparkles, Bell } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { BrandLogo } from "@/components/ui/brand-logo";
 
 export function Header() {
   const pathname = usePathname();
@@ -84,14 +85,8 @@ export function Header() {
       <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8 flex h-[74px] items-center justify-between">
         {/* Brand */}
         <div className="flex items-center gap-8">
-          <Link href="/" className="logo group flex items-center gap-2.5">
-            <span className="logo-mark">
-              <i />
-              <i />
-              <i />
-            </span>
-            <b className="tracking-tight text-xl text-[#15213b] font-semibold">SyncTies</b>
-            <span className="badge soft text-[11px] py-0.5 px-2">Pilot</span>
+          <Link href="/" className="group flex items-center">
+            <BrandLogo size="md" withText badge="Pilot" />
           </Link>
 
           {/* Navigation Links */}

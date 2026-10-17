@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { getMentorTier } from "@/lib/mentors/tiers";
+import { BrandLogo } from "@/components/ui/brand-logo";
 
 interface PortalShellProps {
   children: ReactNode;
@@ -190,6 +191,19 @@ export function PortalShell({ children }: PortalShellProps) {
     <div className="app">
       {/* Persistent Left Sidebar */}
       <aside className={mobileOpen ? "open" : ""}>
+        <div className="px-5 pt-5 pb-3 border-b border-[var(--line-soft)] flex items-center justify-between">
+          <Link href="/" className="inline-flex items-center group">
+            <BrandLogo size="md" withText badge={isAlum ? "Alumni" : "Student"} />
+          </Link>
+          <button
+            className="md:hidden p-1 text-gray-500 hover:text-gray-700"
+            onClick={() => setMobileOpen(false)}
+            aria-label="Close sidebar"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
         <div className="side-head">
           <div className="role-label">
             <span className="avatar" style={{ width: 38, height: 38, fontSize: 14 }}>
@@ -202,13 +216,6 @@ export function PortalShell({ children }: PortalShellProps) {
               </small>
             </span>
           </div>
-          <button
-            className="md:hidden"
-            onClick={() => setMobileOpen(false)}
-            aria-label="Close sidebar"
-          >
-            <X className="h-5 w-5 text-gray-500" />
-          </button>
         </div>
 
         {/* Nav Links */}
