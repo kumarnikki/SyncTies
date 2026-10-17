@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { calculateStudyYear, getStudyYearLabel } from "@/lib/students/study-year";
+import { calculateStudyYear, getStudyYearLabel, getGraduationYearOptions } from "@/lib/students/study-year";
 
 describe("calculateStudyYear", () => {
   const refDate = new Date(2026, 9, 15); // October 15, 2026
@@ -39,5 +39,13 @@ describe("calculateStudyYear", () => {
     expect(getStudyYearLabel(3)).toBe("3rd Year");
     expect(getStudyYearLabel(4)).toBe("4th Year");
     expect(getStudyYearLabel(null)).toBe("");
+  });
+
+  it("caps graduation years at 2030 and strictly excludes 2031 and 2032", () => {
+    const years = getGraduationYearOptions(refDate);
+    expect(years).toContain(2030);
+    expect(years).not.toContain(2031);
+    expect(years).not.toContain(2032);
+    expect(Math.max(...years)).toBe(2030);
   });
 });

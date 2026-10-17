@@ -14,7 +14,7 @@ const profileUpdateSchema = z.object({
   bio: z.string().max(1000, "Bio cannot exceed 1000 characters").optional(),
   institution: z.string().min(2, "Institution must be specified").optional(),
   study_year: z.number().int().min(1).max(6).optional().nullable(),
-  expected_graduation_year: z.number().int().min(2024).max(2035).optional().nullable(),
+  expected_graduation_year: z.number().int().min(2024).max(2030).optional().nullable(),
   expected_graduation_month: z.number().int().min(1).max(12).optional().nullable(),
   graduation_year: z.number().int().min(1980).max(2026).optional().nullable(),
   job_title: z.string().max(100).optional().nullable(),

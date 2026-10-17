@@ -30,9 +30,10 @@ export const GRADUATION_MONTHS = [
 
 export function getGraduationYearOptions(referenceDate: Date = new Date()): number[] {
   const currentYear = referenceDate.getFullYear();
-  // Graduation years ranging from current year up to 6 years ahead
+  // Graduation years capped at 2030 (standard 4-year degree span; 2031 and 2032 removed)
   const years: number[] = [];
-  for (let y = currentYear; y <= currentYear + 6; y++) {
+  const maxYear = 2030;
+  for (let y = currentYear; y <= maxYear; y++) {
     years.push(y);
   }
   return years;
