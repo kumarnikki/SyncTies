@@ -9,7 +9,7 @@ const DEMO_PASSWORD = "PilotPassword2026!";
 const DEMO_ACCOUNTS = {
   google: {
     email: "alex.google.student@gmail.com",
-    fullName: "Alex Chen (Google)",
+    fullName: "Alex Chen",
     role: "student" as const,
     institution: "Delhi Technological University",
     studyYear: 4,
@@ -18,7 +18,7 @@ const DEMO_ACCOUNTS = {
   },
   linkedin: {
     email: "sarah.linkedin.alum@syncties.com",
-    fullName: "Sarah Jenkins (LinkedIn)",
+    fullName: "Sarah Jenkins",
     role: "alum" as const,
     institution: "Delhi Technological University",
     company: "Stripe",
@@ -27,6 +27,7 @@ const DEMO_ACCOUNTS = {
     graduationYear: 2023,
     provider: "linkedin_oidc",
     avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150",
+  },
   student: {
     email: "nikki.artistics@gmail.com",
     fullName: "Nikki Kumar",
