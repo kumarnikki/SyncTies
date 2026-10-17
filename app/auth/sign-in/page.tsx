@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
 import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { OAuthSetupModal } from "@/components/auth/oauth-setup-modal";
 
 // Official Google "G" SVG Icon
 function GoogleIcon({ className = "h-4 w-4" }: { className?: string }) {
@@ -53,6 +54,8 @@ function SignInContent() {
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<"google" | "linkedin" | null>(null);
   const [providerNotConfigured, setProviderNotConfigured] = useState<string | null>(null);
+  const [showSetupGuide, setShowSetupGuide] = useState<"google" | "linkedin" | null>(null);
+  const [demoLoginLoading, setDemoLoginLoading] = useState<string | null>(null);
   const [needsConfirmation, setNeedsConfirmation] = useState(false);
   const [resendingConfirmation, setResendingConfirmation] = useState(false);
   const [resendSuccess, setResendSuccess] = useState(false);
@@ -238,12 +241,43 @@ function SignInContent() {
     }
   };
 
-  const handleDemoLogin = (role: "student" | "alum") => {
-    if (role === "student") {
-      router.push("/student/dashboard");
-    } else {
-      router.push("/alumni/dashboard");
+  // One-click pilot session authentication for demo social profiles and quick test roles
+  const handleDemoSocialLogin = async (type: "google" | "linkedin" | "student" | "alum") => {
+    setError(null);
+    setDemoLoginLoading(type);
+    try {
+      const res = await fetch("/api/auth/demo-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to initialize demo session");
+      }
+
+      const supabase = createClient();
+      const { error: signInErr } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
+
+      if (signInErr) throw signInErr;
+
+      if (data.role === "alum") {
+        router.push("/alumni/dashboard");
+      } else {
+        router.push("/student/dashboard");
+      }
+    } catch (err: any) {
+      setError(err?.message || "Demo login failed. Please try again.");
+    } finally {
+      setDemoLoginLoading(null);
     }
+  };
+
+  const handleDemoLogin = (role: "student" | "alum") => {
+    handleDemoSocialLogin(role);
   };
 
   return (
@@ -309,8 +343,34 @@ function SignInContent() {
           {providerNotConfigured && (
             <div className="mb-4">
               <Alert variant="warning" title={`${providerNotConfigured} Setup Required`}>
-                {providerNotConfigured} is not enabled in your Supabase Auth dashboard yet. You can sign in using any
-                email/password or the Quick Test Pilot buttons below.
+                <p className="mb-3 text-xs leading-relaxed text-amber-900">
+                  {providerNotConfigured} credentials are not configured in your Supabase Auth dashboard yet. You can sign in immediately using a pilot test profile or view the setup steps to connect your real Google/LinkedIn app.
+                </p>
+                <div className="flex flex-wrap gap-2 pt-1">
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    type="button"
+                    isLoading={demoLoginLoading === (providerNotConfigured === "Google OAuth" ? "google" : "linkedin")}
+                    onClick={() =>
+                      handleDemoSocialLogin(providerNotConfigured === "Google OAuth" ? "google" : "linkedin")
+                    }
+                  >
+                    <Sparkles className="h-3.5 w-3.5 mr-1" />
+                    <span>Instant Login as {providerNotConfigured === "Google OAuth" ? "Google" : "LinkedIn"} User</span>
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    type="button"
+                    className="text-xs border-amber-300 text-amber-900 hover:bg-amber-100"
+                    onClick={() =>
+                      setShowSetupGuide(providerNotConfigured === "Google OAuth" ? "google" : "linkedin")
+                    }
+                  >
+                    <span>OAuth Setup Steps</span>
+                  </Button>
+                </div>
               </Alert>
             </div>
           )}
@@ -439,6 +499,8 @@ function SignInContent() {
                 variant="secondary"
                 size="sm"
                 onClick={() => handleDemoLogin("student")}
+                isLoading={demoLoginLoading === "student"}
+                disabled={demoLoginLoading !== null}
                 className="text-xs"
               >
                 Sign In as Student
@@ -448,6 +510,8 @@ function SignInContent() {
                 variant="secondary"
                 size="sm"
                 onClick={() => handleDemoLogin("alum")}
+                isLoading={demoLoginLoading === "alum"}
+                disabled={demoLoginLoading !== null}
                 className="text-xs"
               >
                 Sign In as Alumnus
@@ -463,6 +527,19 @@ function SignInContent() {
           </div>
         </div>
       </main>
+
+      {/* OAuth Supabase Configuration Guidance Modal */}
+      {showSetupGuide && (
+        <OAuthSetupModal
+          provider={showSetupGuide}
+          onClose={() => setShowSetupGuide(null)}
+          onInstantLogin={() => {
+            const p = showSetupGuide;
+            setShowSetupGuide(null);
+            handleDemoSocialLogin(p);
+          }}
+        />
+      )}
     </div>
   );
 }

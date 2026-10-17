@@ -10,6 +10,7 @@ import { GET as getMatches } from "@/app/api/matches/route";
 import { GET as getDashboardMetrics } from "@/app/api/dashboard/metrics/route";
 import { POST as postReport } from "@/app/api/reports/route";
 import { POST as postRegister } from "@/app/api/auth/register/route";
+import { POST as postDemoLogin } from "@/app/api/auth/demo-login/route";
 
 describe("API Route Handlers Integration", () => {
   it("GET /api/health returns 200 and healthy status", async () => {
@@ -173,5 +174,32 @@ describe("API Route Handlers Integration", () => {
     });
     const resPass = await postRegister(shortPassReq);
     expect(resPass.status).toBe(400);
+  });
+
+  it("POST /api/auth/demo-login returns valid credentials for google and student", async () => {
+    const googleReq = new NextRequest("http://localhost:3000/api/auth/demo-login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "google" }),
+    });
+    const resGoogle = await postDemoLogin(googleReq);
+    expect(resGoogle.status).toBe(200);
+    const googleData = await resGoogle.json();
+    expect(googleData.success).toBe(true);
+    expect(googleData.role).toBe("student");
+    expect(googleData.provider).toBe("google");
+    expect(googleData.password).toBeDefined();
+
+    const alumReq = new NextRequest("http://localhost:3000/api/auth/demo-login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "linkedin" }),
+    });
+    const resAlum = await postDemoLogin(alumReq);
+    expect(resAlum.status).toBe(200);
+    const alumData = await resAlum.json();
+    expect(alumData.success).toBe(true);
+    expect(alumData.role).toBe("alum");
+    expect(alumData.provider).toBe("linkedin_oidc");
   });
 });
