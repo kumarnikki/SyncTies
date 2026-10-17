@@ -8,6 +8,7 @@ export const dynamic = "force-dynamic";
 
 const profileUpdateSchema = z.object({
   full_name: z.string().min(2, "Full name must be at least 2 characters").optional(),
+  role: z.enum(["student", "alum"]).optional(),
   bio: z.string().max(1000, "Bio cannot exceed 1000 characters").optional(),
   institution: z.string().min(2, "Institution must be specified").optional(),
   study_year: z.number().int().min(1).max(6).optional().nullable(),

@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
 
       if (!profile) {
         const meta = user.user_metadata || {};
-        const fallbackRole = meta.role === "alum" ? "alum" : "student";
+        const fallbackRole = meta.role === "alum" || next?.includes("alumni") ? "alum" : "student";
         const fallbackName =
           meta.full_name || meta.name || (user.email ? user.email.split("@")[0] : "SyncTies Member");
         const fallbackAvatar = meta.avatar_url || meta.picture || null;
