@@ -237,9 +237,9 @@ export default function StudentDashboardPage() {
       </div>
 
       {/* Bottom Layout: Active Collaboration & Next Step Prompt */}
-      <div className="dashboard-bottom">
+      <div className="dashboard-bottom grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-[22px] items-stretch mt-6 mb-7">
         {/* Active Collaboration Goal */}
-        <section className="panel goals-panel">
+        <section className="panel goals-panel flex flex-col justify-between">
           <div className="panel-head mb-4">
             <div>
               <h2 className="font-heading">Active Collaboration Room</h2>

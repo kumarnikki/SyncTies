@@ -105,7 +105,7 @@ export function PortalShell({ children }: PortalShellProps) {
     profile?.full_name?.trim() ||
     user?.email?.split("@")[0] ||
     (isAlum ? "Paris" : "Jordan");
-  const cleanName = rawName.replace(/\s*\((student|alum|alumni|mentor)\)/gi, "").trim();
+  const cleanName = rawName.replace(/\s*\((student|alum|alumni|mentor|google|linkedin)\)/gi, "").trim();
   const displayName = cleanName || rawName;
   const initial = (displayName[0] || (isAlum ? "P" : "J")).toUpperCase();
 
