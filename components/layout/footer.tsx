@@ -1,8 +1,25 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Shield, Cpu, Sparkles } from "lucide-react";
 
 export function Footer() {
+  const pathname = usePathname();
+
+  // Hide the marketing footer on auth flows, onboarding wizard, and internal portal dashboards
+  if (
+    pathname.startsWith("/auth") ||
+    pathname.startsWith("/onboarding") ||
+    pathname.startsWith("/student") ||
+    pathname.startsWith("/alumni") ||
+    pathname.startsWith("/goals") ||
+    pathname.startsWith("/profile")
+  ) {
+    return null;
+  }
+
   return (
     <footer className="border-t border-[var(--line-soft)] bg-white/80 backdrop-blur-md mt-auto text-[var(--muted)] text-sm">
       <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8 py-12">

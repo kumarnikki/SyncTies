@@ -157,6 +157,7 @@ function SignInContent() {
         provider,
         options: {
           redirectTo,
+          skipBrowserRedirect: true,
           queryParams: {
             access_type: "offline",
             prompt: "consent",
@@ -181,6 +182,26 @@ function SignInContent() {
       }
 
       if (data?.url) {
+        // Pre-flight probe to verify if provider is enabled in Supabase without sending user to a raw JSON 400 error page
+        try {
+          const probe = await fetch(data.url, { method: "GET", redirect: "manual" });
+          if (probe.status === 400) {
+            const errJson = await probe.json().catch(() => null);
+            if (
+              errJson?.error_code === "validation_failed" ||
+              errJson?.msg?.toLowerCase().includes("provider is not enabled")
+            ) {
+              setProviderNotConfigured(
+                provider === "google" ? "Google OAuth" : "LinkedIn (OIDC)"
+              );
+              setOauthLoading(null);
+              return;
+            }
+          }
+        } catch {
+          // If browser CORS prevents following redirect, provider is active and redirecting to OAuth consent screen
+        }
+
         window.location.href = data.url;
       }
     } catch (err: any) {

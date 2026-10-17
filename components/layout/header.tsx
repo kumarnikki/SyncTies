@@ -12,7 +12,12 @@ export function Header() {
   const [profile, setProfile] = useState<{ role?: string; full_name?: string } | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // 1. Dedicated standalone layouts: Auth screens and onboarding wizard have their own clean viewports
+  const isAuthRoute = pathname.startsWith("/auth") || pathname.startsWith("/onboarding");
+
   useEffect(() => {
+    if (isAuthRoute) return;
+
     const supabase = createClient();
     supabase.auth.getUser().then(({ data }) => {
       if (data?.user) {
@@ -38,7 +43,11 @@ export function Header() {
     return () => {
       authListener?.subscription?.unsubscribe();
     };
-  }, []);
+  }, [isAuthRoute]);
+
+  if (isAuthRoute) {
+    return null;
+  }
 
   const handleSignOut = async () => {
     const supabase = createClient();
@@ -46,8 +55,14 @@ export function Header() {
     window.location.href = "/auth/sign-in";
   };
 
-  const isStudent = profile?.role === "student";
-  const isAlum = profile?.role === "alum";
+  const isPortalRoute =
+    pathname.startsWith("/student") ||
+    pathname.startsWith("/alumni") ||
+    pathname.startsWith("/goals") ||
+    pathname.startsWith("/profile");
+
+  const isStudentPortal = pathname.startsWith("/student") || profile?.role === "student";
+  const isAlumPortal = pathname.startsWith("/alumni") || profile?.role === "alum";
   const initials = profile?.full_name
     ? profile.full_name
         .split(" ")
@@ -74,9 +89,9 @@ export function Header() {
 
           {/* Navigation Links */}
           <nav className="hidden md:flex items-center gap-1.5">
-            {user ? (
+            {isPortalRoute || user ? (
               <>
-                {isStudent && (
+                {isStudentPortal && !pathname.startsWith("/alumni") && (
                   <>
                     <Link
                       href="/student/dashboard"
@@ -111,7 +126,7 @@ export function Header() {
                   </>
                 )}
 
-                {isAlum && (
+                {(isAlumPortal || pathname.startsWith("/alumni")) && (
                   <>
                     <Link
                       href="/alumni/dashboard"
@@ -141,7 +156,7 @@ export function Header() {
                           : "text-[#66758e] hover:text-[#15213b] hover:bg-[#f3f5fb]"
                       }`}
                     >
-                      Incoming Requests
+                      Connection Requests
                     </Link>
                   </>
                 )}
@@ -181,13 +196,12 @@ export function Header() {
             )}
           </nav>
         </div>
-
         {/* Auth / Profile CTA */}
         <div className="hidden md:flex items-center gap-3">
           {user ? (
             <div className="flex items-center gap-2.5">
               <Link href="/profile" className="flex items-center gap-2 text-[#15213b] hover:opacity-85 transition-opacity">
-                <span className={`avatar ${isAlum ? "violet" : "cyan"} w-8 h-8 text-[11px]`}>{initials}</span>
+                <span className={`avatar ${isAlumPortal ? "violet" : "cyan"} w-8 h-8 text-[11px]`}>{initials}</span>
                 <span className="text-sm font-semibold">{profile?.full_name || "Profile"}</span>
                 {profile?.role && (
                   <span className="badge soft text-[11px] py-0 px-2 capitalize">{profile.role}</span>
@@ -201,6 +215,10 @@ export function Header() {
                 <LogOut className="h-3.5 w-3.5" />
                 <span>Sign Out</span>
               </button>
+            </div>
+          ) : isPortalRoute ? (
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-full bg-slate-200 animate-pulse" />
             </div>
           ) : (
             <div className="flex items-center gap-2.5">
@@ -230,9 +248,9 @@ export function Header() {
       {/* Mobile menu dropdown */}
       {mobileMenuOpen && (
         <div className="md:hidden border-b border-[var(--line)] bg-white/95 backdrop-blur-lg px-4 pt-2 pb-4 space-y-1.5 animate-page-enter">
-          {user ? (
+          {isPortalRoute || user ? (
             <>
-              {isStudent && (
+              {isStudentPortal && !pathname.startsWith("/alumni") && (
                 <>
                   <Link
                     href="/student/dashboard"
@@ -257,7 +275,7 @@ export function Header() {
                   </Link>
                 </>
               )}
-              {isAlum && (
+              {(isAlumPortal || pathname.startsWith("/alumni")) && (
                 <>
                   <Link
                     href="/alumni/dashboard"
@@ -278,7 +296,7 @@ export function Header() {
                     className="block px-3 py-2 rounded-lg text-base font-medium text-[#15213b] hover:bg-slate-50"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    Incoming Requests
+                    Connection Requests
                   </Link>
                 </>
               )}
@@ -289,19 +307,23 @@ export function Header() {
               >
                 Impact Metrics
               </Link>
-              <Link
-                href="/profile"
-                className="block px-3 py-2 rounded-lg text-base font-medium text-[#15213b] hover:bg-slate-50"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Profile ({profile?.full_name || user.email})
-              </Link>
-              <button
-                onClick={handleSignOut}
-                className="w-full text-left px-3 py-2 rounded-lg text-base font-medium text-[#c44f5a] hover:bg-rose-50"
-              >
-                Sign Out
-              </button>
+              {user ? (
+                <>
+                  <Link
+                    href="/profile"
+                    className="block px-3 py-2 rounded-lg text-base font-medium text-[#15213b] hover:bg-slate-50"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Profile ({profile?.full_name || user.email})
+                  </Link>
+                  <button
+                    onClick={handleSignOut}
+                    className="w-full text-left px-3 py-2 rounded-lg text-base font-medium text-[#c44f5a] hover:bg-rose-50"
+                  >
+                    Sign Out
+                  </button>
+                </>
+              ) : null}
             </>
           ) : (
             <>
