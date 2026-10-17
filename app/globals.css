@@ -721,15 +721,10 @@ h1, h2, h3 {
   box-shadow: 0 2px 8px rgba(45, 60, 98, 0.12);
 }
 .provider-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
   margin: 20px 0;
-}
-@media (max-width: 450px) {
-  .provider-row {
-    grid-template-columns: 1fr;
-  }
 }
 .divider {
   text-align: center;

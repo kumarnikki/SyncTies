@@ -380,7 +380,7 @@ function SignInContent() {
           )}
 
           {/* Social OAuth Button */}
-          <div className="provider-row">
+          <div className="provider-row w-full flex flex-col items-stretch">
             <Button
               type="button"
               variant="provider"
