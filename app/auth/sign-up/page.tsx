@@ -73,6 +73,46 @@ function SignUpForm() {
       }
 
       const supabase = createClient();
+
+      // 1. First attempt resilient server-side registration (bypasses Supabase SMTP rate limits)
+      try {
+        const res = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password, fullName, role }),
+        });
+
+        const regData = await res.json();
+
+        if (res.ok && regData.success) {
+          // Immediately establish authenticated session
+          const { error: signInErr } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          });
+
+          if (!signInErr) {
+            router.push(`/onboarding?role=${role}&name=${encodeURIComponent(fullName)}`);
+            return;
+          } else {
+            // Account created, redirect to sign-in
+            router.push(`/auth/sign-in?email=${encodeURIComponent(email)}`);
+            return;
+          }
+        } else if (res.status === 409 || regData.error?.includes("already exists")) {
+          setError(regData.error || "An account with this email address already exists. Please sign in instead.");
+          setLoading(false);
+          return;
+        } else if (res.status === 400) {
+          setError(regData.error || "Invalid registration information provided.");
+          setLoading(false);
+          return;
+        }
+      } catch (apiErr) {
+        console.warn("Direct register API call failed, falling back to standard auth:", apiErr);
+      }
+
+      // 2. Fallback to standard Supabase client signup if API route was unreachable
       const origin = typeof window !== "undefined" ? window.location.origin : "";
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
@@ -87,7 +127,11 @@ function SignUpForm() {
       });
 
       if (signUpError) {
-        setError(signUpError.message);
+        if (signUpError.message.toLowerCase().includes("rate limit")) {
+          setError("Supabase email rate limit exceeded. Please wait a few moments or try signing in directly.");
+        } else {
+          setError(signUpError.message);
+        }
         setLoading(false);
         return;
       }

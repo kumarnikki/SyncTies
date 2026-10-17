@@ -9,6 +9,7 @@ import { GET as getIntents, POST as postIntent } from "@/app/api/intents/route";
 import { GET as getMatches } from "@/app/api/matches/route";
 import { GET as getDashboardMetrics } from "@/app/api/dashboard/metrics/route";
 import { POST as postReport } from "@/app/api/reports/route";
+import { POST as postRegister } from "@/app/api/auth/register/route";
 
 describe("API Route Handlers Integration", () => {
   it("GET /api/health returns 200 and healthy status", async () => {
@@ -154,5 +155,23 @@ describe("API Route Handlers Integration", () => {
     const data = await res.json();
     expect(data.success).toBe(true);
     expect(data.reportId).toBeDefined();
+  });
+
+  it("POST /api/auth/register validates email and password lengths", async () => {
+    const invalidEmailReq = new NextRequest("http://localhost:3000/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: "invalid-email", password: "123" }),
+    });
+    const resInvalid = await postRegister(invalidEmailReq);
+    expect(resInvalid.status).toBe(400);
+
+    const shortPassReq = new NextRequest("http://localhost:3000/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: "valid@dtu.ac.in", password: "123" }),
+    });
+    const resPass = await postRegister(shortPassReq);
+    expect(resPass.status).toBe(400);
   });
 });
