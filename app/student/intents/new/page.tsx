@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Target, Check, Sparkles, ArrowRight, ArrowLeft, Shield, Zap } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -10,14 +10,15 @@ import { Alert } from "@/components/ui/alert";
 import { PortalShell } from "@/components/layout/portal-shell";
 import { Domain, HelpType } from "@/types/database";
 
-export default function NewIntentPage() {
+function NewIntentForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+  const [title, setTitle] = useState(searchParams.get("title") || "");
+  const [description, setDescription] = useState(searchParams.get("desc") || "");
   const [helpTypeId, setHelpTypeId] = useState("");
-  const [targetRole, setTargetRole] = useState("");
-  const [targetCompany, setTargetCompany] = useState("");
+  const [targetRole, setTargetRole] = useState(searchParams.get("role") || "");
+  const [targetCompany, setTargetCompany] = useState(searchParams.get("company") || "");
   const [selectedDomains, setSelectedDomains] = useState<string[]>([]);
 
   const [domains, setDomains] = useState<Domain[]>([]);
@@ -30,7 +31,23 @@ export default function NewIntentPage() {
       fetch("/api/domains").then((r) => r.json()),
       fetch("/api/help-types").then((r) => r.json()),
     ]).then(([dData, htData]) => {
-      if (dData?.domains) setDomains(dData.domains);
+      if (dData?.domains) {
+        setDomains(dData.domains);
+        // If template provides domain hint, preselect
+        const initialTitle = searchParams.get("title")?.toLowerCase() || "";
+        if (initialTitle.includes("product")) {
+          const pmDomain = dData.domains.find((d: any) => d.slug === "product-management");
+          if (pmDomain) setSelectedDomains([pmDomain.id]);
+        } else if (initialTitle.includes("software") || initialTitle.includes("system")) {
+          const csDomain = dData.domains.find((d: any) => d.slug === "computer-science");
+          const webDomain = dData.domains.find((d: any) => d.slug === "web-development");
+          const toAdd = [csDomain?.id, webDomain?.id].filter(Boolean);
+          if (toAdd.length > 0) setSelectedDomains(toAdd);
+        } else if (initialTitle.includes("ai") || initialTitle.includes("generative")) {
+          const aiDomain = dData.domains.find((d: any) => d.slug === "ai-ml");
+          if (aiDomain) setSelectedDomains([aiDomain.id]);
+        }
+      }
       if (htData?.helpTypes) {
         setHelpTypes(htData.helpTypes);
         if (htData.helpTypes.length > 0) {
@@ -38,7 +55,7 @@ export default function NewIntentPage() {
         }
       }
     });
-  }, []);
+  }, [searchParams]);
 
   const toggleDomain = (id: string) => {
     if (selectedDomains.includes(id)) {
@@ -273,5 +290,13 @@ export default function NewIntentPage() {
         </aside>
       </div>
     </PortalShell>
+  );
+}
+
+export default function NewIntentPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-[#66758e]">Loading intent creator...</div>}>
+      <NewIntentForm />
+    </Suspense>
   );
 }
