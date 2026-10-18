@@ -112,26 +112,26 @@ export function AuthSideShowcase() {
               </div>
             </div>
 
-            <div className="p-3 bg-white/90 rounded-xl text-[#15213b] space-y-2">
+            <div className="auth-showcase-card p-3 bg-white rounded-xl shadow-md space-y-2 border border-white/20">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   <Avatar initials="MP" tone="violet" size="sm" />
                   <div>
-                    <h4 className="text-xs font-bold leading-tight">Maya Patel</h4>
-                    <p className="text-[11px] text-[#66758e]">Senior PM · Northstar Labs</p>
+                    <h4 className="text-xs font-bold text-slate-900 leading-tight">Maya Patel</h4>
+                    <p className="text-[11px] font-medium text-slate-600">Senior PM · Northstar Labs</p>
                   </div>
                 </div>
-                <span className="badge success text-[10px] py-0.5 px-1.5">3 Open Slots</span>
+                <span className="badge success text-[10px] py-0.5 px-2 font-semibold">3 Open Slots</span>
               </div>
 
-              <div className="space-y-1 text-[10px] text-[#66758e] pt-1 border-t border-slate-100">
-                <div className="flex justify-between">
-                  <span>Domain Overlap (40%)</span>
-                  <b className="text-[#3563ff]">96%</b>
+              <div className="space-y-1.5 text-[10.5px] pt-1.5 border-t border-slate-100">
+                <div className="flex justify-between items-center text-slate-700">
+                  <span className="font-medium">Domain Overlap (40%)</span>
+                  <b className="text-[#2557e8] font-bold">96%</b>
                 </div>
-                <div className="flex justify-between">
-                  <span>Help-Type Fit (30%)</span>
-                  <b className="text-[#7c5ce7]">92%</b>
+                <div className="flex justify-between items-center text-slate-700">
+                  <span className="font-medium">Help-Type Fit (30%)</span>
+                  <b className="text-[#6d44e0] font-bold">92%</b>
                 </div>
               </div>
             </div>
@@ -158,17 +158,17 @@ export function AuthSideShowcase() {
               <Zap className="h-5 w-5 text-amber-300 shrink-0" />
             </div>
 
-            <div className="p-3.5 bg-white/90 rounded-xl text-[#15213b] space-y-2">
+            <div className="auth-showcase-card p-3.5 bg-white rounded-xl shadow-md space-y-2.5 border border-white/20">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-[#66758e]">Current Token Balance</span>
-                <span className="text-base font-extrabold text-[#3563ff] font-heading">
-                  4 <span className="text-xs font-normal text-slate-500">/ 5 left</span>
+                <span className="text-xs font-bold text-slate-900">Current Token Balance</span>
+                <span className="text-base font-extrabold text-[#2557e8] font-heading">
+                  4 <span className="text-xs font-semibold text-slate-600">/ 5 left</span>
                 </span>
               </div>
               <div className="h-2 rounded-full bg-slate-200 overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-[#3563ff] to-[#00d2ff] w-[80%] rounded-full" />
+                <div className="h-full bg-gradient-to-r from-[#2557e8] to-[#00d2ff] w-[80%] rounded-full" />
               </div>
-              <p className="text-[11px] text-[#475569] leading-relaxed pt-1">
+              <p className="text-[12px] font-medium text-slate-800 leading-relaxed pt-1.5 border-t border-slate-100">
                 Zero unsolicited spam. Requests expire after 14 days without response to prevent endless waiting.
               </p>
             </div>
@@ -195,21 +195,21 @@ export function AuthSideShowcase() {
               <Award className="h-5 w-5 text-emerald-300 shrink-0" />
             </div>
 
-            <div className="p-3.5 bg-white/90 rounded-xl text-[#15213b] space-y-2.5">
-              <div className="flex items-center justify-between text-xs font-semibold">
-                <span className="flex items-center gap-1.5 text-emerald-700">
+            <div className="auth-showcase-card p-3.5 bg-white rounded-xl shadow-md space-y-2.5 border border-white/20">
+              <div className="flex items-center justify-between text-xs">
+                <span className="flex items-center gap-1.5 text-emerald-800 font-bold">
                   <CheckCircle2 className="h-4 w-4 text-emerald-600" /> Student Confirmed
                 </span>
-                <span className="flex items-center gap-1.5 text-emerald-700">
+                <span className="flex items-center gap-1.5 text-emerald-800 font-bold">
                   <CheckCircle2 className="h-4 w-4 text-emerald-600" /> Mentor Confirmed
                 </span>
               </div>
 
-              <div className="p-2 rounded-lg bg-emerald-50 border border-emerald-200 text-center text-xs font-bold text-emerald-900">
+              <div className="p-2 rounded-lg bg-emerald-50 border border-emerald-300 text-center text-xs font-bold text-emerald-950">
                 ✓ Goal Mutually Fulfilled
               </div>
 
-              <p className="text-[10.5px] text-[#64748b] leading-relaxed text-center">
+              <p className="text-[11.5px] font-medium text-slate-800 leading-relaxed text-center pt-1 border-t border-slate-100">
                 Unlocks confidential ratings and verified platform impact points.
               </p>
             </div>
