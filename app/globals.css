@@ -2552,3 +2552,35 @@ h1, h2, h3 {
   transform: translateX(2px);
 }
 
+/* Scrollable landing page utilities */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Range input styling for Algorithm Lab */
+input[type="range"] {
+  height: 6px;
+  border-radius: 9999px;
+  background: #edf0f7;
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #3563ff;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(53, 99, 255, 0.4);
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(53, 99, 255, 0.5);
+}
+

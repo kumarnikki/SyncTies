@@ -15,12 +15,20 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
+import { ScrollProgress } from "@/components/landing/scroll-progress";
+import { InteractiveJourney } from "@/components/landing/interactive-journey";
+import { AlgorithmLab } from "@/components/landing/algorithm-lab";
+import { ImpactCounter } from "@/components/landing/impact-counter";
+import { ScrollReveal } from "@/components/landing/scroll-reveal";
 
 export default function LandingPage() {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen relative selection:bg-[#3563ff]/15">
+      {/* 0. Top Scroll Progress Line & Floating Quick-Jump Capsule */}
+      <ScrollProgress />
+
       {/* 1. HERO SECTION */}
-      <section className="relative overflow-hidden py-16 lg:py-24 max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8">
+      <section id="hero" className="relative overflow-hidden py-16 lg:py-24 max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-12 lg:gap-16 items-center">
           {/* Left Copy */}
           <div className="space-y-6 text-center lg:text-left">
@@ -43,7 +51,7 @@ export default function LandingPage() {
 
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 pt-2">
               <Link href="/auth/sign-up?role=student" className="w-full sm:w-auto">
-                <span className="btn w-full sm:w-auto gap-2 py-3 px-6 text-base">
+                <span className="btn w-full sm:w-auto gap-2 py-3 px-6 text-base shadow-sm hover:shadow-md transition-all">
                   <span>Find your mentor</span>
                   <ArrowRight className="h-4 w-4" />
                 </span>
@@ -150,217 +158,158 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 2. FOUR STEPS SECTION */}
-      <section id="how-it-works" className="py-20 max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-14">
-          <span className="uppercase tracking-widest text-xs font-bold text-[#5369e8] block mb-2">
-            A Better Introduction
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-[#15213b] tracking-tight">
-            From intent to impact, in four clear steps
-          </h2>
-          <p className="mt-3 text-base text-[#66758e]">
-            No endless directory browsing. Every connection starts with a specific goal and mutual respect for time.
-          </p>
-        </div>
+      {/* 2. INTERACTIVE PRODUCT WALKTHROUGH & 4 STEPS */}
+      <section id="walkthrough" className="py-20 max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+        <ScrollReveal>
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <span className="uppercase tracking-widest text-xs font-bold text-[#5369e8] block mb-2">
+              Interactive Product Walkthrough
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#15213b] tracking-tight">
+              From intent to impact, in four clear steps
+            </h2>
+            <p className="mt-3 text-base text-[#66758e]">
+              Click or scroll through the stages below to test drive the live student and alumni journey.
+            </p>
+          </div>
+        </ScrollReveal>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            {
-              num: "01",
-              title: "Set your goal",
-              desc: "Tell us the specific outcome or advice you’re working toward.",
-              icon: Target,
-            },
-            {
-              num: "02",
-              title: "Discover relevant alumni",
-              desc: "See transparent, explainable recommendations scored by SQL.",
-              icon: Search,
-            },
-            {
-              num: "03",
-              title: "Send a purposeful request",
-              desc: "Make a focused ask using your monthly tokens that respects their time.",
-              icon: Inbox,
-            },
-            {
-              num: "04",
-              title: "Track progress together",
-              desc: "Confirm dual fulfillment, unlock mutual ratings, and build trust.",
-              icon: CheckCircle2,
-            },
-          ].map((step) => {
-            const Icon = step.icon;
-            return (
-              <div
-                key={step.num}
-                className="relative p-6 rounded-[20px] bg-white/80 border border-white/90 shadow-[var(--small-shadow)] backdrop-blur-md hover:-translate-y-1 transition-all duration-200"
-              >
-                <span className="absolute right-5 top-4 font-heading font-extrabold text-3xl text-slate-200 select-none">
-                  {step.num}
-                </span>
-                <div className="h-10 w-10 rounded-xl bg-[#edf1ff] text-[#5369e8] flex items-center justify-center mb-6">
-                  <Icon className="h-5 w-5" />
-                </div>
-                <h3 className="font-bold text-base text-[#15213b] mb-1.5">{step.title}</h3>
-                <p className="text-sm text-[#66758e] leading-relaxed">{step.desc}</p>
-              </div>
-            );
-          })}
-        </div>
+        <ScrollReveal delayMs={150}>
+          <InteractiveJourney />
+        </ScrollReveal>
       </section>
 
-      {/* 3. SPLIT AUDIENCE SECTION (STUDENTS VS ALUMNI) */}
-      <section className="py-12 max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
+      {/* 3. ALGORITHM SANDBOX & SIMULATOR */}
+      <section id="algorithm-lab" className="py-20 max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+        <ScrollReveal>
+          <AlgorithmLab />
+        </ScrollReveal>
+      </section>
+
+      {/* 4. SPLIT AUDIENCE SECTION (STUDENTS VS ALUMNI) */}
+      <section id="audiences" className="py-20 max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
+        <ScrollReveal>
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <span className="uppercase tracking-widest text-xs font-bold text-[#5369e8] block mb-2">
+              Designed For Both Sides
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#15213b] tracking-tight">
+              Built for student focus and alumni sustainability
+            </h2>
+            <p className="mt-3 text-base text-[#66758e]">
+              Respecting alumni time is the foundation of getting students real, high-quality answers.
+            </p>
+          </div>
+        </ScrollReveal>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* For Students */}
-          <div className="p-5 sm:p-8 lg:p-10 rounded-[28px] border border-white shadow-[var(--small-shadow)] bg-gradient-to-br from-[#eef3ff] via-[#f7f9ff] to-white relative overflow-hidden">
-            <Badge variant="soft" className="mb-4">For Students (3rd/4th Yr)</Badge>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#15213b] tracking-tight leading-snug mb-3">
-              Less cold outreach.<br />More relevant guidance.
-            </h2>
-            <p className="text-sm text-[#66758e] leading-relaxed mb-6 max-w-md">
-              Use a focused goal to find people whose experience, available time, and active offers match what you need now.
-            </p>
-            <ul className="space-y-3 text-sm font-semibold text-[#15213b]">
-              <li className="flex items-center gap-2.5">
-                <Check className="h-4 w-4 text-[#2d9667] shrink-0" />
-                <span>Explainable recommendations with transparent score factors</span>
-              </li>
-              <li className="flex items-center gap-2.5">
-                <Check className="h-4 w-4 text-[#2d9667] shrink-0" />
-                <span>5 monthly request tokens to prevent burnout and spam</span>
-              </li>
-              <li className="flex items-center gap-2.5">
-                <Check className="h-4 w-4 text-[#2d9667] shrink-0" />
-                <span>Private goal rooms with structured progress milestones</span>
-              </li>
-            </ul>
-            <div className="pt-8">
-              <Link href="/auth/sign-up?role=student">
-                <span className="btn text-sm py-2 px-5">Join as a Student</span>
-              </Link>
+          <ScrollReveal delayMs={100}>
+            <div className="h-full p-5 sm:p-8 lg:p-10 rounded-[28px] border border-white shadow-[var(--small-shadow)] bg-gradient-to-br from-[#eef3ff] via-[#f7f9ff] to-white relative overflow-hidden flex flex-col justify-between">
+              <div>
+                <Badge variant="soft" className="mb-4">For Students (3rd/4th Yr)</Badge>
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-[#15213b] tracking-tight leading-snug mb-3 font-heading">
+                  Less cold outreach.<br />More relevant guidance.
+                </h3>
+                <p className="text-sm text-[#66758e] leading-relaxed mb-6 max-w-md">
+                  Use a focused goal to find people whose experience, available time, and active offers match what you need now.
+                </p>
+                <ul className="space-y-3 text-sm font-semibold text-[#15213b]">
+                  <li className="flex items-center gap-2.5">
+                    <Check className="h-4 w-4 text-[#2d9667] shrink-0" />
+                    <span>Explainable recommendations with transparent score factors</span>
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <Check className="h-4 w-4 text-[#2d9667] shrink-0" />
+                    <span>5 monthly request tokens to prevent burnout and spam</span>
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <Check className="h-4 w-4 text-[#2d9667] shrink-0" />
+                    <span>Private goal rooms with structured progress milestones</span>
+                  </li>
+                </ul>
+              </div>
+              <div className="pt-8">
+                <Link href="/auth/sign-up?role=student">
+                  <span className="btn text-sm py-2.5 px-5">Join as a Student</span>
+                </Link>
+              </div>
             </div>
-          </div>
+          </ScrollReveal>
 
           {/* For Alumni */}
-          <div className="p-5 sm:p-8 lg:p-10 rounded-[28px] border border-white shadow-[var(--small-shadow)] bg-gradient-to-br from-[#eefaf8] via-[#f5fdfb] to-white relative overflow-hidden">
-            <Badge variant="success" className="mb-4">For Alumni &amp; Professionals</Badge>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#15213b] tracking-tight leading-snug mb-3">
-              Share your experience,<br />strictly on your terms.
+          <ScrollReveal delayMs={200}>
+            <div className="h-full p-5 sm:p-8 lg:p-10 rounded-[28px] border border-white shadow-[var(--small-shadow)] bg-gradient-to-br from-[#eefaf8] via-[#f5fdfb] to-white relative overflow-hidden flex flex-col justify-between">
+              <div>
+                <Badge variant="success" className="mb-4">For Alumni &amp; Professionals</Badge>
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-[#15213b] tracking-tight leading-snug mb-3 font-heading">
+                  Share your experience,<br />strictly on your terms.
+                </h3>
+                <p className="text-sm text-[#66758e] leading-relaxed mb-6 max-w-md">
+                  Choose what you help with, cap your monthly review capacity, and see the real-world impact of your mentorship time.
+                </p>
+                <ul className="space-y-3 text-sm font-semibold text-[#15213b]">
+                  <li className="flex items-center gap-2.5">
+                    <Check className="h-4 w-4 text-[#2d9667] shrink-0" />
+                    <span>Strict monthly capacity limits (default 3 reviews/mo)</span>
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <Check className="h-4 w-4 text-[#2d9667] shrink-0" />
+                    <span>Structured incoming asks with expected review duration</span>
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <Check className="h-4 w-4 text-[#2d9667] shrink-0" />
+                    <span>1-click pause or deferral when your schedule gets busy</span>
+                  </li>
+                </ul>
+              </div>
+              <div className="pt-8">
+                <Link href="/auth/sign-up?role=alum">
+                  <span className="btn secondary text-sm py-2.5 px-5">Become an Alumni Mentor</span>
+                </Link>
+              </div>
+            </div>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      {/* 5. LIVE ANIMATED COMMUNITY IMPACT METRICS */}
+      <section id="impact-stats" className="py-20 max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
+        <ScrollReveal>
+          <ImpactCounter />
+        </ScrollReveal>
+      </section>
+
+      {/* 6. CALL TO ACTION BAND */}
+      <section id="cta" className="py-12 max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+        <ScrollReveal>
+          <div className="relative overflow-hidden rounded-[30px] p-10 sm:p-16 text-center text-white bg-gradient-to-r from-[#17254b] via-[#2a3474] to-[#523c91] shadow-[0_24px_60px_rgba(35,48,102,0.25)]">
+            {/* Ambient Glow Orbs */}
+            <div className="absolute -left-16 -top-20 w-64 h-64 rounded-full bg-[#2fc4da]/20 blur-2xl pointer-events-none" />
+            <div className="absolute -right-12 -bottom-20 w-72 h-72 rounded-full bg-[#a96aea]/25 blur-2xl pointer-events-none" />
+
+            <Badge variant="dark" className="mx-auto mb-4">
+              One focused goal. One relevant person.
+            </Badge>
+
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight mb-4 font-heading">
+              Make one good connection today.
             </h2>
-            <p className="text-sm text-[#66758e] leading-relaxed mb-6 max-w-md">
-              Choose what you help with, cap your monthly review capacity, and see the real-world impact of your mentorship time.
+
+            <p className="text-base sm:text-lg text-[#ccd5f0] max-w-xl mx-auto mb-8 leading-relaxed">
+              Build career momentum with guidance that fits where you’re going. No spam, no cold pitch guesswork.
             </p>
-            <ul className="space-y-3 text-sm font-semibold text-[#15213b]">
-              <li className="flex items-center gap-2.5">
-                <Check className="h-4 w-4 text-[#2d9667] shrink-0" />
-                <span>Strict monthly capacity limits (default 3 reviews/mo)</span>
-              </li>
-              <li className="flex items-center gap-2.5">
-                <Check className="h-4 w-4 text-[#2d9667] shrink-0" />
-                <span>Structured incoming asks with expected review duration</span>
-              </li>
-              <li className="flex items-center gap-2.5">
-                <Check className="h-4 w-4 text-[#2d9667] shrink-0" />
-                <span>1-click pause or deferral when your schedule gets busy</span>
-              </li>
-            </ul>
-            <div className="pt-8">
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5">
+              <Link href="/auth/sign-up?role=student">
+                <span className="btn w-full sm:w-auto py-3 px-6 shadow-md">Join as a student</span>
+              </Link>
               <Link href="/auth/sign-up?role=alum">
-                <span className="btn secondary text-sm py-2 px-5">Become an Alumni Mentor</span>
+                <span className="btn light w-full sm:w-auto py-3 px-6 text-[#283a74]">Join as an alumnus</span>
               </Link>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* 4. EXPLAINABLE MATCHING SECTION */}
-      <section id="matching" className="py-20 max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-14">
-          <span className="uppercase tracking-widest text-xs font-bold text-[#5369e8] block mb-2">
-            Matching That Explains Itself
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-[#15213b] tracking-tight">
-            Relevance you can understand
-          </h2>
-          <p className="mt-3 text-base text-[#66758e]">
-            A match score is never a black box. We break down the exact mathematical formula behind each recommendation so you can decide.
-          </p>
-        </div>
-
-        {/* Big Score Card */}
-        <div className="max-w-[850px] mx-auto p-4 sm:p-6 lg:p-8 rounded-[24px] bg-white border border-[var(--line)] shadow-[var(--shadow)]">
-          <div className="grid grid-cols-1 sm:grid-cols-[140px_1fr] gap-6 sm:gap-8 items-center pb-6 border-b border-[var(--line-soft)]">
-            <div className="text-center sm:text-left">
-              <div className="score-big text-5xl font-extrabold text-[#5369e8]">
-                94<span className="text-base font-normal text-[#94a1b5]">/100</span>
-              </div>
-              <span className="text-xs text-[#66758e] block mt-1">Composite Fit Score</span>
-            </div>
-
-            <div className="space-y-3">
-              {[
-                { label: "Domain alignment (D)", weight: "40%", val: 96 },
-                { label: "Help-type fit (H)", weight: "30%", val: 92 },
-                { label: "Review capacity (C)", weight: "20%", val: 88 },
-                { label: "Recent activity (R)", weight: "10%", val: 84 },
-              ].map((factor) => (
-                <div key={factor.label} className="grid grid-cols-[120px_1fr_35px] sm:grid-cols-[160px_1fr_40px] items-center gap-2 sm:gap-3 text-xs">
-                  <span className="text-[#15213b] font-medium truncate">{factor.label}</span>
-                  <div className="h-2 rounded-full bg-[#edf0f5] overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-[#536df0] to-[#7c67e4] rounded-full"
-                      style={{ width: `${factor.val}%` }}
-                    />
-                  </div>
-                  <b className="text-right text-[#15213b]">{factor.val}%</b>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="mt-6 flex items-start gap-3 p-4 bg-[#f3f5ff] rounded-[14px] text-xs text-[#5867c6]">
-            <Sparkles className="h-4 w-4 shrink-0 text-[#5369e8] mt-0.5" />
-            <div>
-              <strong className="text-[#15213b] block mb-0.5">Grounded AI Connection Brief</strong>
-              <p className="text-[#69758d] m-0 leading-relaxed">
-                SyncTies uses OpenAI to synthesize connection rationales grounded strictly in visible profile fields. AI explains the match—it never computes scores, filters candidates, or bypasses business rules.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 5. CALL TO ACTION BAND */}
-      <section className="py-12 max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 mb-16">
-        <div className="relative overflow-hidden rounded-[30px] p-10 sm:p-16 text-center text-white bg-gradient-to-r from-[#17254b] via-[#2a3474] to-[#523c91] shadow-[0_24px_60px_rgba(35,48,102,0.25)]">
-          {/* Ambient Glow Orbs */}
-          <div className="absolute -left-16 -top-20 w-64 h-64 rounded-full bg-[#2fc4da]/20 blur-2xl pointer-events-none" />
-          <div className="absolute -right-12 -bottom-20 w-72 h-72 rounded-full bg-[#a96aea]/25 blur-2xl pointer-events-none" />
-
-          <Badge variant="dark" className="mx-auto mb-4">
-            One focused goal. One relevant person.
-          </Badge>
-
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight mb-4">
-            Make one good connection today.
-          </h2>
-
-          <p className="text-base sm:text-lg text-[#ccd5f0] max-w-xl mx-auto mb-8 leading-relaxed">
-            Build career momentum with guidance that fits where you’re going. No spam, no cold pitch guesswork.
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5">
-            <Link href="/auth/sign-up?role=student">
-              <span className="btn w-full sm:w-auto py-3 px-6">Join as a student</span>
-            </Link>
-            <Link href="/auth/sign-up?role=alum">
-              <span className="btn light w-full sm:w-auto py-3 px-6 text-[#283a74]">Join as an alumnus</span>
-            </Link>
-          </div>
-        </div>
+        </ScrollReveal>
       </section>
     </div>
   );
