@@ -4,6 +4,7 @@ import "./globals.css";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { ConfigBanner } from "@/components/ui/config-banner";
+import { CursorGlow } from "@/components/ui/cursor-glow";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -42,6 +43,7 @@ export default function RootLayout({
       className={`${inter.variable} ${spaceGrotesk.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[#f4f7fc] text-[#15213b] ambient-bg">
+        <CursorGlow />
         <ConfigBanner />
         <Header />
         <main className="flex-1">{children}</main>

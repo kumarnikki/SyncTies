@@ -343,7 +343,7 @@ export function PortalShell({ children }: PortalShellProps) {
         </header>
 
         {/* Page Inner Content */}
-        <main className="content">{children}</main>
+        <main className="content animate-fade-in-up">{children}</main>
       </div>
 
       {/* Mobile Scrim / Backdrop */}
