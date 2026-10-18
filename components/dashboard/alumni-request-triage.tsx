@@ -14,11 +14,15 @@ import {
   ShieldCheck,
   CheckCircle2,
   ExternalLink,
+  Zap,
+  AlertTriangle,
+  EyeOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { ConnectionRequest } from "@/types/database";
+import { getTokenCostForHelpType, getTokenCostMeta, formatTokens } from "@/lib/tokens/costs";
 
 interface AlumniRequestTriageProps {
   initialRequests: ConnectionRequest[];
@@ -40,9 +44,15 @@ export function AlumniRequestTriage({
     setRequests(initialRequests);
   }, [initialRequests]);
 
-  const handleAction = async (requestId: string, action: "accept" | "decline") => {
+  const handleAction = async (requestId: string, action: "accept" | "decline" | "ignore") => {
     setProcessingId(requestId);
-    const note = responseNotes[requestId] || (action === "accept" ? "Accepted! Looking forward to working together." : "Thank you for reaching out; currently at capacity for this domain.");
+    const note =
+      responseNotes[requestId] ||
+      (action === "accept"
+        ? "Accepted! Looking forward to working together."
+        : action === "ignore"
+        ? "Repeat request marked as ignored."
+        : "Thank you for reaching out; currently at capacity for this domain.");
 
     try {
       const res = await fetch(`/api/connection-requests/${requestId}`, {
@@ -60,7 +70,12 @@ export function AlumniRequestTriage({
             r.id === requestId
               ? {
                   ...r,
-                  status: action === "accept" ? "accepted" : "declined",
+                  status:
+                    action === "accept"
+                      ? "accepted"
+                      : action === "ignore"
+                      ? "ignored"
+                      : "declined",
                   alumni_response_note: note,
                 }
               : r
@@ -69,6 +84,8 @@ export function AlumniRequestTriage({
         setSuccessMsg(
           action === "accept"
             ? "Request accepted! Collaboration room is now active."
+            : action === "ignore"
+            ? "Repeat request ignored. Decision recorded and communicated to student."
             : "Request declined. Student token refunded to their balance."
         );
         if (onActionComplete) onActionComplete();
@@ -112,7 +129,7 @@ export function AlumniRequestTriage({
             Incoming Mentorship Requests
           </h3>
           <p className="text-xs text-[#66758e]">
-            Review student goals that verified high domain overlap and reserved 1 token.
+            Review student goals that verified high domain overlap and reserved required tokens in escrow.
           </p>
         </div>
 
@@ -181,11 +198,22 @@ export function AlumniRequestTriage({
             const studentName = req.student?.full_name || "Nikki Kumar";
             const isPending = req.status === "pending";
             const isAccepted = req.status === "accepted";
+            const isIgnored = req.status === "ignored";
+            const isDeclined = req.status === "declined";
+            const isRepeat = !!req.repeat_contact_in_month;
+
+            const categoryHint = (req as any).offer?.category || req.intent?.title || "Mentoring";
+            const tokenCost = req.token_cost ?? getTokenCostForHelpType(categoryHint);
+            const costMeta = getTokenCostMeta(categoryHint);
 
             return (
               <div
                 key={req.id}
-                className="pt-3 first:pt-0 space-y-3 p-3 rounded-xl hover:bg-[#fafbfe] transition-colors"
+                className={`pt-3 first:pt-0 space-y-3 p-3.5 rounded-xl transition-colors ${
+                  isRepeat && isPending
+                    ? "bg-gradient-to-r from-amber-50/60 to-orange-50/40 border border-amber-200/80"
+                    : "hover:bg-[#fafbfe]"
+                }`}
               >
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                   <div className="flex items-start gap-3">
@@ -199,9 +227,15 @@ export function AlumniRequestTriage({
                         <span className="badge success text-[10px] py-0 px-1.5 font-semibold text-emerald-800 bg-emerald-50">
                           94% Match Fit
                         </span>
+                        {/* Token Escrow Badge */}
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#2557e8] bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
+                          <Zap className="h-2.5 w-2.5 text-amber-500 fill-amber-500" />
+                          <span>{formatTokens(tokenCost)} Token Escrow</span>
+                        </span>
                       </div>
-                      <p className="text-xs font-semibold text-[#3563ff] mt-0.5">
-                        Target Goal: {req.intent?.title || "APM Mock Interview & Product Sense"}
+                      <p className="text-xs font-semibold text-[#3563ff] mt-0.5 flex items-center gap-1.5">
+                        <span>Target Goal: {req.intent?.title || "APM Mock Interview & Product Sense"}</span>
+                        <span className="text-[10px] font-medium text-slate-500">({costMeta.category})</span>
                       </p>
                       <p className="text-xs text-[#475569] mt-1.5 leading-relaxed bg-[#f8faff] p-2.5 rounded-lg border border-[#edf2fd] italic">
                         &ldquo;{req.student_message}&rdquo;
@@ -223,8 +257,42 @@ export function AlumniRequestTriage({
                         <span>Accepted · Active Room</span>
                       </span>
                     )}
+                    {isIgnored && (
+                      <span className="text-[11px] text-slate-600 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-full font-semibold flex items-center gap-1">
+                        <EyeOff className="h-3 w-3" />
+                        <span>Ignored Repeat</span>
+                      </span>
+                    )}
+                    {isDeclined && (
+                      <span className="text-[11px] text-rose-700 bg-rose-50 border border-rose-200 px-2.5 py-1 rounded-full font-semibold flex items-center gap-1">
+                        <X className="h-3 w-3" />
+                        <span>Declined (Refunded)</span>
+                      </span>
+                    )}
                   </div>
                 </div>
+
+                {/* Repeat Contact Notification Callout if applicable */}
+                {isRepeat && isPending && (
+                  <div className="p-2.5 rounded-xl bg-amber-100/70 border border-amber-300 text-amber-950 text-xs space-y-1">
+                    <div className="flex items-center gap-1.5 font-bold">
+                      <AlertTriangle className="h-3.5 w-3.5 text-amber-700 shrink-0" />
+                      <span>Repeat Contact Priority Signal</span>
+                      <span className="ml-auto text-[10px] font-bold bg-amber-200 text-amber-900 px-2 py-0.5 rounded-full">
+                        {formatTokens(tokenCost)} Tokens Paid
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-amber-900/90 leading-relaxed">
+                      This student has spent an additional monthly token to re-connect with you. You know they prioritized this interaction. You can either <b>Review &amp; Accept</b> or <b>Ignore</b> (which communicates the ignored decision to the student).
+                    </p>
+                    {/* Display follow-up rationale if provided */}
+                    {(req.repeat_reason || req.repeat_contact_rationale) && (
+                      <div className="text-[11px] bg-white/90 p-2 rounded-lg border border-amber-200 text-slate-800 font-medium italic">
+                        Follow-up rationale: &ldquo;{req.repeat_reason || req.repeat_contact_rationale}&rdquo;
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Mentor Action Bar if Pending */}
                 {isPending && (
@@ -240,7 +308,7 @@ export function AlumniRequestTriage({
                         className="w-full text-xs px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#3563ff]"
                       />
                     </div>
-                    <div className="flex items-center gap-2 shrink-0">
+                    <div className="flex items-center gap-2 shrink-0 flex-wrap">
                       <Button
                         size="sm"
                         variant="primary"
@@ -249,8 +317,22 @@ export function AlumniRequestTriage({
                         className="text-xs h-8 px-3 gap-1 bg-emerald-600 hover:bg-emerald-700 font-semibold"
                       >
                         <Check className="h-3 w-3" />
-                        <span>Accept &amp; Open Room</span>
+                        <span>{isRepeat ? "Review & Accept" : "Accept & Open Room"}</span>
                       </Button>
+
+                      {isRepeat && (
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => handleAction(req.id, "ignore")}
+                          isLoading={processingId === req.id}
+                          className="text-xs h-8 px-2.5 text-amber-800 bg-amber-100 hover:bg-amber-200 border-amber-300 font-semibold"
+                        >
+                          <EyeOff className="h-3 w-3" />
+                          <span>Ignore Repeat</span>
+                        </Button>
+                      )}
+
                       <Button
                         size="sm"
                         variant="outline"
@@ -259,7 +341,7 @@ export function AlumniRequestTriage({
                         className="text-xs h-8 px-2.5 text-slate-600 hover:text-rose-600 hover:border-rose-200"
                       >
                         <X className="h-3 w-3" />
-                        <span>Decline</span>
+                        <span>Decline ({formatTokens(tokenCost)} refunded)</span>
                       </Button>
                     </div>
                   </div>
@@ -287,3 +369,4 @@ export function AlumniRequestTriage({
     </div>
   );
 }
+

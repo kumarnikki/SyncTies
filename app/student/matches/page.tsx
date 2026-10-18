@@ -15,6 +15,7 @@ import {
   Shield,
   Lock,
   CheckCircle2,
+  Star,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +24,12 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Avatar } from "@/components/ui/avatar";
 import { PortalShell } from "@/components/layout/portal-shell";
 import { MatchResult, TokenSummary } from "@/types/database";
+import {
+  getTokenCostForHelpType,
+  getTokenCostMeta,
+  formatTokens,
+  calculateAffordability,
+} from "@/lib/tokens/costs";
 
 function MatchesContent() {
   const router = useRouter();
@@ -75,6 +82,10 @@ function MatchesContent() {
   const handleSendRequest = async () => {
     if (!selectedMatch || !intentId) return;
 
+    const tokenCost = getTokenCostForHelpType(
+      selectedMatch.offer_title || intent?.help_type?.name
+    );
+
     setRequestLoading(true);
     setRequestError(null);
 
@@ -97,16 +108,20 @@ function MatchesContent() {
         throw new Error(data.error || "Failed to submit connection request");
       }
 
-      // Update tokens count locally
+      // Update tokens count locally with fractional precision
       if (tokens) {
         setTokens({
           ...tokens,
-          tokens_spent: tokens.tokens_spent + 1,
-          tokens_remaining: Math.max(0, tokens.tokens_remaining - 1),
+          tokens_spent: Number((tokens.tokens_spent + tokenCost).toFixed(2)),
+          tokens_remaining: Number(Math.max(0, tokens.tokens_remaining - tokenCost).toFixed(2)),
         });
       }
 
-      setRequestSuccess("Connection request sent successfully! 1 token debited.");
+      setRequestSuccess(
+        `Connection request sent successfully! ${formatTokens(tokenCost)} token${
+          tokenCost === 1 ? "" : "s"
+        } debited in escrow.`
+      );
       setTimeout(() => {
         setSelectedMatch(null);
         router.push("/student/requests");
@@ -160,9 +175,9 @@ function MatchesContent() {
           <div>
             <div className="text-[11px] text-[#8896ab] font-medium">Monthly Token Balance</div>
             <div className="text-base font-extrabold text-[#15213b] leading-tight font-heading">
-              {tokens?.tokens_remaining ?? 4}{" "}
+              {formatTokens(tokens?.tokens_remaining ?? 4)}{" "}
               <span className="text-xs font-normal text-[#8896ab]">
-                / {tokens?.tokens_granted ?? 5} remaining
+                / {formatTokens(tokens?.tokens_granted ?? 5)} remaining
               </span>
             </div>
           </div>
@@ -222,6 +237,10 @@ function MatchesContent() {
             const tones = ["violet", "cyan", "coral", "blue"] as const;
             const tone = tones[idx % tones.length];
 
+            const tokenCost = getTokenCostForHelpType(m.offer_title || intent?.help_type?.name);
+            const costMeta = getTokenCostMeta(m.offer_title || intent?.help_type?.name);
+            const affordCount = calculateAffordability(tokens?.tokens_remaining ?? 4, tokenCost);
+
             return (
               <article key={m.alum_id} className="match-card">
                 {/* Card Top Row: Person Info on Left, Score Orb on Right */}
@@ -241,6 +260,14 @@ function MatchesContent() {
                       <span className="text-[11px] text-[#8896ab]">
                         Class of {m.graduation_year || 2023}
                       </span>
+                      {/* Star Rating Badge */}
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200/80 px-1.5 py-0.5 rounded">
+                          <Star className="h-3 w-3 fill-amber-400 text-amber-500" />
+                          <span>5.0 ★</span>
+                        </span>
+                        <span className="text-[10px] text-slate-500 font-semibold">5-Star Master Mentor</span>
+                      </div>
                     </div>
                   </div>
 
@@ -255,13 +282,18 @@ function MatchesContent() {
                   </div>
                 </div>
 
-                {/* Offer & Domain Tags */}
-                <div className="tags">
+                {/* Offer, Token Cost & Domain Tags */}
+                <div className="tags flex flex-wrap gap-1.5">
                   <Badge tone="soft">{m.offer_title}</Badge>
+                  {/* Differentiated Token Escrow Pill */}
+                  <span className="badge soft text-[10px] py-0.5 px-2 font-bold inline-flex items-center gap-1 text-[#2557e8] bg-blue-50 border border-blue-200">
+                    <Zap className="h-2.5 w-2.5 text-amber-500 fill-amber-500" />
+                    <span>{formatTokens(tokenCost)} Tokens ({costMeta.category})</span>
+                  </span>
                   {m.industry && <Badge>{m.industry}</Badge>}
                   {m.is_repeat_contact && (
                     <span className="text-[10px] bg-amber-50 text-amber-800 border border-amber-200 px-1.5 py-0.5 rounded font-medium flex items-center gap-1">
-                      <AlertTriangle className="h-3 w-3" /> Repeat
+                      <AlertTriangle className="h-3 w-3" /> Repeat Contact
                     </span>
                   )}
                 </div>
@@ -273,6 +305,14 @@ function MatchesContent() {
                     {m.remaining_capacity > 0
                       ? `${m.remaining_capacity} of ${m.monthly_limit} reviews open this month`
                       : "Monthly capacity reached"}
+                  </span>
+                </div>
+
+                {/* Affordability Footnote */}
+                <div className="flex items-center justify-between text-[11px] text-slate-500 px-0.5 pt-1">
+                  <span>Token Escrow: <b className="text-slate-800">{formatTokens(tokenCost)} {tokenCost === 1 ? "Token" : "Tokens"}</b></span>
+                  <span className="text-slate-600 font-medium">
+                    {affordCount > 0 ? `Afford ${affordCount}x with balance` : "Low balance"}
                   </span>
                 </div>
 
@@ -290,7 +330,7 @@ function MatchesContent() {
                     type="button"
                     variant="primary"
                     onClick={() => handleOpenRequestModal(m)}
-                    disabled={m.remaining_capacity <= 0}
+                    disabled={m.remaining_capacity <= 0 || (tokens?.tokens_remaining ?? 0) < tokenCost}
                     className="text-xs h-9 min-h-0 w-full"
                   >
                     Request introduction
@@ -466,7 +506,9 @@ function MatchesContent() {
               Request a connection with {selectedMatch.full_name}?
             </h2>
             <p className="text-xs text-[#66758e]">
-              Sending a request shares your goal and personal note. Each request debits 1 monthly token.
+              Sending a request shares your goal and personal note. This category debits {formatTokens(
+                getTokenCostForHelpType(selectedMatch.offer_title || intent?.help_type?.name)
+              )} token in escrow.
             </p>
 
             {requestError && (
@@ -486,23 +528,41 @@ function MatchesContent() {
             )}
 
             {/* Token Cost Card */}
-            <div className="cost">
-              <Zap className="h-5 w-5 text-[#536df0] shrink-0" />
-              <div>
-                <b className="text-sm text-[#15213b]">1 monthly token required</b>
-                <small>You will have {(tokens?.tokens_remaining ?? 4) - 1} of {tokens?.tokens_granted ?? 5} remaining</small>
-              </div>
-            </div>
+            {(() => {
+              const modalCost = getTokenCostForHelpType(
+                selectedMatch.offer_title || intent?.help_type?.name
+              );
+              const costMeta = getTokenCostMeta(
+                selectedMatch.offer_title || intent?.help_type?.name
+              );
+              return (
+                <div className="cost">
+                  <Zap className="h-5 w-5 text-[#536df0] shrink-0" />
+                  <div>
+                    <b className="text-sm text-[#15213b]">
+                      {formatTokens(modalCost)} monthly token{modalCost === 1 ? "" : "s"} required ({costMeta.category})
+                    </b>
+                    <small>
+                      You will have {formatTokens(
+                        Math.max(0, (tokens?.tokens_remaining ?? 4) - modalCost)
+                      )} of {formatTokens(tokens?.tokens_granted ?? 5)} remaining
+                    </small>
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Repeat Contact Warning */}
             {selectedMatch.is_repeat_contact && (
               <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 space-y-2 mb-3">
                 <div className="font-semibold flex items-center gap-1.5">
                   <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
-                  <span>Repeat Contact Safeguard</span>
+                  <span>Repeat Contact Priority Safeguard</span>
                 </div>
                 <p className="text-[11px] leading-relaxed">
-                  You previously requested an introduction with {selectedMatch.full_name} earlier this month. Please provide a clear follow-up rationale to proceed.
+                  You previously requested an introduction with {selectedMatch.full_name} earlier this month. Submitting another request dedicates an additional {formatTokens(
+                    getTokenCostForHelpType(selectedMatch.offer_title || intent?.help_type?.name)
+                  )} tokens, prioritizing your ask in their review queue. The alumnus will have the choice to Review or Ignore.
                 </p>
                 <div className="field">
                   <label htmlFor="repeatReason">Reason for repeat request</label>
@@ -544,11 +604,21 @@ function MatchesContent() {
                 onClick={handleSendRequest}
                 isLoading={requestLoading}
                 disabled={
+                  (tokens?.tokens_remaining ?? 0) <
+                    getTokenCostForHelpType(
+                      selectedMatch.offer_title || intent?.help_type?.name
+                    ) ||
                   studentMessage.trim().length < 15 ||
                   (selectedMatch.is_repeat_contact && repeatReason.trim().length < 5)
                 }
               >
-                <span>Send request</span>
+                <span>
+                  Send request ({formatTokens(
+                    getTokenCostForHelpType(
+                      selectedMatch.offer_title || intent?.help_type?.name
+                    )
+                  )} tokens)
+                </span>
                 <ArrowRight className="h-4 w-4 ml-1" />
               </Button>
             </div>

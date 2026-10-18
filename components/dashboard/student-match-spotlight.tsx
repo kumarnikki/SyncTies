@@ -13,11 +13,19 @@ import {
   Send,
   ExternalLink,
   Info,
+  Star,
+  Zap,
 } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Intent } from "@/types/database";
+import {
+  getTokenCostForHelpType,
+  getTokenCostMeta,
+  formatTokens,
+  calculateAffordability,
+} from "@/lib/tokens/costs";
 
 export interface SpotlightMentor {
   id: string;
@@ -32,6 +40,9 @@ export interface SpotlightMentor {
   domains: string[];
   helpType: string;
   gradYear: number;
+  starRating: number;
+  starLevelTitle: string;
+  badges: string[];
   factors: {
     domainScore: number;
     helpTypeScore: number;
@@ -55,6 +66,9 @@ const SPOTLIGHT_MENTORS: SpotlightMentor[] = [
     domains: ["Product Management", "FinTech & Payments", "Computer Science"],
     helpType: "Mock Interview & Feedback",
     gradYear: 2023,
+    starRating: 5.0,
+    starLevelTitle: "5-Star Master Mentor",
+    badges: ["Superstar Referrer", "Lightning Star (< 18h)"],
     factors: {
       domainScore: 100,
       helpTypeScore: 95,
@@ -77,6 +91,9 @@ const SPOTLIGHT_MENTORS: SpotlightMentor[] = [
     domains: ["Web Development", "Computer Science", "Developer Tools"],
     helpType: "Resume & CV Review",
     gradYear: 2024,
+    starRating: 5.0,
+    starLevelTitle: "5-Star Master Mentor",
+    badges: ["Perfection Star", "Verified Star"],
     factors: {
       domainScore: 95,
       helpTypeScore: 92,
@@ -99,6 +116,9 @@ const SPOTLIGHT_MENTORS: SpotlightMentor[] = [
     domains: ["AI & Machine Learning", "Computer Science", "Research"],
     helpType: "Capstone & Project Mentorship",
     gradYear: 2022,
+    starRating: 4.9,
+    starLevelTitle: "4-Star Distinguished Mentor",
+    badges: ["Diamond Star", "Research Guide"],
     factors: {
       domainScore: 90,
       helpTypeScore: 88,
@@ -138,6 +158,9 @@ export function StudentMatchSpotlight({
     );
   };
 
+  const modalCost = requestModalMentor ? getTokenCostForHelpType(requestModalMentor.helpType) : 0.5;
+  const modalMeta = requestModalMentor ? getTokenCostMeta(requestModalMentor.helpType) : null;
+
   const handleSendRequest = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!requestModalMentor) return;
@@ -157,9 +180,8 @@ export function StudentMatchSpotlight({
 
       if (res.ok) {
         setSuccessNotice(
-          `Request sent to ${requestModalMentor.name}! 1 token reserved. You have ${Math.max(
-            0,
-            tokensRemaining - 1
+          `Request sent to ${requestModalMentor.name}! ${formatTokens(modalCost)} tokens reserved in escrow. You have ${formatTokens(
+            Math.max(0, tokensRemaining - modalCost)
           )} tokens left.`
         );
         setRequestModalMentor(null);
@@ -231,6 +253,10 @@ export function StudentMatchSpotlight({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {SPOTLIGHT_MENTORS.map((mentor) => {
           const isExpanded = expandedId === mentor.id;
+          const tokenCost = getTokenCostForHelpType(mentor.helpType);
+          const costMeta = getTokenCostMeta(mentor.helpType);
+          const affordability = calculateAffordability(tokensRemaining, tokenCost);
+
           return (
             <div
               key={mentor.id}
@@ -238,7 +264,7 @@ export function StudentMatchSpotlight({
             >
               <div>
                 {/* Header: Avatar, Name, Score Orb */}
-                <div className="flex items-start justify-between gap-2.5 mb-3">
+                <div className="flex items-start justify-between gap-2.5 mb-2.5">
                   <div className="flex items-center gap-2.5 min-w-0">
                     <Avatar initials={mentor.initials} tone={mentor.avatarTone} size="md" />
                     <div className="min-w-0 leading-tight">
@@ -259,6 +285,17 @@ export function StudentMatchSpotlight({
                     <span className="text-xs font-extrabold">{mentor.matchScore}</span>
                     <small className="text-[6.5px]">fit</small>
                   </div>
+                </div>
+
+                {/* Star Rating Banner */}
+                <div className="flex items-center gap-1.5 mb-2.5 bg-amber-50/70 border border-amber-200/70 rounded-lg px-2 py-1 text-[10.5px]">
+                  <span className="inline-flex items-center gap-0.5 font-bold text-amber-700">
+                    <Star className="h-3 w-3 fill-amber-400 text-amber-500" />
+                    <span>{mentor.starRating.toFixed(1)} ★</span>
+                  </span>
+                  <span className="text-slate-700 font-semibold truncate">
+                    {mentor.starLevelTitle}
+                  </span>
                 </div>
 
                 {/* Offer & Capacity Pills */}
@@ -332,19 +369,26 @@ export function StudentMatchSpotlight({
                 )}
               </div>
 
-              {/* Action Button */}
-              <div className="pt-2 border-t border-slate-100 mt-auto flex items-center justify-between gap-2">
-                <span className="text-[10.5px] text-slate-600 font-medium">
-                  Cost: <b>1 Token</b>
-                </span>
+              {/* Action Button & Token Cost */}
+              <div className="pt-2.5 border-t border-slate-100 mt-auto flex items-center justify-between gap-2">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1 text-[11px] text-[#15213b] font-bold">
+                    <Zap className="h-3 w-3 text-amber-500 fill-amber-500 shrink-0" />
+                    <span>{formatTokens(tokenCost)} {tokenCost === 1 ? "Token" : "Tokens"}</span>
+                  </div>
+                  <span className="text-[10px] text-slate-500 block truncate">
+                    {affordability > 0 ? `Can request ${affordability}x` : "Low balance"}
+                  </span>
+                </div>
                 <Button
                   variant="primary"
                   size="sm"
                   onClick={() => handleOpenRequest(mentor)}
-                  className="text-xs h-8 px-3 gap-1.5 shadow-xs font-semibold"
+                  disabled={tokensRemaining < tokenCost}
+                  className="text-xs h-8 px-3 gap-1.5 shadow-xs font-semibold shrink-0"
                 >
                   <Send className="h-3 w-3" />
-                  <span>Request Mentorship</span>
+                  <span>Request</span>
                 </Button>
               </div>
             </div>
@@ -398,10 +442,16 @@ export function StudentMatchSpotlight({
 
               <div className="p-3 rounded-xl bg-amber-50/70 border border-amber-200 text-amber-900 text-xs space-y-1">
                 <div className="flex items-center gap-1.5 font-bold">
-                  <span>⚡ 1 Token Escrow Safeguard</span>
+                  <Zap className="h-3.5 w-3.5 text-amber-600 fill-amber-500" />
+                  <span>{formatTokens(modalCost)} Token Escrow Safeguard</span>
+                  {modalMeta && (
+                    <span className="ml-auto text-[10px] bg-amber-200/80 text-amber-900 px-2 py-0.5 rounded-full font-bold">
+                      {modalMeta.category}
+                    </span>
+                  )}
                 </div>
                 <p className="text-[11px] leading-relaxed text-amber-800">
-                  This request reserves 1 of your {tokensRemaining} tokens. If {requestModalMentor.name.split(" ")[0]} does not respond within 14 days, the token automatically refunds back to your balance.
+                  This request reserves {formatTokens(modalCost)} of your {formatTokens(tokensRemaining)} tokens. If {requestModalMentor.name.split(" ")[0]} does not respond within 14 days, the {formatTokens(modalCost)} tokens automatically refund back to your balance.
                 </p>
               </div>
 
@@ -419,10 +469,11 @@ export function StudentMatchSpotlight({
                   variant="primary"
                   size="sm"
                   isLoading={isSending}
+                  disabled={tokensRemaining < modalCost}
                   className="gap-1.5"
                 >
                   <Send className="h-3.5 w-3.5" />
-                  <span>Send Request (Use 1 Token)</span>
+                  <span>Send Request (Use {formatTokens(modalCost)} {modalCost === 1 ? "Token" : "Tokens"})</span>
                 </Button>
               </div>
             </form>
@@ -432,3 +483,4 @@ export function StudentMatchSpotlight({
     </div>
   );
 }
+

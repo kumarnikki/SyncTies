@@ -16,7 +16,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getMentorTier, getMentorBadges } from "@/lib/mentors/tiers";
+import { getMentorTier, getMentorBadges, getAlumniStarLevel } from "@/lib/mentors/tiers";
 
 interface MentorImpactCardProps {
   distinctMentees?: number;
@@ -37,6 +37,14 @@ export function MentorImpactCard({
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
   const tier = getMentorTier(distinctMentees);
+  const starLevel = getAlumniStarLevel({
+    distinctMentees,
+    completedGoals: 1,
+    avgRating: 5.0,
+    reviewCount: 1,
+    responseTimeHours: 14,
+  });
+
   const badges = getMentorBadges({
     distinctMentees,
     completedGoals: 1,
@@ -72,6 +80,52 @@ export function MentorImpactCard({
 
   return (
     <div className="panel p-5 bg-gradient-to-br from-white to-[#fafbfe] border border-[#dce5fb] rounded-2xl shadow-xs space-y-5">
+      {/* 5-Star Mentor Hall of Fame Banner */}
+      <div className="p-4 rounded-xl bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-transparent border border-amber-300/60 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-amber-100 border border-amber-300 flex items-center justify-center shrink-0 shadow-xs">
+            <Star className="h-5 w-5 fill-amber-500 text-amber-600" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-sm font-extrabold text-[#15213b] font-heading">
+                {starLevel.title}
+              </span>
+              <span className="text-xs font-bold text-amber-600 tracking-wider">
+                {starLevel.starsText}
+              </span>
+              <span className="text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300 px-2 py-0.5 rounded-full">
+                {starLevel.badgeLabel}
+              </span>
+            </div>
+            <p className="text-xs text-slate-600 mt-0.5">
+              Ranked in top 1% of alumni mentors with verified high-intent responsiveness &amp; 100% completion rate.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1.5 self-start sm:self-auto shrink-0">
+          <span className="text-xs font-extrabold text-[#15213b] bg-white border border-amber-200 px-2.5 py-1 rounded-lg shadow-2xs">
+            {starLevel.rating.toFixed(1)} ★ Unanimous
+          </span>
+        </div>
+      </div>
+
+      {/* Active Star Perks Pill Bar */}
+      <div className="p-3 bg-amber-50/50 rounded-xl border border-amber-200/50 text-[11px] text-amber-900 space-y-1">
+        <div className="font-bold flex items-center gap-1.5 text-amber-950">
+          <Sparkles className="h-3 w-3 text-amber-600" />
+          <span>Active Star Perks:</span>
+        </div>
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-slate-700">
+          {starLevel.perks.map((p, i) => (
+            <span key={i} className="flex items-center gap-1 font-medium">
+              <Check className="h-3 w-3 text-emerald-600" />
+              <span>{p}</span>
+            </span>
+          ))}
+        </div>
+      </div>
       {/* Top Banner: Availability Switch & Quick Capacity */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-white border border-[#e2e8f0] shadow-2xs">
         <div className="flex items-center gap-3">
@@ -218,9 +272,11 @@ export function MentorImpactCard({
                 {b.icon === "shield" ? (
                   <ShieldCheck className="h-3.5 w-3.5 text-[#3563ff]" />
                 ) : b.icon === "star" ? (
-                  <Star className="h-3.5 w-3.5 text-amber-500" />
+                  <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-400" />
                 ) : b.icon === "clock" ? (
                   <Clock className="h-3.5 w-3.5 text-sky-500" />
+                ) : b.icon === "sparkles" ? (
+                  <Sparkles className="h-3.5 w-3.5 text-purple-600" />
                 ) : (
                   <Check className="h-3.5 w-3.5 text-emerald-600" />
                 )}

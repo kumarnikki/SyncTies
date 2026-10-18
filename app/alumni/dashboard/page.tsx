@@ -26,7 +26,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
 import { ConnectionRequest, CapacitySummary } from "@/types/database";
-import { getMentorTier, getMentorBadges } from "@/lib/mentors/tiers";
+import { getMentorTier, getMentorBadges, getAlumniStarLevel } from "@/lib/mentors/tiers";
 import { AlumniRequestTriage } from "@/components/dashboard/alumni-request-triage";
 import { MentorImpactCard } from "@/components/dashboard/mentor-impact-card";
 
@@ -69,6 +69,13 @@ export default function AlumniDashboardPage() {
 
   const distinctMentees = Math.max(2, new Set(requests.filter((r) => r.status === "accepted").map((r) => r.student_id)).size);
   const tier = getMentorTier(distinctMentees);
+  const starLevel = getAlumniStarLevel({
+    distinctMentees,
+    completedGoals: fulfilledCount,
+    avgRating: 5.0,
+    reviewCount: 1,
+    responseTimeHours: 14,
+  });
   const monthlyLimit = capacity?.monthly_limit || 5;
   const utilizedSlots = capacity ? capacity.reserved_count + capacity.processed_count : 2;
 
@@ -87,6 +94,10 @@ export default function AlumniDashboardPage() {
                 <Sparkles className="h-3 w-3 text-cyan-300" />
                 <span>Mentor Command Center</span>
               </span>
+              <span className="text-[11px] font-bold text-amber-200 bg-amber-950/60 border border-amber-600/40 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                <span>{starLevel.title}</span>
+              </span>
               <span className="text-[11px] font-bold text-cyan-200 bg-cyan-950/60 border border-cyan-800/50 px-2.5 py-0.5 rounded-full">
                 {tier.label} · Tier {tier.tierNumber}
               </span>
@@ -100,7 +111,7 @@ export default function AlumniDashboardPage() {
               Welcome back, {firstName}!
             </h1>
             <p className="text-xs sm:text-sm text-[#b9c6e6] mt-1.5 max-w-xl leading-relaxed">
-              Your monthly review capacity protects your calendar. Every student reaching out has proven high domain overlap and reserved 1 token.
+              Your monthly review capacity protects your calendar. Every student reaching out has proven high domain overlap and reserved required tokens in escrow.
             </p>
           </div>
 

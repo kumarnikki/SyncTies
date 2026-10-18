@@ -66,6 +66,7 @@ export interface Intent {
   status: IntentStatus;
   target_role?: string;
   target_company?: string;
+  category?: string;
   created_at: string;
   updated_at: string;
   closed_at?: string;
@@ -84,6 +85,7 @@ export interface Offer {
   opportunity_title?: string;
   opportunity_company?: string;
   opportunity_link?: string;
+  category?: string;
   created_at: string;
   updated_at: string;
   domains?: Domain[];
@@ -134,8 +136,10 @@ export interface ConnectionRequest {
   student_message: string;
   repeat_contact_in_month: boolean;
   repeat_reason?: string;
+  repeat_contact_rationale?: string;
   alumni_response_note?: string;
   idempotency_key?: string;
+  token_cost?: number;
   expires_at: string;
   responded_at?: string;
   created_at: string;

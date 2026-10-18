@@ -2,7 +2,7 @@
 
 [![Next.js 16](https://img.shields.io/badge/Next.js-16.4.2-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?logo=typescript)](https://www.typescriptlang.org/)
-[![Vitest](https://img.shields.io/badge/Vitest-90%2F90%20Passing-emerald?logo=vitest)](https://vitest.dev/)
+[![Vitest](https://img.shields.io/badge/Vitest-101%2F101%20Passing-emerald?logo=vitest)](https://vitest.dev/)
 [![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_CSS-v4-38bdf8?logo=tailwindcss)](https://tailwindcss.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-336791?logo=postgresql)](https://supabase.com/)
 [![Production Live](https://img.shields.io/badge/Status-Live_on_Vercel-success)](https://syncties.vercel.app)
@@ -18,16 +18,71 @@
 SyncTies is an outcome-driven, AI-assisted alumni networking platform designed to connect **3rd and 4th-year university students** with recent **working alumni** (classes of 2022–2026).
 
 Traditional directories (like LinkedIn or static alumni lists) fail because they treat networking as an open-ended directory:
-- ❌ Students blast identical cold emails with low response rates (&lt; 5%).
+- ❌ Students blast identical cold emails with low response rates (< 5%).
 - ❌ Working alumni get overwhelmed by unfocused, unsolicited messages and quickly churn.
 - ❌ There is zero visibility into whether introductions ever led to real career outcomes.
 
 **SyncTies fixes this through intent-first, capacity-protected, explainable architecture:**
 1. **Intent-First:** Every connection request requires a specific, time-bounded career milestone.
 2. **Deterministic Matching:** Candidates are ranked via PostgreSQL mathematics ($0.40D + 0.30H + 0.20C + 0.10R$). No black-box AI ranking.
-3. **Anti-Spam Token Escrow:** Students receive 5 tokens/month. 1 request = 1 token. Unreviewed requests auto-refund after 14 days.
-4. **Capacity Controls:** Alumni set strict monthly review caps (default 3–5) and can pause incoming requests with 1 click.
-5. **Dual Mutual Outcome Confirmation:** Collaborative rooms reach completion only when **both** student and mentor confirm the milestone.
+3. **Differentiated Token Escrow:** Anti-spam monthly token budget with cost differentiated by commitment level (0.25 to 1.0 tokens).
+4. **Repeat Contact Signal & Triage:** High-intent repeat contacts allow alumni to either **Review & Accept** or **Ignore**.
+5. **Alumni Star Badge System:** Multi-dimensional rating and credential verification (⭐ 1-Star to ⭐⭐⭐⭐⭐ 5-Star Master Mentor / Hall of Fame).
+6. **Capacity Controls:** Alumni set strict monthly review caps (default 3–5) and can pause incoming requests with 1 click.
+7. **Dual Mutual Outcome Confirmation:** Collaborative rooms reach completion only when **both** student and mentor confirm the milestone.
+
+---
+
+## 🪙 Differentiated Token System & Escrow Safeguard
+
+SyncTies prevents unsolicited spam while encouraging lightweight career interactions by assigning **variable token costs** corresponding to the mentor time commitment required:
+
+| Mentorship Category | Token Cost | Student Time / Ask | Mentor Commitment Level |
+|---|---|---|---|
+| **Employee Referral** | **1.0 Token** | Formal internal job referral application & dossier review | Highest commitment & internal reputation stake |
+| **Mock Interview & Feedback** | **0.5 Token** | 30–45 min technical or behavioral drill with actionable notes | Substantial focused review & simulation |
+| **Resume & CV Review** | **0.5 Token** | Line-by-line CV / resume review with written markup | Deep diagnostic review of student positioning |
+| **Field / Career Guidance** | **0.25 Token** | Career transition roadmap Q&A & industry navigation | Lightest ask; encourages exploratory conversations |
+| **Higher Education Guidance** | **0.75 Token** | Graduate / Master / PhD admissions & SOP consultation | High technical rigor & essay strategy |
+| **Portfolio / Project Guidance** | **0.75 Token** | Technical architecture review for capstones or codebases | Deep dive into technical artifacts |
+
+### 🔒 Escrow & Auto-Refund Rules
+- **Automatic 14-Day Timeout:** If a mentor does not respond within 14 calendar days, reserved tokens automatically return to the student's monthly balance.
+- **Decline & Withdrawal Refunds:** Declining or voluntarily withdrawing an unanswered request immediately refunds the escrowed tokens.
+- **Affordability Indicators:** Every student match card dynamically computes remaining affordability (e.g. `Can request 8x with balance`).
+
+---
+
+## ⚡ Repeat Contact Prioritization: Review vs. Ignore
+
+When a student uses additional tokens to contact the same alumnus again within the same month:
+1. **Priority Signal:** The alumnus is explicitly notified that the student prioritized them by investing additional monthly tokens.
+2. **Review vs. Ignore Workflow:**
+   - **Review & Accept:** Alumnus accepts the follow-up, immediately unlocking the collaborative Goal Workspace.
+   - **Ignore:** Alumnus opts to ignore the repeat contact. The platform cleanly communicates this decision to the student without penalizing the alumnus's responsiveness metrics.
+   - **Decline:** Refuses request and refunds the student's escrowed token.
+
+---
+
+## 🌟 Alumni Star Badge & Rating System
+
+Mentors earn multi-dimensional credential tiers and badges audited directly on the ledger:
+
+```
+ ⭐ 1-Star Verified Alumnus       → Cohort & degree verified
+ ⭐⭐ 2-Star Active Guide          → Active in algorithm with configured capacity
+ ⭐⭐⭐ 3-Star Senior Guide         → 4.5+ ★ rating & verified dual completion
+ ⭐⭐⭐⭐ 4-Star Distinguished Mentor → 4.8+ ★ rating & priority match sandbox
+ ⭐⭐⭐⭐⭐ 5-Star Master Mentor      → 5.0 ★ Unanimous, < 18h median triage, Hall of Fame
+```
+
+### Verified Credential Badges Shelf:
+- **Verified Star:** Confirmed university alumni status & cohort credential.
+- **5.0 Star Mentor:** Maintained unanimous 5.0 ★ high-signal satisfaction rating.
+- **Lightning Star (< 18h):** Fast triage turnaround with median review response under 18 hours.
+- **Perfection Star:** 100% dual confirmation completion rate on collaborative milestones.
+- **Superstar Referrer:** Provided verified employee referrals and mock interview drills.
+- **Diamond Impact Star:** Guided distinct mentees across engineering, product, and finance domains.
 
 ---
 

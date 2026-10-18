@@ -31,6 +31,7 @@ import { Intent, ConnectionRequest, Goal, TokenSummary } from "@/types/database"
 import { getStudyYearLabel } from "@/lib/students/study-year";
 import { IntentTemplatePicker } from "@/components/dashboard/intent-template-picker";
 import { StudentMatchSpotlight } from "@/components/dashboard/student-match-spotlight";
+import { formatTokens } from "@/lib/tokens/costs";
 
 export default function StudentDashboardPage() {
   const [tokens, setTokens] = useState<TokenSummary | null>(null);
@@ -149,7 +150,7 @@ export default function StudentDashboardPage() {
             <span className="text-[11px] text-[#9db1e0] block">Token Escrow</span>
             <b className="text-sm font-bold text-white flex items-center gap-1">
               <Zap className="h-3.5 w-3.5 text-amber-300" />
-              <span>{tokensRemaining} / {tokensGranted} Available</span>
+              <span>{formatTokens(tokensRemaining)} / {formatTokens(tokensGranted)} Available</span>
             </b>
           </div>
           <div className="space-y-0.5">
@@ -186,8 +187,8 @@ export default function StudentDashboardPage() {
           <div className="flex-1 min-w-0">
             <small className="font-semibold text-slate-500">Monthly Outreach Tokens</small>
             <b className="text-xl sm:text-2xl font-heading text-[#15213b]">
-              {tokensRemaining}{" "}
-              <em className="text-xs font-normal text-[#8896ab]">/ {tokensGranted} left</em>
+              {formatTokens(tokensRemaining)}{" "}
+              <em className="text-xs font-normal text-[#8896ab]">/ {formatTokens(tokensGranted)} left</em>
             </b>
             <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden my-1">
               <div
@@ -195,7 +196,7 @@ export default function StudentDashboardPage() {
                 style={{ width: `${tokenPercent}%` }}
               />
             </div>
-            <em className="text-[10.5px] text-slate-500">1 token reserved per request</em>
+            <em className="text-[10.5px] text-slate-500">Differentiated costs: 0.25 to 1.0 per request</em>
           </div>
         </article>
 

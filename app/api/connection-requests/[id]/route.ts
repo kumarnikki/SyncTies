@@ -192,7 +192,7 @@ export async function PATCH(
         alumCap.processed_count += 1;
         alumCap.remaining_capacity = Math.max(0, alumCap.monthly_limit - (alumCap.reserved_count + alumCap.processed_count));
       }
-    } else if (newStatus === "declined" || newStatus === "ignored") {
+    } else if (newStatus === "declined") {
       if (goal) {
         goal.status = "cancelled";
         goal.updated_at = new Date().toISOString();
@@ -202,6 +202,23 @@ export async function PATCH(
         alumCap.processed_count += 1;
         alumCap.remaining_capacity = Math.max(0, alumCap.monthly_limit - (alumCap.reserved_count + alumCap.processed_count));
       }
+      if (studentTokens) {
+        const refundAmount = targetRequest.token_cost ?? 1;
+        studentTokens.tokens_spent = Number(Math.max(0, studentTokens.tokens_spent - refundAmount).toFixed(2));
+        studentTokens.tokens_remaining = Number(Math.min(studentTokens.tokens_granted, studentTokens.tokens_remaining + refundAmount).toFixed(2));
+      }
+    } else if (newStatus === "ignored") {
+      if (goal) {
+        goal.status = "cancelled";
+        goal.updated_at = new Date().toISOString();
+      }
+      if (alumCap) {
+        alumCap.reserved_count = Math.max(0, alumCap.reserved_count - 1);
+        alumCap.processed_count += 1;
+        alumCap.remaining_capacity = Math.max(0, alumCap.monthly_limit - (alumCap.reserved_count + alumCap.processed_count));
+      }
+      // Ignored repeat contact: communicated to student
+      targetRequest.alumni_response_note = response_note || "Mentor opted to ignore repeat outreach.";
     } else if (newStatus === "withdrawn") {
       if (goal) {
         goal.status = "cancelled";
@@ -213,9 +230,9 @@ export async function PATCH(
         alumCap.remaining_capacity = Math.max(0, alumCap.monthly_limit - (alumCap.reserved_count + alumCap.processed_count));
       }
       if (studentTokens) {
-        // Refund student token
-        studentTokens.tokens_spent = Math.max(0, studentTokens.tokens_spent - 1);
-        studentTokens.tokens_remaining = Math.min(studentTokens.tokens_granted, studentTokens.tokens_remaining + 1);
+        const refundAmount = targetRequest.token_cost ?? 1;
+        studentTokens.tokens_spent = Number(Math.max(0, studentTokens.tokens_spent - refundAmount).toFixed(2));
+        studentTokens.tokens_remaining = Number(Math.min(studentTokens.tokens_granted, studentTokens.tokens_remaining + refundAmount).toFixed(2));
       }
     }
 

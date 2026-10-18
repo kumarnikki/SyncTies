@@ -4,6 +4,7 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { localStore } from "@/lib/data/store";
 import { ConnectionRequest, Goal } from "@/types/database";
+import { getTokenCostForHelpType } from "@/lib/tokens/costs";
 
 export const dynamic = "force-dynamic";
 
@@ -109,9 +110,18 @@ export async function POST(req: NextRequest) {
     const student = localStore.profiles[3];
     const studentToken = localStore.studentTokens[student.id];
 
-    if (!studentToken || studentToken.tokens_remaining <= 0) {
+    // Determine token cost based on help type
+    const targetIntent = localStore.intents.find((i) => i.id === validated.intent_id);
+    const targetOffer = validated.offer_id ? localStore.offers.find((o) => o.id === validated.offer_id) : null;
+    const helpTypeId = targetOffer?.help_type_id || targetIntent?.help_type_id;
+    const helpTypeObj = localStore.helpTypes.find((ht) => ht.id === helpTypeId);
+    const tokenCost = getTokenCostForHelpType(helpTypeObj?.slug || helpTypeObj?.name || targetIntent?.title);
+
+    if (!studentToken || studentToken.tokens_remaining < tokenCost) {
       return NextResponse.json(
-        { error: "Insufficient monthly tokens. Balance is 0." },
+        {
+          error: `Insufficient monthly tokens. This request requires ${tokenCost} token(s), but your balance is ${studentToken?.tokens_remaining ?? 0}.`,
+        },
         { status: 400 }
       );
     }
@@ -136,9 +146,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Debit 1 token
-    studentToken.tokens_spent += 1;
-    studentToken.tokens_remaining -= 1;
+    // Debit exact token cost based on help category
+    studentToken.tokens_spent = Number((studentToken.tokens_spent + tokenCost).toFixed(2));
+    studentToken.tokens_remaining = Number(Math.max(0, studentToken.tokens_remaining - tokenCost).toFixed(2));
 
     // Reserve 1 capacity slot
     if (alumCapacity) {
@@ -160,6 +170,7 @@ export async function POST(req: NextRequest) {
       repeat_contact_in_month: isRepeat,
       repeat_reason: validated.repeat_reason || undefined,
       idempotency_key: validated.idempotency_key || undefined,
+      token_cost: tokenCost,
       expires_at: new Date(Date.now() + 1000 * 60 * 60 * 24 * 14).toISOString(),
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Clock, CheckCircle, AlertTriangle, ArrowLeft, XCircle, Sparkles } from "lucide-react";
+import { Clock, CheckCircle, AlertTriangle, ArrowLeft, XCircle, Sparkles, Zap, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RequestStatusBadge } from "@/components/ui/status-badge";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -10,6 +10,7 @@ import { Alert } from "@/components/ui/alert";
 import { Avatar } from "@/components/ui/avatar";
 import { PortalShell } from "@/components/layout/portal-shell";
 import { ConnectionRequest } from "@/types/database";
+import { getTokenCostForHelpType, formatTokens } from "@/lib/tokens/costs";
 
 export default function StudentRequestsPage() {
   const [requests, setRequests] = useState<ConnectionRequest[]>([]);
@@ -46,7 +47,7 @@ export default function StudentRequestsPage() {
         throw new Error(err.error || "Failed to withdraw request");
       }
 
-      setMessage("Request successfully withdrawn.");
+      setMessage("Request successfully withdrawn and token refunded to your balance.");
       fetchRequests();
     } catch (err: any) {
       alert(err?.message || "Failed to withdraw request");
@@ -95,6 +96,7 @@ export default function StudentRequestsPage() {
               : "AL";
             const tones = ["violet", "cyan", "coral", "blue"] as const;
             const tone = tones[idx % tones.length];
+            const tokenCost = req.token_cost ?? getTokenCostForHelpType(req.intent?.category || req.intent?.title);
 
             return (
               <article key={req.id} className="request-card">
@@ -109,6 +111,10 @@ export default function StudentRequestsPage() {
                     </p>
                   </div>
                   <RequestStatusBadge status={req.status} />
+                  <span className="badge soft text-[10px] py-0.5 px-2 font-bold inline-flex items-center gap-1 text-[#2557e8] bg-blue-50 border border-blue-200">
+                    <Zap className="h-2.5 w-2.5 text-amber-500 fill-amber-500" />
+                    <span>{formatTokens(tokenCost)} Token Escrow</span>
+                  </span>
                   {req.repeat_contact_in_month && (
                     <span className="text-[10px] bg-amber-50 text-amber-800 border border-amber-200 px-1.5 py-0.5 rounded font-medium flex items-center gap-1">
                       <AlertTriangle className="h-3 w-3" /> Repeat Contact
@@ -129,7 +135,13 @@ export default function StudentRequestsPage() {
                 </div>
 
                 {req.alumni_response_note && (
-                  <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 mt-2">
+                  <div className={`p-3 rounded-xl text-xs mt-2 border ${
+                    req.status === "ignored"
+                      ? "bg-slate-100 border-slate-300 text-slate-800"
+                      : req.status === "declined"
+                      ? "bg-rose-50 border-rose-200 text-rose-900"
+                      : "bg-emerald-50 border-emerald-200 text-emerald-900"
+                  }`}>
                     <strong>Alumnus Response:</strong> &quot;{req.alumni_response_note}&quot;
                   </div>
                 )}

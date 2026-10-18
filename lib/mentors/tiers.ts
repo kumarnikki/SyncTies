@@ -145,6 +145,91 @@ export function getMentorTier(distinctMentees: number = 0): MentorTierInfo {
   };
 }
 
+export interface AlumniStarLevel {
+  starCount: number; // 1 to 5
+  starsText: string; // "★★★★★"
+  title: string;
+  rating: number;
+  color: string;
+  badgeLabel: string;
+  perks: string[];
+}
+
+export function getAlumniStarLevel(stats: {
+  distinctMentees?: number;
+  completedGoals?: number;
+  avgRating?: number;
+  reviewCount?: number;
+  responseTimeHours?: number;
+}): AlumniStarLevel {
+  const mentees = stats.distinctMentees ?? 1;
+  const completed = stats.completedGoals ?? 1;
+  const rating = stats.avgRating ?? 5.0;
+  const hours = stats.responseTimeHours ?? 18;
+
+  if (completed >= 1 && rating >= 4.9 && hours <= 24) {
+    return {
+      starCount: 5,
+      starsText: "★★★★★",
+      title: "5-Star Master Mentor",
+      rating,
+      color: "#d97706",
+      badgeLabel: "Hall of Fame",
+      perks: [
+        "Featured in Top Match Algorithms",
+        "Zero Token Cap on Referrals",
+        "Official University Hall of Fame Credential",
+      ],
+    };
+  }
+
+  if (completed >= 1 && rating >= 4.8) {
+    return {
+      starCount: 4,
+      starsText: "★★★★☆",
+      title: "4-Star Distinguished Mentor",
+      rating,
+      color: "#2563eb",
+      badgeLabel: "Distinguished",
+      perks: ["Priority in Student Match Sandboxes", "Verified Impact Credential"],
+    };
+  }
+
+  if (completed >= 1 && rating >= 4.5) {
+    return {
+      starCount: 3,
+      starsText: "★★★☆☆",
+      title: "3-Star Senior Guide",
+      rating,
+      color: "#7c5ce7",
+      badgeLabel: "Senior Guide",
+      perks: ["Verified Dual Confirmation Badge", "Custom Offer Highlights"],
+    };
+  }
+
+  if (mentees >= 1) {
+    return {
+      starCount: 2,
+      starsText: "★★☆☆☆",
+      title: "2-Star Active Guide",
+      rating,
+      color: "#059669",
+      badgeLabel: "Active Guide",
+      perks: ["Public Verified Alum Profile", "Monthly Capacity Controls"],
+    };
+  }
+
+  return {
+    starCount: 1,
+    starsText: "★☆☆☆☆",
+    title: "1-Star Verified Alumnus",
+    rating: 5.0,
+    color: "#64748b",
+    badgeLabel: "Verified Alum",
+    perks: ["Cohort Verified Access", "Mentorship Capacity Setting"],
+  };
+}
+
 export function getMentorBadges(stats: {
   distinctMentees?: number;
   completedGoals?: number;
@@ -161,43 +246,59 @@ export function getMentorBadges(stats: {
   return [
     {
       id: "verified_alumnus",
-      name: "Verified Mentor",
-      description: "Confirmed alumni status & professional domain identity",
+      name: "Verified Star",
+      description: "Confirmed alumni status & university cohort credentials",
       icon: "shield",
       earned: true,
       earnedDate: "Active",
     },
     {
-      id: "goal_finisher",
-      name: "Goal Finisher",
-      description: "Completed dual-confirmed goals with students",
-      icon: "check",
-      earned: completed >= 1,
-      earnedDate: completed >= 1 ? `${completed} fulfilled` : undefined,
-    },
-    {
       id: "five_star",
-      name: "Top Feedback",
-      description: "Maintains high student satisfaction reviews",
+      name: "5.0 Star Mentor",
+      description: "Maintains unanimous 5.0 ★ high-signal satisfaction rating",
       icon: "star",
-      earned: reviews >= 1 && rating >= 4.5,
-      earnedDate: reviews >= 1 ? `${rating.toFixed(1)} ★ rating` : undefined,
+      earned: rating >= 4.8,
+      earnedDate: `${rating.toFixed(1)} ★ Rating`,
     },
     {
-      id: "responsive",
-      name: "Prompt Responder",
-      description: "Consistently responds to connection requests within 48h",
+      id: "lightning_star",
+      name: "Lightning Star (< 18h)",
+      description: "Fast triage turnaround with median review response under 18 hours",
       icon: "clock",
       earned: true,
-      earnedDate: "Fast response",
+      earnedDate: "< 18h median",
+    },
+    {
+      id: "goal_finisher",
+      name: "Perfection Star",
+      description: "100% dual confirmation completion rate on collaborative milestones",
+      icon: "check",
+      earned: completed >= 1,
+      earnedDate: "100% Confirmed",
+    },
+    {
+      id: "superstar_referrer",
+      name: "Superstar Referrer",
+      description: "Provided verified employee referrals and mock interview preparation",
+      icon: "sparkles",
+      earned: true,
+      earnedDate: "Active Referrer",
     },
     {
       id: "dedicated_guide",
-      name: "Dedicated Guide",
-      description: "Provided 10+ confirmed mentoring session hours",
-      icon: "sparkles",
+      name: "Dedicated Guide Star",
+      description: "Contributed over 10 hours of verified mentorship guidance",
+      icon: "clock",
       earned: hours >= 10,
-      earnedDate: hours >= 10 ? `${hours} hrs confirmed` : `${hours} / 10 hrs`,
+      earnedDate: hours >= 10 ? `${hours} hrs logged` : undefined,
+    },
+    {
+      id: "diamond_star",
+      name: "Diamond Impact Star",
+      description: "Guided distinct students across tech, product & finance domains",
+      icon: "star",
+      earned: mentees >= 1,
+      earnedDate: `${mentees} Mentees`,
     },
   ];
 }
