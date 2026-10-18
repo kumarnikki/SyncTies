@@ -298,7 +298,7 @@ BEGIN
   FROM public.profiles
   WHERE id = p_student_id AND is_active = true;
 
-  IF v_student_role <> 'student' THEN
+  IF v_student_role IS NULL OR v_student_role <> 'student' THEN
     RAISE EXCEPTION 'Only active students can initiate connection requests';
   END IF;
 
@@ -307,7 +307,7 @@ BEGIN
   FROM public.profiles
   WHERE id = p_alum_id AND is_active = true;
 
-  IF v_alum_role <> 'alum' THEN
+  IF v_alum_role IS NULL OR v_alum_role <> 'alum' THEN
     RAISE EXCEPTION 'Target recipient must be an active alumnus';
   END IF;
 

@@ -4,7 +4,8 @@ import { GET as getHealth } from "@/app/api/health/route";
 import { GET as getDomains } from "@/app/api/domains/route";
 import { GET as getHelpTypes } from "@/app/api/help-types/route";
 import { GET as getTokensBalance } from "@/app/api/tokens/balance/route";
-import { GET as getCapacity } from "@/app/api/capacity/route";
+import { GET as getCapacity, PATCH as patchCapacity } from "@/app/api/capacity/route";
+import { GET as getConnectionRequests, POST as postConnectionRequest } from "@/app/api/connection-requests/route";
 import { GET as getIntents, POST as postIntent } from "@/app/api/intents/route";
 import { GET as getMatches } from "@/app/api/matches/route";
 import { GET as getDashboardMetrics } from "@/app/api/dashboard/metrics/route";
@@ -201,5 +202,62 @@ describe("API Route Handlers Integration", () => {
     expect(alumData.success).toBe(true);
     expect(alumData.role).toBe("alum");
     expect(alumData.provider).toBe("linkedin_oidc");
+  });
+
+  it("PATCH /api/capacity updates monthly limit", async () => {
+    const req = new NextRequest("http://localhost:3000/api/capacity", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ monthly_limit: 6 }),
+    });
+    const res = await patchCapacity(req);
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.capacity).toBeDefined();
+    expect(data.capacity.monthly_limit).toBe(6);
+  });
+
+  it("GET and POST /api/connection-requests lifecycle", async () => {
+    const reqGet = new NextRequest("http://localhost:3000/api/connection-requests?role=student");
+    const resGet = await getConnectionRequests(reqGet);
+    expect(resGet.status).toBe(200);
+    const dataGet = await resGet.json();
+    expect(Array.isArray(dataGet.requests)).toBe(true);
+
+    // 1. Create a connection request to spotlight mentor Ananya Patel (first contact)
+    const payload = {
+      alum_id: "33333333-3333-3333-3333-333333333303",
+      intent_id: "44444444-4444-4444-4444-444444444401",
+      student_message: "Hi Ananya, I would love your constructive feedback on my upcoming product interview case study.",
+    };
+
+    const reqPost = new NextRequest("http://localhost:3000/api/connection-requests", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const resPost = await postConnectionRequest(reqPost);
+    expect(resPost.status).toBe(201);
+    const dataPost = await resPost.json();
+    expect(dataPost.success).toBe(true);
+    expect(dataPost.request_id).toBeDefined();
+    expect(dataPost.goal_id).toBeDefined();
+    expect(dataPost.tokens_remaining).toBeDefined();
+
+    // 2. Test repeat contact requiring justification
+    const repeatPayload = {
+      alum_id: "33333333-3333-3333-3333-333333333301", // Priya (already in seed requests)
+      intent_id: "44444444-4444-4444-4444-444444444401",
+      student_message: "Hi Priya, follow up regarding mock interview questions and system design.",
+      repeat_reason: "Prior review completed; requesting next stage milestone session.",
+    };
+    const reqRepeat = new NextRequest("http://localhost:3000/api/connection-requests", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(repeatPayload),
+    });
+    const resRepeat = await postConnectionRequest(reqRepeat);
+    expect(resRepeat.status).toBe(201);
   });
 });

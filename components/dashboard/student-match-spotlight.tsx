@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Sparkles,
@@ -139,11 +139,57 @@ export function StudentMatchSpotlight({
   activeIntent,
   tokensRemaining = 4,
 }: StudentMatchSpotlightProps) {
+  const [mentors, setMentors] = useState<SpotlightMentor[]>(SPOTLIGHT_MENTORS);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [requestModalMentor, setRequestModalMentor] = useState<SpotlightMentor | null>(null);
   const [messageText, setMessageText] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [modalError, setModalError] = useState<string | null>(null);
   const [successNotice, setSuccessNotice] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!activeIntent?.id) return;
+
+    fetch(`/api/matches?intentId=${activeIntent.id}&limit=3`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.matches && Array.isArray(data.matches) && data.matches.length > 0) {
+          const tonePalette: ("violet" | "cyan" | "coral" | "blue")[] = ["violet", "cyan", "coral"];
+          const mapped: SpotlightMentor[] = data.matches.slice(0, 3).map((m: any, idx: number) => {
+            const names = (m.full_name || "Alumnus Mentor").trim().split(" ");
+            const initials = ((names[0]?.[0] || "A") + (names[1]?.[0] || "M")).toUpperCase();
+            return {
+              id: m.alum_id,
+              name: m.full_name,
+              role: m.job_title || "Alumnus Mentor",
+              company: m.company || "Partner Organization",
+              avatarTone: tonePalette[idx % tonePalette.length],
+              initials,
+              matchScore: Math.round(m.total_score || 90),
+              openSlots: Math.max(1, m.remaining_capacity ?? 3),
+              monthlyLimit: m.monthly_limit ?? 4,
+              domains: m.matched_domains?.map((d: any) => d.name) || ["Technology"],
+              helpType: m.offer_help_type_name || "Mock Interview & Feedback",
+              gradYear: m.graduation_year || 2023,
+              starRating: 5.0,
+              starLevelTitle: "5-Star Master Mentor",
+              badges: ["Verified Alum", "High Response Rate"],
+              factors: {
+                domainScore: Math.round(m.d_score || 95),
+                helpTypeScore: Math.round(m.h_score || 90),
+                capacityScore: Math.round(m.c_score || 90),
+                recencyScore: Math.round(m.r_score || 92),
+              },
+              groundedBrief:
+                m.brief ||
+                `Verified alumni mentor matching your milestone. Available for ${m.offer_help_type_name || "mentorship"} sessions.`,
+            };
+          });
+          setMentors(mapped);
+        }
+      })
+      .catch(() => {});
+  }, [activeIntent?.id]);
 
   const toggleExpand = (id: string) => {
     setExpandedId(expandedId === id ? null : id);
@@ -151,6 +197,7 @@ export function StudentMatchSpotlight({
 
   const handleOpenRequest = (mentor: SpotlightMentor) => {
     setRequestModalMentor(mentor);
+    setModalError(null);
     setMessageText(
       `Hi ${mentor.name.split(" ")[0]}, I am working toward ${
         activeIntent?.title || "my target tech milestones"
@@ -166,6 +213,7 @@ export function StudentMatchSpotlight({
     if (!requestModalMentor) return;
 
     setIsSending(true);
+    setModalError(null);
     try {
       // Send outreach request via API
       const res = await fetch("/api/connection-requests", {
@@ -187,11 +235,21 @@ export function StudentMatchSpotlight({
         setRequestModalMentor(null);
         setTimeout(() => setSuccessNotice(null), 6000);
       } else {
-        const d = await res.json();
-        alert(d.error || "Unable to send request right now");
+        const d = await res.json().catch(() => ({}));
+        const rawErr: string = d.error || "Unable to send request right now";
+        if (
+          rawErr.includes("foreign key") ||
+          rawErr.includes("violates") ||
+          rawErr.includes("constraint") ||
+          rawErr.includes("alumni_capacity_monthly")
+        ) {
+          setModalError("Unable to connect with this mentor at the moment. Please select another mentor or try again.");
+        } else {
+          setModalError(rawErr);
+        }
       }
     } catch {
-      alert("Network error sending request");
+      setModalError("Network error sending request. Please check your internet connection.");
     } finally {
       setIsSending(false);
     }
@@ -251,7 +309,7 @@ export function StudentMatchSpotlight({
 
       {/* Grid of 3 Spotlight Mentors */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {SPOTLIGHT_MENTORS.map((mentor) => {
+        {mentors.map((mentor) => {
           const isExpanded = expandedId === mentor.id;
           const tokenCost = getTokenCostForHelpType(mentor.helpType);
           const costMeta = getTokenCostMeta(mentor.helpType);
@@ -426,6 +484,19 @@ export function StudentMatchSpotlight({
             </div>
 
             <form onSubmit={handleSendRequest} className="space-y-4">
+              {modalError && (
+                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold flex items-center justify-between animate-fade-in-up">
+                  <span>{modalError}</span>
+                  <button
+                    type="button"
+                    onClick={() => setModalError(null)}
+                    className="text-rose-600 hover:text-rose-900 text-sm ml-2 font-bold leading-none"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+
               <div className="field">
                 <label className="text-xs font-bold text-slate-800">
                   Your Milestone / Ask for {requestModalMentor.name.split(" ")[0]}:
