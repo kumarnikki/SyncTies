@@ -198,10 +198,10 @@ export default function ProfilePage() {
         {/* Left Panel: User Profile Header + Ledger + Edit */}
         <section className="panel space-y-6">
           {/* User Card */}
-          <div className="flex items-center justify-between pb-6 border-b border-[var(--line)]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[var(--line)]">
             <div className="flex items-center gap-4">
               <span
-                className="avatar"
+                className="avatar shrink-0"
                 style={{
                   width: 64,
                   height: 64,
@@ -236,11 +236,11 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2.5 w-full sm:w-auto">
               <button
                 type="button"
                 onClick={() => setEditing(!editing)}
-                className="btn secondary text-xs h-9 px-3"
+                className="btn secondary flex-1 sm:flex-initial text-xs h-9 px-3 justify-center"
               >
                 <Edit3 className="h-3.5 w-3.5" />
                 <span>{editing ? "Cancel" : "Edit details"}</span>
@@ -248,7 +248,7 @@ export default function ProfilePage() {
               <button
                 type="button"
                 onClick={handleSignOut}
-                className="btn secondary text-xs h-9 px-3"
+                className="btn secondary flex-1 sm:flex-initial text-xs h-9 px-3 justify-center"
               >
                 Sign out
               </button>

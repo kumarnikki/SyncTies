@@ -199,7 +199,7 @@ export default function StudentDashboardPage() {
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-[#edf0f5] flex items-center justify-between">
+                <div className="pt-3 border-t border-[#edf0f5] flex flex-wrap items-center justify-between gap-2">
                   <span className="text-[11px] text-[#8896ab]">
                     Posted {new Date(intent.created_at).toLocaleDateString()}
                   </span>
@@ -276,12 +276,12 @@ export default function StudentDashboardPage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-1">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-1">
               <span className="text-xs text-emerald-800 font-medium flex items-center gap-1">
-                <Shield className="h-3.5 w-3.5 text-emerald-600" /> Mutually confirmed outcome recorded
+                <Shield className="h-3.5 w-3.5 text-emerald-600 shrink-0" /> Mutually confirmed outcome recorded
               </span>
-              <Link href="/goals/77777777-7777-7777-7777-777777777701">
-                <Button size="sm" variant="secondary" className="text-xs gap-1">
+              <Link href="/goals/77777777-7777-7777-7777-777777777701" className="w-full sm:w-auto">
+                <Button size="sm" variant="secondary" className="text-xs gap-1 w-full sm:w-auto">
                   <span>View Room & Feedback</span>
                   <ExternalLink className="h-3 w-3" />
                 </Button>

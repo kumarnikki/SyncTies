@@ -158,14 +158,14 @@ export default function AlumniRequestsPage() {
                       />
                     </div>
 
-                    <div className="card-actions">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2 pt-1">
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
                         onClick={() => handleAction(req.id, "decline")}
                         isLoading={actionLoading === req.id}
-                        className="text-xs text-rose-600 hover:text-rose-700"
+                        className="text-xs text-rose-600 hover:text-rose-700 w-full sm:w-auto"
                       >
                         Decline
                       </Button>
@@ -175,7 +175,7 @@ export default function AlumniRequestsPage() {
                         size="sm"
                         onClick={() => handleAction(req.id, "defer")}
                         isLoading={actionLoading === req.id}
-                        className="text-xs"
+                        className="text-xs w-full sm:w-auto"
                       >
                         Defer (Next Week)
                       </Button>
@@ -185,7 +185,7 @@ export default function AlumniRequestsPage() {
                         size="sm"
                         onClick={() => handleAction(req.id, "accept")}
                         isLoading={actionLoading === req.id}
-                        className="text-xs"
+                        className="text-xs w-full sm:w-auto"
                       >
                         Accept &amp; Open Workspace
                       </Button>
@@ -194,13 +194,13 @@ export default function AlumniRequestsPage() {
                 )}
 
                 {req.status === "accepted" && (
-                  <div className="pt-3 border-t border-[#edf0f5] mt-3 flex items-center justify-between">
+                  <div className="pt-3 border-t border-[#edf0f5] mt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <span className="text-xs text-emerald-800 font-medium flex items-center gap-1.5">
-                      <CheckCircle className="h-4 w-4 text-emerald-600" />
+                      <CheckCircle className="h-4 w-4 text-emerald-600 shrink-0" />
                       Accepted · Active collaborative goal established
                     </span>
-                    <Link href="/goals/77777777-7777-7777-7777-777777777701">
-                      <Button size="sm" variant="secondary" className="text-xs">
+                    <Link href="/goals/77777777-7777-7777-7777-777777777701" className="w-full sm:w-auto">
+                      <Button size="sm" variant="secondary" className="text-xs w-full sm:w-auto">
                         Open Goal Workspace
                       </Button>
                     </Link>

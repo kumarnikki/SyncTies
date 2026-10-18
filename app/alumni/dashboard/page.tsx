@@ -258,9 +258,9 @@ export default function AlumniDashboardPage() {
             </div>
           </div>
 
-          <div className="mt-6 flex items-center gap-4 pt-3 border-t border-[var(--line)]">
-            <Link href="/alumni/requests">
-              <Button variant="primary" className="gap-2">
+          <div className="mt-6 flex flex-wrap items-center gap-4 pt-3 border-t border-[var(--line)]">
+            <Link href="/alumni/requests" className="w-full sm:w-auto">
+              <Button variant="primary" className="gap-2 w-full sm:w-auto">
                 <span>Open requests</span>
                 <ArrowRight className="h-4 w-4" />
               </Button>
@@ -276,7 +276,7 @@ export default function AlumniDashboardPage() {
           </div>
 
           {editingCapacity && (
-            <form onSubmit={handleUpdateCapacity} className="mt-4 p-4 rounded-xl bg-gray-50 border border-gray-200 flex items-center gap-3">
+            <form onSubmit={handleUpdateCapacity} className="mt-4 p-4 rounded-xl bg-gray-50 border border-gray-200 flex flex-wrap items-center gap-3">
               <span className="text-xs font-medium text-gray-700">Monthly limit:</span>
               <input
                 type="number"

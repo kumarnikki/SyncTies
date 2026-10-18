@@ -204,7 +204,7 @@ export default function SettingsPage() {
                     </label>
                   </div>
 
-                  <div className="p-3.5 rounded-xl bg-[#f0f4ff] border border-[#d6e2ff] flex items-center justify-between flex-wrap gap-3">
+                  <div className="p-3.5 rounded-xl bg-[#f0f4ff] border border-[#d6e2ff] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="flex items-center gap-2 text-xs text-[#2b44b8]">
                       <Sparkles className="h-4 w-4 text-[#3563ff] shrink-0" />
                       <span>
@@ -216,6 +216,7 @@ export default function SettingsPage() {
                       variant="primary"
                       onClick={handleSaveAcademicYear}
                       disabled={savingYear}
+                      className="w-full sm:w-auto"
                     >
                       {savingYear ? "Saving..." : "Save Academic Year"}
                     </Button>
@@ -244,6 +245,7 @@ export default function SettingsPage() {
                       variant="primary"
                       onClick={handleSaveAcademicYear}
                       disabled={savingYear}
+                      className="w-full sm:w-auto"
                     >
                       {savingYear ? "Saving..." : "Save Graduation Year"}
                     </Button>

@@ -1831,6 +1831,12 @@ h1, h2, h3 {
 }
 
 /* Impact Funnel & Vertical Bars */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 22px;
+}
+
 .funnel-row {
   display: grid;
   grid-template-columns: 160px 1fr 44px;
@@ -1899,23 +1905,249 @@ h1, h2, h3 {
   font-weight: 500;
 }
 
-@media (max-width: 800px) {
+/* Tabs System (Intents, Settings, Profile) */
+.tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px;
+  background: rgba(238, 241, 248, 0.9);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-control);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  margin-bottom: 24px;
+  max-width: 100%;
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tabs button {
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #68758c;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all var(--duration-fast) var(--ease);
+}
+
+.tabs button.active {
+  background: #ffffff;
+  color: #3563ff;
+  box-shadow: 0 2px 8px rgba(37, 59, 103, 0.08);
+}
+
+.tabs button span {
+  background: #e6ebfa;
+  color: #3563ff;
+  border-radius: 99px;
+  padding: 1px 7px;
+  font-size: 11px;
+}
+
+.tabs button.active span {
+  background: #edf1ff;
+  color: #3563ff;
+}
+
+/* Goals Workspace */
+.workspace-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 24px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  margin-top: 14px;
+  margin-bottom: 24px;
+  box-shadow: var(--small-shadow);
+}
+
+.workspace-head .participants {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.workspace-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 24px;
+}
+
+/* Form Layout (New Intent, New Offer) */
+.form-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 24px;
+}
+
+.preview-card {
+  padding: 28px;
+  border-radius: var(--radius-panel);
+  background: linear-gradient(145deg, #111b38, #28356f);
+  color: #fff;
+  box-shadow: var(--shadow);
+  height: fit-content;
+}
+
+/* Goal Cards (Intents list) */
+.goal-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.goal-cards article {
+  padding: 24px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  box-shadow: var(--small-shadow);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform var(--duration) var(--ease), border-color var(--duration) var(--ease), box-shadow var(--duration) var(--ease);
+}
+
+.goal-cards article:hover {
+  transform: translateY(-2px);
+  border-color: #cfd8ff;
+  box-shadow: var(--shadow);
+}
+
+.goal-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.goal-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #edf1ff;
+  color: #3563ff;
+  display: grid;
+  place-items: center;
+}
+
+/* Connection Request Cards */
+.request-card {
+  padding: 24px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  box-shadow: var(--small-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: transform var(--duration) var(--ease), border-color var(--duration) var(--ease), box-shadow var(--duration) var(--ease);
+}
+
+.request-card:hover {
+  transform: translateY(-2px);
+  border-color: #cfd8ff;
+  box-shadow: var(--shadow);
+}
+
+.request-card .person {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.request-card .person > div:first-of-type {
+  flex: 1;
+  min-width: 140px;
+}
+
+.request-goal {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.request-card .rationale {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #536df0;
+  background: #f0f4ff;
+  border: 1px solid #dce4ff;
+  padding: 8px 12px;
+  border-radius: 10px;
+}
+
+/* ==========================================================================
+   Multi-Device Responsive Breakpoints:
+   1. Laptop / Desktop Compact (<= 1100px)
+   2. Tablets / iPad Portrait & Off-Canvas Navigation (<= 840px)
+   3. Small Tablets & Large Phones (<= 640px)
+   4. Mobile Phones (<= 480px)
+   5. Ultra-compact & Foldables (<= 360px)
+   ========================================================================== */
+
+@media (max-width: 1100px) {
+  .dashboard-bottom {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .chart-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .workspace-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .form-layout {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .settings-layout {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .op-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 18px;
+  }
+  .metrics {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+}
+
+@media (max-width: 840px) {
   .app > aside {
     transform: translateX(-100%);
-    transition: transform 0.25s ease;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 10px 0 40px rgba(15, 23, 42, 0.2);
+    z-index: 60;
   }
   .app > aside.open {
     transform: translateX(0);
   }
-  .side-head {
-    display: flex;
-    justify-content: space-between;
-  }
-  .side-head > button {
-    display: grid;
-    place-items: center;
-    border: 0;
-    background: transparent;
+  .app > aside .close-sidebar {
+    display: flex !important;
   }
   .app-main {
     margin-left: 0;
@@ -1929,29 +2161,200 @@ h1, h2, h3 {
     border: 1px solid var(--line);
     border-radius: 11px;
     background: #fff;
+    cursor: pointer;
   }
   .scrim {
     display: block;
     position: fixed;
-    z-index: 15;
+    z-index: 55;
     inset: 0;
     border: 0;
-    background: rgba(21, 33, 59, 0.35);
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(3px);
   }
   .global-search {
     display: none;
   }
   .topbar {
-    padding: 0 18px;
+    padding: 0 16px;
+    height: 68px;
   }
   .content {
-    padding: 24px 18px 70px;
+    padding: 22px 16px 64px;
+  }
+}
+
+@media (max-width: 640px) {
+  .page-head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .page-head h1 {
+    font-size: 24px;
+    letter-spacing: -0.5px;
+  }
+  .page-head > div:last-child {
+    width: 100%;
+  }
+  .page-head > div:last-child button,
+  .page-head > div:last-child a {
+    width: 100%;
+    justify-content: center;
+  }
+  .workspace-head {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 18px 16px;
+    gap: 14px;
   }
   .op-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
-  .settings-layout {
+  .match-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .goal-cards {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .goal-banner {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px 14px;
+  }
+  .goal-banner > div:first-of-type {
+    min-width: 140px;
+  }
+  .modal-wrap {
+    padding: 12px;
+  }
+  .modal-wrap:has(.drawer) {
+    padding: 0;
+  }
+  .dialog {
+    padding: 22px 18px;
+    border-radius: 20px;
+    max-height: calc(100vh - 24px);
+    width: 100%;
+  }
+  .dialog .x,
+  .drawer .x {
+    top: 14px;
+    right: 14px;
+  }
+  .drawer {
+    width: 100%;
+    padding: 22px 18px 36px;
+  }
+  .dialog-actions,
+  .drawer-actions {
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+  .dialog-actions button,
+  .drawer-actions button {
+    width: 100%;
+  }
+  .panel {
+    padding: 18px 16px;
+  }
+  .match-card {
+    padding: 18px 16px;
+  }
+  .request-card {
+    padding: 18px 16px;
+  }
+  .funnel-row {
+    grid-template-columns: 1fr auto;
+    gap: 6px;
+  }
+  .funnel-row div {
+    grid-column: 1 / -1;
+  }
+  .bars {
+    height: 180px;
+    gap: 10px;
+  }
+  .onboard > header {
+    padding: 0 16px;
+    height: 64px;
+  }
+  .onboard > main {
+    padding: 20px 14px 60px;
+  }
+  .wizard section {
+    padding: 22px 16px;
+    min-height: auto;
+  }
+  .wizard-actions {
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+  .wizard-actions button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-main {
+    padding: 20px 12px;
+  }
+  .auth-card {
+    padding: 22px 16px;
+    border-radius: 20px;
+  }
+  .content {
+    padding: 16px 12px 56px;
+  }
+  .metrics {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .metric {
+    padding: 14px 14px;
+    gap: 12px;
+  }
+  .match-card .card-actions {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .score-orb {
+    width: 48px;
+    height: 48px;
+  }
+  .score-orb span {
+    font-size: 14px;
+  }
+  .score-orb small {
+    font-size: 7.5px;
+  }
+  .role-label {
+    padding: 10px 12px;
+  }
+  .preview-card {
+    padding: 20px 16px;
+  }
+}
+
+@media (max-width: 360px) {
+  .content {
+    padding: 12px 8px 48px;
+  }
+  .panel {
+    padding: 14px 12px;
+  }
+  .match-card {
+    padding: 14px 12px;
+  }
+  .request-card {
+    padding: 14px 12px;
+  }
+  .topbar {
+    padding: 0 10px;
   }
 }
 

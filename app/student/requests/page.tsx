@@ -134,16 +134,16 @@ export default function StudentRequestsPage() {
                   </div>
                 )}
 
-                <div className="pt-3 border-t border-[#edf0f5] mt-3 flex items-center justify-between text-[11px] text-[#8896ab]">
+                <div className="pt-3 border-t border-[#edf0f5] mt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-[11px] text-[#8896ab]">
                   <span>
                     Sent on {new Date(req.created_at).toLocaleDateString()} · Auto-expires{" "}
                     {new Date(req.expires_at).toLocaleDateString()}
                   </span>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
                     {req.status === "accepted" && (
-                      <Link href={`/goals/77777777-7777-7777-7777-777777777701`}>
-                        <Button size="sm" variant="primary" className="text-xs gap-1.5">
+                      <Link href={`/goals/77777777-7777-7777-7777-777777777701`} className="w-full sm:w-auto">
+                        <Button size="sm" variant="primary" className="text-xs gap-1.5 w-full sm:w-auto">
                           <CheckCircle className="h-3.5 w-3.5" />
                           <span>Open Goal Workspace</span>
                         </Button>
@@ -154,7 +154,7 @@ export default function StudentRequestsPage() {
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="text-xs text-rose-600 hover:text-rose-700"
+                        className="text-xs text-rose-600 hover:text-rose-700 w-full sm:w-auto justify-center"
                         onClick={() => handleWithdraw(req.id)}
                         isLoading={actionLoading === req.id}
                       >

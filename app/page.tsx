@@ -94,13 +94,15 @@ export default function LandingPage() {
 
               {/* Feature Match Candidate Box */}
               <div className="bg-white border border-[var(--line)] rounded-[20px] p-4 sm:p-5 shadow-[var(--small-shadow)] space-y-3.5">
-                <div className="flex items-center gap-3">
-                  <Avatar initials="MP" tone="violet" size="md" />
-                  <div className="leading-tight">
-                    <h3 className="font-bold text-sm text-[#15213b]">Maya Patel</h3>
-                    <p className="text-xs text-[#66758e]">Senior Product Manager · Northstar Labs</p>
+                <div className="flex items-center justify-between gap-3 flex-wrap">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <Avatar initials="MP" tone="violet" size="md" />
+                    <div className="leading-tight min-w-0">
+                      <h3 className="font-bold text-sm text-[#15213b]">Maya Patel</h3>
+                      <p className="text-xs text-[#66758e] truncate">Senior Product Manager · Northstar Labs</p>
+                    </div>
                   </div>
-                  <Badge variant="success" className="ml-auto text-[11px]">Available (3 slots)</Badge>
+                  <Badge variant="success" className="text-[11px] shrink-0">Available (3 slots)</Badge>
                 </div>
 
                 <div className="flex flex-wrap gap-1.5 pt-1">
@@ -213,7 +215,7 @@ export default function LandingPage() {
       <section className="py-12 max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* For Students */}
-          <div className="p-8 sm:p-10 rounded-[28px] border border-white shadow-[var(--small-shadow)] bg-gradient-to-br from-[#eef3ff] via-[#f7f9ff] to-white relative overflow-hidden">
+          <div className="p-5 sm:p-8 lg:p-10 rounded-[28px] border border-white shadow-[var(--small-shadow)] bg-gradient-to-br from-[#eef3ff] via-[#f7f9ff] to-white relative overflow-hidden">
             <Badge variant="soft" className="mb-4">For Students (3rd/4th Yr)</Badge>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-[#15213b] tracking-tight leading-snug mb-3">
               Less cold outreach.<br />More relevant guidance.
@@ -243,7 +245,7 @@ export default function LandingPage() {
           </div>
 
           {/* For Alumni */}
-          <div className="p-8 sm:p-10 rounded-[28px] border border-white shadow-[var(--small-shadow)] bg-gradient-to-br from-[#eefaf8] via-[#f5fdfb] to-white relative overflow-hidden">
+          <div className="p-5 sm:p-8 lg:p-10 rounded-[28px] border border-white shadow-[var(--small-shadow)] bg-gradient-to-br from-[#eefaf8] via-[#f5fdfb] to-white relative overflow-hidden">
             <Badge variant="success" className="mb-4">For Alumni &amp; Professionals</Badge>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-[#15213b] tracking-tight leading-snug mb-3">
               Share your experience,<br />strictly on your terms.
@@ -289,8 +291,8 @@ export default function LandingPage() {
         </div>
 
         {/* Big Score Card */}
-        <div className="max-w-[850px] mx-auto p-6 sm:p-8 rounded-[24px] bg-white border border-[var(--line)] shadow-[var(--shadow)]">
-          <div className="grid grid-cols-1 sm:grid-cols-[140px_1fr] gap-8 items-center pb-6 border-b border-[var(--line-soft)]">
+        <div className="max-w-[850px] mx-auto p-4 sm:p-6 lg:p-8 rounded-[24px] bg-white border border-[var(--line)] shadow-[var(--shadow)]">
+          <div className="grid grid-cols-1 sm:grid-cols-[140px_1fr] gap-6 sm:gap-8 items-center pb-6 border-b border-[var(--line-soft)]">
             <div className="text-center sm:text-left">
               <div className="score-big text-5xl font-extrabold text-[#5369e8]">
                 94<span className="text-base font-normal text-[#94a1b5]">/100</span>
@@ -305,8 +307,8 @@ export default function LandingPage() {
                 { label: "Review capacity (C)", weight: "20%", val: 88 },
                 { label: "Recent activity (R)", weight: "10%", val: 84 },
               ].map((factor) => (
-                <div key={factor.label} className="grid grid-cols-[160px_1fr_40px] items-center gap-3 text-xs">
-                  <span className="text-[#15213b] font-medium">{factor.label}</span>
+                <div key={factor.label} className="grid grid-cols-[120px_1fr_35px] sm:grid-cols-[160px_1fr_40px] items-center gap-2 sm:gap-3 text-xs">
+                  <span className="text-[#15213b] font-medium truncate">{factor.label}</span>
                   <div className="h-2 rounded-full bg-[#edf0f5] overflow-hidden">
                     <div
                       className="h-full bg-gradient-to-r from-[#536df0] to-[#7c67e4] rounded-full"

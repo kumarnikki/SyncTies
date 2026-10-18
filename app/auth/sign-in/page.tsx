@@ -461,7 +461,7 @@ function SignInContent() {
             <p className="text-[11px] font-semibold text-[#8896ab] uppercase tracking-wider mb-2.5 text-center">
               Quick Test Pilot Access
             </p>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <Button
                 type="button"
                 variant="secondary"

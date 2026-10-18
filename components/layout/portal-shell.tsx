@@ -199,7 +199,7 @@ export function PortalShell({ children }: PortalShellProps) {
             <BrandLogo size="md" withText badge={isAlum ? "Alumni" : "Student"} />
           </Link>
           <button
-            className="md:hidden p-1 text-gray-500 hover:text-gray-700"
+            className="close-sidebar p-1.5 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
             onClick={() => setMobileOpen(false)}
             aria-label="Close sidebar"
           >
@@ -311,7 +311,7 @@ export function PortalShell({ children }: PortalShellProps) {
                   <Sparkles className="h-3 w-3 text-[#3563ff]" />
                   <span>{tier.label}</span>
                 </span>
-                <span className="badge success text-xs font-semibold">Alumni</span>
+                <span className="badge success text-xs font-semibold hidden sm:inline-flex">Alumni</span>
               </div>
             ) : (
               <div className="flex items-center gap-1.5">
@@ -320,12 +320,12 @@ export function PortalShell({ children }: PortalShellProps) {
                     {getStudyYearLabel(profile.study_year)}
                   </span>
                 ) : null}
-                <span className="badge soft text-xs font-semibold">Student</span>
+                <span className="badge soft text-xs font-semibold hidden sm:inline-flex">Student</span>
               </div>
             )}
 
             <button
-              className="icon-btn"
+              className="icon-btn shrink-0"
               onClick={() => router.push("/opportunities")}
               aria-label="Notifications"
             >
@@ -333,11 +333,11 @@ export function PortalShell({ children }: PortalShellProps) {
               <i />
             </button>
 
-            <Link href="/profile" className="profile-btn">
-              <span className="avatar" style={{ width: 34, height: 34, fontSize: 13 }}>
+            <Link href="/profile" className="profile-btn shrink-0">
+              <span className="avatar shrink-0" style={{ width: 34, height: 34, fontSize: 13 }}>
                 {initial}
               </span>
-              <span>{displayName}</span>
+              <span className="hidden sm:inline truncate max-w-[120px]">{displayName}</span>
             </Link>
           </div>
         </header>
