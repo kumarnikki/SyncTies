@@ -776,14 +776,41 @@ h1, h2, h3 {
     var(--bg);
 }
 .auth-card {
-  width: min(500px, 100%);
-  padding: 38px;
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  background: rgba(255, 255, 255, 0.86);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(20px);
+  width: min(520px, 100%);
+  padding: 38px 34px;
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 30px 80px -15px rgba(27, 43, 82, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+  backdrop-filter: blur(24px);
   border-radius: var(--radius-panel);
+  transition: box-shadow 300ms ease, transform 300ms ease;
 }
+
+/* Auth Persona Quick-Access Cards */
+.auth-persona-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 13px;
+  border-radius: 14px;
+  border: 1px solid #e5eaf2;
+  background: #ffffff;
+  transition: all 250ms cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+}
+.auth-persona-btn:hover {
+  transform: translateY(-2px);
+  border-color: #cbd5fb;
+  background: #fafbfe;
+  box-shadow: 0 10px 24px -4px rgba(53, 99, 255, 0.12);
+}
+.auth-persona-btn:active {
+  transform: translateY(0) scale(0.99);
+}
+
 .auth-tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -819,13 +846,13 @@ h1, h2, h3 {
   display: flex;
   flex-direction: column;
   width: 100%;
-  margin: 20px 0;
+  margin: 18px 0;
 }
 .divider {
   text-align: center;
   border-top: 1px solid var(--line);
   height: 15px;
-  margin: 24px 0 10px;
+  margin: 22px 0 10px;
 }
 .divider span {
   position: relative;

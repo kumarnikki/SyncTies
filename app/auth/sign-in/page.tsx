@@ -3,13 +3,30 @@
 import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Mail, AlertTriangle, CheckCircle2, RotateCw, ArrowLeft, ArrowRight, Eye, EyeOff, Sparkles } from "lucide-react";
+import {
+  Mail,
+  AlertTriangle,
+  CheckCircle2,
+  RotateCw,
+  ArrowLeft,
+  ArrowRight,
+  Eye,
+  EyeOff,
+  Sparkles,
+  Zap,
+  GraduationCap,
+  Briefcase,
+  ShieldCheck,
+  Check,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
+import { Avatar } from "@/components/ui/avatar";
 import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { OAuthSetupModal } from "@/components/auth/oauth-setup-modal";
 import { BrandLogo } from "@/components/ui/brand-logo";
+import { AuthSideShowcase } from "@/components/auth/auth-side-showcase";
 
 // Official Google "G" SVG Icon
 function GoogleIcon({ className = "h-4 w-4" }: { className?: string }) {
@@ -34,8 +51,6 @@ function GoogleIcon({ className = "h-4 w-4" }: { className?: string }) {
     </svg>
   );
 }
-
-
 
 function SignInContent() {
   const router = useRouter();
@@ -197,6 +212,7 @@ function SignInContent() {
       }
     } catch (err: any) {
       setError(err?.message || "Failed to initiate Google sign-in.");
+    } finally {
       setOauthLoading(false);
     }
   };
@@ -229,7 +245,7 @@ function SignInContent() {
     }
   };
 
-  // One-click pilot session authentication for demo social profiles and quick test roles
+  // One-click pilot session authentication for demo profiles
   const handleDemoSocialLogin = async (type: "google" | "student" | "alum") => {
     setError(null);
     setDemoLoginLoading(type);
@@ -264,34 +280,47 @@ function SignInContent() {
     }
   };
 
-  const handleDemoLogin = (role: "student" | "alum") => {
-    handleDemoSocialLogin(role);
+  const handleAutofill = (type: "student" | "alum") => {
+    if (type === "student") {
+      setEmail("nikki.artistics@gmail.com");
+      setPassword("PilotPassword2026!");
+    } else {
+      setEmail("timetable.scheduler.dtu@gmail.com");
+      setPassword("PilotPassword2026!");
+    }
   };
 
   return (
-    <div className="auth-page">
-      {/* Brand Panel Side (Figma Style) */}
-      <aside className="auth-side">
-        <Link href="/" className="inline-flex items-center">
-          <BrandLogo size="md" withText textColor="text-white" badge="Pilot" />
-        </Link>
-
-        <div>
-          <span className="badge dark mb-4 inline-flex items-center gap-1.5">
-            <Sparkles className="h-3.5 w-3.5 text-cyan-300" /> Intent-based networking
-          </span>
-          <h1 className="font-heading">A better way to find the person who can help.</h1>
-          <p>Start with a goal. Meet alumni with the right experience, availability, and context.</p>
+    <div className="auth-page selection:bg-[#3563ff]/20">
+      {/* Brand Panel Side (Interactive Showcase) */}
+      <aside className="auth-side relative overflow-hidden">
+        {/* Top Brand Logo */}
+        <div className="z-10">
+          <Link href="/" className="inline-flex items-center">
+            <BrandLogo size="md" withText textColor="text-white" badge="Pilot" />
+          </Link>
         </div>
 
-        <small>Transparent matching · Measurable progress · Verified identities</small>
+        {/* Interactive Tabs Showcase */}
+        <div className="z-10">
+          <AuthSideShowcase />
+        </div>
+
+        {/* Bottom Trust Line */}
+        <div className="z-10 text-[11px] text-[#8ea4d7] flex items-center justify-between border-t border-white/10 pt-4">
+          <span>Deterministic PostgreSQL Algorithm</span>
+          <span>Verified University Network</span>
+        </div>
       </aside>
 
       {/* Main Form Area */}
-      <main className="auth-main">
-        <div className="auth-card">
-          <Link href="/" className="back inline-flex items-center gap-2 text-sm text-[#66758e] hover:text-[#15213b] mb-6">
-            <ArrowLeft className="h-4 w-4" /> Back to home
+      <main className="auth-main relative">
+        <div className="auth-card relative z-10 animate-fade-in-up">
+          <Link
+            href="/"
+            className="back inline-flex items-center gap-2 text-xs font-semibold text-[#66758e] hover:text-[#15213b] mb-6 transition-colors"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" /> Back to home
           </Link>
 
           {/* Mode Switch Tabs */}
@@ -301,18 +330,25 @@ function SignInContent() {
             </button>
             <Link
               href="/auth/sign-up"
-              className="flex items-center justify-center text-sm font-bold text-[#66758e] hover:text-[#15213b]"
+              className="flex items-center justify-center text-sm font-bold text-[#66758e] hover:text-[#15213b] transition-colors"
             >
               Create account
             </Link>
           </div>
 
-          <h2 className="text-2xl font-bold tracking-tight text-[#15213b] mb-1 font-heading">
-            Welcome back
-          </h2>
-          <p className="text-sm text-[#66758e] mb-6">
-            Continue where you left off.
-          </p>
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-1">
+              <h2 className="text-2xl font-bold tracking-tight text-[#15213b] font-heading">
+                Welcome back
+              </h2>
+              <span className="badge soft text-[10px] font-bold py-0.5 px-2 text-[#3563ff] bg-[#edf2fe] border-[#cad8fc]">
+                Instant Pilot
+              </span>
+            </div>
+            <p className="text-xs text-[#66758e]">
+              Sign in with a 1-click test persona below or use your account credentials.
+            </p>
+          </div>
 
           {error && (
             <div className="mb-4">
@@ -379,12 +415,78 @@ function SignInContent() {
             </div>
           )}
 
+          {/* 1-Click Fast-Track Personas (Highlight for Evaluators & Judges) */}
+          <div className="mb-6 p-3.5 rounded-2xl bg-gradient-to-br from-[#f8faff] to-[#f0f4ff] border border-[#d6e3fd] space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-[#2d4bb8] uppercase tracking-wider flex items-center gap-1.5">
+                <Zap className="h-3.5 w-3.5 text-[#3563ff]" /> 1-Click Test Pilot Personas
+              </span>
+              <span className="text-[10px] text-[#6a82c4] font-medium">No Password Needed</span>
+            </div>
+
+            <div className="grid grid-cols-1 gap-2">
+              {/* Persona 1: Student */}
+              <button
+                type="button"
+                onClick={() => handleDemoSocialLogin("student")}
+                disabled={demoLoginLoading !== null}
+                className="auth-persona-btn group"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <Avatar initials="NK" tone="violet" size="sm" />
+                  <div className="leading-tight min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <b className="text-xs text-[#15213b] group-hover:text-[#3563ff] transition-colors truncate">
+                        Nikki Kumar
+                      </b>
+                      <span className="badge soft text-[9px] py-0 px-1 font-semibold text-[#3563ff]">Student</span>
+                    </div>
+                    <p className="text-[11px] text-[#66758e] truncate mt-0.5">
+                      3rd Year Undergrad · Ready for Mentorship Match
+                    </p>
+                  </div>
+                </div>
+                <span className="text-xs font-semibold text-[#3563ff] flex items-center gap-1 shrink-0">
+                  {demoLoginLoading === "student" ? "Signing in..." : "Enter"}
+                  <ArrowRight className="h-3 w-3" />
+                </span>
+              </button>
+
+              {/* Persona 2: Alumnus */}
+              <button
+                type="button"
+                onClick={() => handleDemoSocialLogin("alum")}
+                disabled={demoLoginLoading !== null}
+                className="auth-persona-btn group"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <Avatar initials="HA" tone="coral" size="sm" />
+                  <div className="leading-tight min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <b className="text-xs text-[#15213b] group-hover:text-[#3563ff] transition-colors truncate">
+                        HR Alumnus
+                      </b>
+                      <span className="badge success text-[9px] py-0 px-1 font-semibold text-emerald-700 bg-emerald-50">Mentor</span>
+                    </div>
+                    <p className="text-[11px] text-[#66758e] truncate mt-0.5">
+                      Senior PM @ Google · Active Review Capacity
+                    </p>
+                  </div>
+                </div>
+                <span className="text-xs font-semibold text-[#3563ff] flex items-center gap-1 shrink-0">
+                  {demoLoginLoading === "alum" ? "Signing in..." : "Enter"}
+                  <ArrowRight className="h-3 w-3" />
+                </span>
+              </button>
+            </div>
+          </div>
+
           {/* Social OAuth Button */}
           <div className="provider-row w-full flex flex-col items-stretch">
             <Button
               type="button"
               variant="provider"
-              className="w-full justify-center gap-2.5 h-11"
+              className="w-full justify-center gap-2.5 h-11 shadow-xs hover:border-slate-400"
               onClick={handleOAuthSignIn}
               isLoading={oauthLoading}
               disabled={loading || oauthLoading}
@@ -394,9 +496,28 @@ function SignInContent() {
             </Button>
           </div>
 
-          {/* Divider */}
-          <div className="divider">
-            <span>or continue with email</span>
+          {/* Divider with autofill quick link */}
+          <div className="divider flex items-center justify-between">
+            <span>or sign in with email</span>
+          </div>
+
+          <div className="flex items-center justify-end gap-2 mb-3 text-[11px]">
+            <span className="text-[#8896ab]">Need credentials?</span>
+            <button
+              type="button"
+              onClick={() => handleAutofill("student")}
+              className="text-[#3563ff] font-semibold hover:underline"
+            >
+              Autofill Student
+            </button>
+            <span className="text-slate-300">·</span>
+            <button
+              type="button"
+              onClick={() => handleAutofill("alum")}
+              className="text-[#3563ff] font-semibold hover:underline"
+            >
+              Autofill Mentor
+            </button>
           </div>
 
           {/* Email / Password Form */}
@@ -446,7 +567,7 @@ function SignInContent() {
             <Button
               type="submit"
               variant="primary"
-              className="w-full gap-2 mt-2"
+              className="w-full gap-2 mt-2 h-11"
               isLoading={loading}
               disabled={oauthLoading !== null}
             >
@@ -455,37 +576,6 @@ function SignInContent() {
               <ArrowRight className="h-4 w-4 ml-1" />
             </Button>
           </form>
-
-          {/* Quick Demo Pilot Access */}
-          <div className="mt-8 pt-6 border-t border-[#edf0f5]">
-            <p className="text-[11px] font-semibold text-[#8896ab] uppercase tracking-wider mb-2.5 text-center">
-              Quick Test Pilot Access
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                onClick={() => handleDemoLogin("student")}
-                isLoading={demoLoginLoading === "student"}
-                disabled={demoLoginLoading !== null}
-                className="text-xs"
-              >
-                Sign In as Student
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                onClick={() => handleDemoLogin("alum")}
-                isLoading={demoLoginLoading === "alum"}
-                disabled={demoLoginLoading !== null}
-                className="text-xs"
-              >
-                Sign In as Alumnus
-              </Button>
-            </div>
-          </div>
 
           <div className="mt-6 text-center text-xs text-[#66758e]">
             Don&apos;t have an account?{" "}
